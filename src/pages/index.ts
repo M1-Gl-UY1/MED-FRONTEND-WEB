@@ -1,0 +1,8 @@
+export { default as Home } from './Home';
+export { default as Catalogue } from './Catalogue';
+export { default as VehicleDetail } from './VehicleDetail';
+export { default as Cart } from './Cart';
+export { default as Checkout } from './Checkout';
+export { default as Auth } from './Auth';
+export { default as Profile } from './Profile';
+export { default as Orders } from './Orders';
