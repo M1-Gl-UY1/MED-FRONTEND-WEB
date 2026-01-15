@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronRight,
@@ -13,9 +13,18 @@ import {
   formatPrice,
   getMethodePaiementLabel,
   tauxTVA,
+  getPaysLabel,
+  getVehiculeById,
 } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import {
+  generateBonCommande,
+  generateFactureProforma,
+  type ClientInfo,
+  type VehicleItem,
+  type OrderInfo,
+} from '../lib/pdfGenerator';
 import {
   Button,
   Breadcrumb,
@@ -55,6 +64,14 @@ export default function Checkout() {
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderReference, setOrderReference] = useState('');
 
+  // Refs to store order data for PDF generation after cart is cleared
+  const orderDataRef = useRef<{
+    items: VehicleItem[];
+    clientInfo: ClientInfo;
+    orderInfo: OrderInfo;
+    tauxTVA: number;
+  } | null>(null);
+
   // Redirect if not authenticated or empty cart
   if (!isAuthenticated) {
     navigate('/connexion?redirect=/commande');
@@ -86,6 +103,46 @@ export default function Checkout() {
 
     // Generate order reference
     const ref = `CMD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+
+    // Store order data for PDF generation before clearing cart
+    const vehicleItems: VehicleItem[] = items.map(item => {
+      const vehicule = getVehiculeById(item.vehiculeId);
+      return {
+        nom: item.vehiculeNom,
+        marque: vehicule?.marque || 'N/A',
+        annee: vehicule?.annee || new Date().getFullYear(),
+        vin: `VIN${String(item.vehiculeId).padStart(14, '0')}`,
+        prixUnitaire: item.prixUnitaire,
+        quantite: item.quantite,
+      };
+    });
+
+    const clientInfo: ClientInfo = {
+      nom: user?.type === 'SOCIETE' ? user.raisonSociale : `${user?.prenom || ''} ${user?.nom || ''}`,
+      adresse: adresseLivraison,
+      telephone: user?.telephone || '',
+      email: user?.email || '',
+      ...(user?.type === 'SOCIETE' && {
+        siret: user.siret,
+        raisonSociale: user.raisonSociale
+      }),
+    };
+
+    const orderInfo: OrderInfo = {
+      reference: ref,
+      date: new Date(),
+      methodePaiement: getMethodePaiementLabel(methodePaiement),
+      paysLivraison: getPaysLabel(paysLivraison),
+      adresseLivraison: adresseLivraison,
+    };
+
+    orderDataRef.current = {
+      items: vehicleItems,
+      clientInfo,
+      orderInfo,
+      tauxTVA: tauxTVA[paysLivraison],
+    };
+
     setOrderReference(ref);
     setOrderComplete(true);
     setCurrentStep('confirmation');
@@ -129,10 +186,38 @@ export default function Checkout() {
                 Documents disponibles
               </h3>
               <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3">
-                <Button variant="outline" size="sm" leftIcon={<Download className="w-4 h-4" />}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<Download className="w-4 h-4" />}
+                  onClick={() => {
+                    if (orderDataRef.current) {
+                      generateBonCommande(
+                        orderDataRef.current.clientInfo,
+                        orderDataRef.current.orderInfo,
+                        orderDataRef.current.items,
+                        orderDataRef.current.tauxTVA
+                      );
+                    }
+                  }}
+                >
                   Bon de commande (PDF)
                 </Button>
-                <Button variant="outline" size="sm" leftIcon={<Download className="w-4 h-4" />}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<Download className="w-4 h-4" />}
+                  onClick={() => {
+                    if (orderDataRef.current) {
+                      generateFactureProforma(
+                        orderDataRef.current.clientInfo,
+                        orderDataRef.current.orderInfo,
+                        orderDataRef.current.items,
+                        orderDataRef.current.tauxTVA
+                      );
+                    }
+                  }}
+                >
                   Facture proforma (PDF)
                 </Button>
               </div>
