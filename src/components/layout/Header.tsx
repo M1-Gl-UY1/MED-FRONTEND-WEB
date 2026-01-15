@@ -6,7 +6,6 @@ import {
   ShoppingCart,
   User,
   Search,
-  Car,
   LogOut,
   ChevronDown,
 } from 'lucide-react';
@@ -14,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
+import logoMed from '../../assets/logo_med_sans_fond.png';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -58,12 +58,14 @@ export default function Header() {
         {/* Main Header Row */}
         <div className="flex items-center justify-between h-16 lg:h-[72px]">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 flex-shrink-0">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary rounded-lg flex items-center justify-center">
-              <Car className="w-6 h-6 sm:w-7 sm:h-7 text-secondary" />
-            </div>
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <img
+              src={logoMed}
+              alt="MED Auto"
+              className="h-10 sm:h-12 w-auto object-contain"
+            />
             <span className="text-lg sm:text-xl font-bold text-primary hidden sm:block">
-              MED Motors
+              MED Auto
             </span>
           </Link>
 

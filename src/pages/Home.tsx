@@ -92,7 +92,7 @@ export default function Home() {
           highlight: "l'Excellence",
           line2: 'Automobile',
         }}
-        description="MED Motors vous propose une sélection exclusive de véhicules premium. Qualité, performance et élégance au meilleur prix au Cameroun."
+        description="MED Auto vous propose une sélection exclusive de véhicules premium. Qualité, performance et élégance au meilleur prix au Cameroun."
         primaryAction={{
           label: 'Explorer le catalogue',
           href: '/catalogue',
@@ -176,7 +176,7 @@ export default function Home() {
       {/* Features Section */}
       <FeaturesSection
         label="Nos Avantages"
-        title="Pourquoi Choisir MED Motors"
+        title="Pourquoi Choisir MED Auto"
         subtitle="Nous nous engageons à vous offrir une expérience d'achat exceptionnelle avec des services premium adaptés à vos besoins."
         features={features}
       />
@@ -201,7 +201,7 @@ export default function Home() {
         isOpen={isVideoOpen}
         onClose={() => setIsVideoOpen(false)}
         videoSrc={pubVideo}
-        title="MED Motors - L'Excellence Automobile"
+        title="MED Auto - L'Excellence Automobile"
       />
     </div>
   );

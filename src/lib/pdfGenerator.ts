@@ -45,7 +45,7 @@ const COLORS = {
 
 // Informations de l'entreprise
 const COMPANY_INFO = {
-  name: 'MED Motors',
+  name: 'MED Auto',
   slogan: 'L\'Excellence Automobile',
   address: '123 Avenue de l\'Indépendance',
   city: 'Douala, Cameroun',

@@ -11,6 +11,7 @@ import {
   Auth,
   Profile,
   Orders,
+  Documents,
 } from './pages';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
               <Route path="connexion" element={<Auth />} />
               <Route path="profil" element={<Profile />} />
               <Route path="mes-commandes" element={<Orders />} />
+              <Route path="documents" element={<Documents />} />
             </Route>
           </Routes>
         </Router>

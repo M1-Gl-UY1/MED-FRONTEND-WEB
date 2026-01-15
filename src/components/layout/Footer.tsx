@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import {
-  Car,
   Phone,
   Mail,
   MapPin,
@@ -9,6 +8,7 @@ import {
   Twitter,
   Youtube,
 } from 'lucide-react';
+import logoMed from '../../assets/logo_med.jpeg';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -21,10 +21,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="inline-flex items-center gap-3 mb-5">
-              <div className="w-11 h-11 bg-secondary rounded-lg flex items-center justify-center">
-                <Car className="w-6 h-6 text-primary" />
-              </div>
-              <span className="text-xl font-bold">MED Motors</span>
+              <img
+                src={logoMed}
+                alt="MED Auto"
+                className="h-12 w-auto object-contain rounded-lg"
+              />
+              <span className="text-xl font-bold">MED Auto</span>
             </Link>
             <p className="text-primary-200 text-sm leading-relaxed mb-6 max-w-xs">
               Votre partenaire de confiance pour l'achat de véhicules premium.
@@ -180,7 +182,7 @@ export default function Footer() {
         <div className="container py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-primary-200 text-sm text-center sm:text-left">
-              &copy; {currentYear} MED Motors. Tous droits réservés.
+              &copy; {currentYear} MED Auto. Tous droits réservés.
             </p>
             <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               <Link

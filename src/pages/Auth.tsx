@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Car, Eye, EyeOff, User, Building, ArrowRight, Shield, Truck, CreditCard } from 'lucide-react';
+import { Eye, EyeOff, User, Building, ArrowRight, Shield, Truck, CreditCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
 import { Button } from '../components/ui/Button';
+import logoMed from '../assets/logo_med.jpeg';
+import logoMedSansFond from '../assets/logo_med_sans_fond.png';
 
 type AuthMode = 'login' | 'register';
 type UserType = 'CLIENT' | 'SOCIETE';
@@ -115,17 +117,19 @@ export default function Auth() {
         <div className="relative z-10 flex flex-col justify-between p-12 xl:p-16 w-full">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center">
-              <Car className="w-7 h-7 text-primary" />
-            </div>
-            <span className="text-2xl font-bold text-white">MED Motors</span>
+            <img
+              src={logoMed}
+              alt="MED Auto"
+              className="h-14 w-auto object-contain rounded-xl"
+            />
+            <span className="text-2xl font-bold text-white">MED Auto</span>
           </Link>
 
           {/* Main Content */}
           <div className="my-auto">
             <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
               Bienvenue chez
-              <span className="text-secondary block mt-2">MED Motors</span>
+              <span className="text-secondary block mt-2">MED Auto</span>
             </h1>
             <p className="text-xl text-primary-200 leading-relaxed max-w-md">
               Votre partenaire de confiance pour l'achat de véhicules premium au Cameroun.
@@ -154,10 +158,12 @@ export default function Auth() {
         <div className="w-full max-w-md lg:max-w-lg">
           {/* Mobile Logo */}
           <Link to="/" className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-              <Car className="w-7 h-7 text-secondary" />
-            </div>
-            <span className="text-2xl font-bold text-primary">MED Motors</span>
+            <img
+              src={logoMedSansFond}
+              alt="MED Auto"
+              className="h-14 w-auto object-contain"
+            />
+            <span className="text-2xl font-bold text-primary">MED Auto</span>
           </Link>
 
           {/* Form Card */}
@@ -170,7 +176,7 @@ export default function Auth() {
               <p className="text-content-light">
                 {mode === 'login'
                   ? 'Connectez-vous pour accéder à votre espace'
-                  : 'Rejoignez MED Motors dès maintenant'}
+                  : 'Rejoignez MED Auto dès maintenant'}
               </p>
             </div>
 
