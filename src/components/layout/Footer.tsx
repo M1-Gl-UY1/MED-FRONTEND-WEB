@@ -15,56 +15,61 @@ export default function Footer() {
 
   return (
     <footer className="bg-primary text-white mt-auto">
-      <div className="container py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      {/* Main Footer Content */}
+      <div className="container py-12 sm:py-16 lg:py-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Brand */}
-          <div>
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Link to="/" className="inline-flex items-center gap-3 mb-5">
+              <div className="w-11 h-11 bg-secondary rounded-lg flex items-center justify-center">
                 <Car className="w-6 h-6 text-primary" />
               </div>
               <span className="text-xl font-bold">MED Motors</span>
             </Link>
-            <p className="text-primary-200 text-sm mb-6">
+            <p className="text-primary-200 text-sm leading-relaxed mb-6 max-w-xs">
               Votre partenaire de confiance pour l'achat de véhicules premium.
               Qualité, service et expertise depuis 2024.
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <a
                 href="#"
-                className="w-9 h-9 bg-primary-400 rounded-full flex items-center justify-center hover:bg-secondary hover:text-primary transition-colors"
+                className="w-10 h-10 bg-primary-400 rounded-full flex items-center justify-center hover:bg-secondary hover:text-primary transition-colors"
+                aria-label="Facebook"
               >
-                <Facebook className="w-4 h-4" />
+                <Facebook className="w-5 h-5" />
               </a>
               <a
                 href="#"
-                className="w-9 h-9 bg-primary-400 rounded-full flex items-center justify-center hover:bg-secondary hover:text-primary transition-colors"
+                className="w-10 h-10 bg-primary-400 rounded-full flex items-center justify-center hover:bg-secondary hover:text-primary transition-colors"
+                aria-label="Instagram"
               >
-                <Instagram className="w-4 h-4" />
+                <Instagram className="w-5 h-5" />
               </a>
               <a
                 href="#"
-                className="w-9 h-9 bg-primary-400 rounded-full flex items-center justify-center hover:bg-secondary hover:text-primary transition-colors"
+                className="w-10 h-10 bg-primary-400 rounded-full flex items-center justify-center hover:bg-secondary hover:text-primary transition-colors"
+                aria-label="Twitter"
               >
-                <Twitter className="w-4 h-4" />
+                <Twitter className="w-5 h-5" />
               </a>
               <a
                 href="#"
-                className="w-9 h-9 bg-primary-400 rounded-full flex items-center justify-center hover:bg-secondary hover:text-primary transition-colors"
+                className="w-10 h-10 bg-primary-400 rounded-full flex items-center justify-center hover:bg-secondary hover:text-primary transition-colors"
+                aria-label="Youtube"
               >
-                <Youtube className="w-4 h-4" />
+                <Youtube className="w-5 h-5" />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Navigation</h3>
+            <h3 className="text-base font-semibold mb-5">Navigation</h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   to="/catalogue"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="text-primary-200 hover:text-secondary transition-colors text-sm inline-block py-1"
                 >
                   Catalogue
                 </Link>
@@ -72,7 +77,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/catalogue?type=AUTOMOBILE"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="text-primary-200 hover:text-secondary transition-colors text-sm inline-block py-1"
                 >
                   Automobiles
                 </Link>
@@ -80,7 +85,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/catalogue?type=SCOOTER"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="text-primary-200 hover:text-secondary transition-colors text-sm inline-block py-1"
                 >
                   Scooters
                 </Link>
@@ -88,7 +93,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/catalogue?promo=true"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="text-primary-200 hover:text-secondary transition-colors text-sm inline-block py-1"
                 >
                   Promotions
                 </Link>
@@ -98,12 +103,12 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Services</h3>
+            <h3 className="text-base font-semibold mb-5">Services</h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   to="/financement"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="text-primary-200 hover:text-secondary transition-colors text-sm inline-block py-1"
                 >
                   Financement
                 </Link>
@@ -111,7 +116,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/livraison"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="text-primary-200 hover:text-secondary transition-colors text-sm inline-block py-1"
                 >
                   Livraison
                 </Link>
@@ -119,7 +124,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/garantie"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="text-primary-200 hover:text-secondary transition-colors text-sm inline-block py-1"
                 >
                   Garantie
                 </Link>
@@ -127,7 +132,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/faq"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="text-primary-200 hover:text-secondary transition-colors text-sm inline-block py-1"
                 >
                   FAQ
                 </Link>
@@ -137,45 +142,47 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contact</h3>
+            <h3 className="text-base font-semibold mb-5">Contact</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                <span className="text-primary-200 text-sm">
+                <span className="text-primary-200 text-sm leading-relaxed">
                   123 Avenue de l'Indépendance
                   <br />
                   Douala, Cameroun
                 </span>
               </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-secondary flex-shrink-0" />
+              <li>
                 <a
                   href="tel:+237699000000"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="flex items-center gap-3 text-primary-200 hover:text-secondary transition-colors"
                 >
-                  +237 699 000 000
+                  <Phone className="w-5 h-5 text-secondary flex-shrink-0" />
+                  <span className="text-sm">+237 699 000 000</span>
                 </a>
               </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-secondary flex-shrink-0" />
+              <li>
                 <a
                   href="mailto:contact@med-motors.cm"
-                  className="text-primary-200 hover:text-secondary transition-colors text-sm"
+                  className="flex items-center gap-3 text-primary-200 hover:text-secondary transition-colors"
                 >
-                  contact@med-motors.cm
+                  <Mail className="w-5 h-5 text-secondary flex-shrink-0" />
+                  <span className="text-sm">contact@med-motors.cm</span>
                 </a>
               </li>
             </ul>
           </div>
         </div>
+      </div>
 
-        {/* Bottom */}
-        <div className="mt-12 pt-8 border-t border-primary-400">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-primary-200 text-sm">
+      {/* Bottom Bar */}
+      <div className="border-t border-primary-400">
+        <div className="container py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-primary-200 text-sm text-center sm:text-left">
               &copy; {currentYear} MED Motors. Tous droits réservés.
             </p>
-            <div className="flex items-center gap-6">
+            <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               <Link
                 to="/mentions-legales"
                 className="text-primary-200 hover:text-secondary transition-colors text-sm"
@@ -194,7 +201,7 @@ export default function Footer() {
               >
                 CGV
               </Link>
-            </div>
+            </nav>
           </div>
         </div>
       </div>

@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Filter, X, Grid3X3, LayoutList, SlidersHorizontal } from 'lucide-react';
+import { Filter, Grid3X3, LayoutList, SlidersHorizontal } from 'lucide-react';
 import VehicleCard from '../components/ui/VehicleCard';
 import SearchBar from '../components/ui/SearchBar';
 import FilterSelect from '../components/ui/FilterSelect';
 import Pagination from '../components/ui/Pagination';
 import EmptyState from '../components/ui/EmptyState';
+import { Button, Badge, Drawer, CheckboxCard } from '../components/ui';
 import { vehicules } from '../data/mockData';
 import { cn } from '../lib/utils';
 
@@ -117,31 +118,49 @@ export default function Catalogue() {
   const hasActiveFilters = search || type || moteur || marque || promo;
 
   return (
-    <div className="py-8 lg:py-12">
-      <div className="container">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-2">
+    <div className="bg-background min-h-screen">
+      <div className="container py-6 sm:py-8 lg:py-12">
+        {/* Page Header */}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary mb-2">
             Catalogue de Véhicules
           </h1>
-          <p className="text-text-light">
+          <p className="text-sm sm:text-base text-text-light">
             {filteredVehicles.length} véhicule{filteredVehicles.length > 1 ? 's' : ''} disponible{filteredVehicles.length > 1 ? 's' : ''}
           </p>
         </div>
 
         {/* Filters Bar */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-8">
-          {/* Search */}
-          <div className="flex-1">
-            <SearchBar
-              value={search}
-              onChange={value => updateFilter('search', value)}
-              placeholder="Rechercher par nom, marque ou modèle..."
-            />
+        <div className="flex flex-col gap-4 mb-6 sm:mb-8">
+          {/* Search Row */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            {/* Search Input */}
+            <div className="flex-1">
+              <SearchBar
+                value={search}
+                onChange={value => updateFilter('search', value)}
+                placeholder="Rechercher par nom, marque ou modèle..."
+              />
+            </div>
+
+            {/* Mobile Filter Button */}
+            <Button
+              onClick={() => setIsFilterOpen(true)}
+              variant="outline"
+              leftIcon={<SlidersHorizontal className="w-5 h-5" />}
+              className="lg:hidden"
+            >
+              Filtres
+              {hasActiveFilters && (
+                <span className="w-5 h-5 bg-secondary text-primary text-xs font-bold rounded-full flex items-center justify-center ml-1">
+                  !
+                </span>
+              )}
+            </Button>
           </div>
 
-          {/* Desktop Filters */}
-          <div className="hidden lg:flex items-center gap-4">
+          {/* Desktop Filters Row */}
+          <div className="hidden lg:flex items-center gap-3">
             <FilterSelect
               value={type}
               onChange={value => updateFilter('type', value)}
@@ -177,92 +196,72 @@ export default function Catalogue() {
                 { value: 'name-asc', label: 'Nom A-Z' },
               ]}
             />
-          </div>
 
-          {/* Mobile Filter Button */}
-          <button
-            onClick={() => setIsFilterOpen(true)}
-            className="lg:hidden btn-outline flex items-center justify-center gap-2"
-          >
-            <SlidersHorizontal className="w-5 h-5" />
-            Filtres
-            {hasActiveFilters && (
-              <span className="w-5 h-5 bg-secondary text-primary text-xs font-bold rounded-full flex items-center justify-center">
-                !
-              </span>
-            )}
-          </button>
+            {/* Spacer */}
+            <div className="flex-1" />
 
-          {/* View Mode Toggle */}
-          <div className="hidden lg:flex items-center gap-1 border border-gray-200 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={cn(
-                'p-2 rounded transition-colors',
-                viewMode === 'grid' ? 'bg-primary text-white' : 'hover:bg-primary-50'
-              )}
-            >
-              <Grid3X3 className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={cn(
-                'p-2 rounded transition-colors',
-                viewMode === 'list' ? 'bg-primary text-white' : 'hover:bg-primary-50'
-              )}
-            >
-              <LayoutList className="w-5 h-5" />
-            </button>
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={cn(
+                  'w-10 h-10 flex items-center justify-center rounded-md transition-colors',
+                  viewMode === 'grid'
+                    ? 'bg-primary text-white'
+                    : 'hover:bg-primary-50 text-text-light'
+                )}
+                aria-label="Vue grille"
+              >
+                <Grid3X3 className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={cn(
+                  'w-10 h-10 flex items-center justify-center rounded-md transition-colors',
+                  viewMode === 'list'
+                    ? 'bg-primary text-white'
+                    : 'hover:bg-primary-50 text-text-light'
+                )}
+                aria-label="Vue liste"
+              >
+                <LayoutList className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Active Filters */}
+        {/* Active Filters Tags */}
         {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-2 mb-6">
             <span className="text-sm text-text-light">Filtres actifs:</span>
             {search && (
-              <span className="badge badge-neutral flex items-center gap-1">
+              <Badge variant="neutral" removable onRemove={() => updateFilter('search', '')}>
                 Recherche: {search}
-                <button onClick={() => updateFilter('search', '')}>
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
+              </Badge>
             )}
             {type && (
-              <span className="badge badge-neutral flex items-center gap-1">
+              <Badge variant="neutral" removable onRemove={() => updateFilter('type', '')}>
                 {type === 'AUTOMOBILE' ? 'Automobiles' : 'Scooters'}
-                <button onClick={() => updateFilter('type', '')}>
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
+              </Badge>
             )}
             {moteur && (
-              <span className="badge badge-neutral flex items-center gap-1">
+              <Badge variant="neutral" removable onRemove={() => updateFilter('moteur', '')}>
                 {moteur === 'ESSENCE' ? 'Essence' : 'Électrique'}
-                <button onClick={() => updateFilter('moteur', '')}>
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
+              </Badge>
             )}
             {marque && (
-              <span className="badge badge-neutral flex items-center gap-1">
+              <Badge variant="neutral" removable onRemove={() => updateFilter('marque', '')}>
                 {marque}
-                <button onClick={() => updateFilter('marque', '')}>
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
+              </Badge>
             )}
             {promo && (
-              <span className="badge badge-neutral flex items-center gap-1">
+              <Badge variant="neutral" removable onRemove={() => updateFilter('promo', '')}>
                 En promotion
-                <button onClick={() => updateFilter('promo', '')}>
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
+              </Badge>
             )}
             <button
               onClick={resetFilters}
-              className="text-sm text-secondary hover:text-secondary-500 font-medium"
+              className="text-sm text-secondary hover:text-secondary-500 font-medium ml-2"
             >
               Tout effacer
             </button>
@@ -274,9 +273,9 @@ export default function Catalogue() {
           <>
             <div
               className={cn(
-                'grid gap-6',
+                'grid gap-4 sm:gap-6',
                 viewMode === 'grid'
-                  ? 'sm:grid-cols-2 lg:grid-cols-3'
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
                   : 'grid-cols-1'
               )}
             >
@@ -290,12 +289,15 @@ export default function Catalogue() {
             </div>
 
             {/* Pagination */}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              className="mt-8"
-            />
+            {totalPages > 1 && (
+              <div className="mt-8 sm:mt-10">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
           </>
         ) : (
           <EmptyState
@@ -310,86 +312,73 @@ export default function Catalogue() {
         )}
       </div>
 
-      {/* Mobile Filter Modal */}
-      {isFilterOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setIsFilterOpen(false)}
-          />
-          <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white shadow-xl">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold">Filtres</h2>
-              <button onClick={() => setIsFilterOpen(false)}>
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
-              <FilterSelect
-                value={type}
-                onChange={value => updateFilter('type', value)}
-                placeholder="Tous les types"
-                label="Type de véhicule"
-                options={[
-                  { value: 'AUTOMOBILE', label: 'Automobiles' },
-                  { value: 'SCOOTER', label: 'Scooters' },
-                ]}
-              />
-              <FilterSelect
-                value={moteur}
-                onChange={value => updateFilter('moteur', value)}
-                placeholder="Toutes motorisations"
-                label="Motorisation"
-                options={[
-                  { value: 'ESSENCE', label: 'Essence' },
-                  { value: 'ELECTRIQUE', label: 'Électrique' },
-                ]}
-              />
-              <FilterSelect
-                value={marque}
-                onChange={value => updateFilter('marque', value)}
-                placeholder="Toutes les marques"
-                label="Marque"
-                options={marques}
-              />
-              <FilterSelect
-                value={sort}
-                onChange={value => updateFilter('sort', value)}
-                placeholder="Par défaut"
-                label="Trier par"
-                options={[
-                  { value: 'price-asc', label: 'Prix croissant' },
-                  { value: 'price-desc', label: 'Prix décroissant' },
-                  { value: 'year-desc', label: 'Plus récents' },
-                  { value: 'name-asc', label: 'Nom A-Z' },
-                ]}
-              />
-              <div className="flex items-center gap-3 pt-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={promo}
-                    onChange={e => updateFilter('promo', e.target.checked ? 'true' : '')}
-                    className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary"
-                  />
-                  <span className="text-sm font-medium">En promotion uniquement</span>
-                </label>
-              </div>
-            </div>
-            <div className="p-4 border-t flex gap-3">
-              <button onClick={resetFilters} className="btn-outline flex-1">
-                Réinitialiser
-              </button>
-              <button
-                onClick={() => setIsFilterOpen(false)}
-                className="btn-primary flex-1"
-              >
-                Appliquer
-              </button>
-            </div>
+      {/* Mobile Filter Drawer */}
+      <Drawer
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        title="Filtres"
+        size="sm"
+        footer={
+          <div className="flex gap-3 w-full">
+            <Button onClick={resetFilters} variant="outline" className="flex-1">
+              Réinitialiser
+            </Button>
+            <Button onClick={() => setIsFilterOpen(false)} className="flex-1">
+              Appliquer
+            </Button>
           </div>
+        }
+      >
+        <div className="p-4 space-y-5">
+          <FilterSelect
+            value={type}
+            onChange={value => updateFilter('type', value)}
+            placeholder="Tous les types"
+            label="Type de véhicule"
+            options={[
+              { value: 'AUTOMOBILE', label: 'Automobiles' },
+              { value: 'SCOOTER', label: 'Scooters' },
+            ]}
+          />
+          <FilterSelect
+            value={moteur}
+            onChange={value => updateFilter('moteur', value)}
+            placeholder="Toutes motorisations"
+            label="Motorisation"
+            options={[
+              { value: 'ESSENCE', label: 'Essence' },
+              { value: 'ELECTRIQUE', label: 'Électrique' },
+            ]}
+          />
+          <FilterSelect
+            value={marque}
+            onChange={value => updateFilter('marque', value)}
+            placeholder="Toutes les marques"
+            label="Marque"
+            options={marques}
+          />
+          <FilterSelect
+            value={sort}
+            onChange={value => updateFilter('sort', value)}
+            placeholder="Par défaut"
+            label="Trier par"
+            options={[
+              { value: 'price-asc', label: 'Prix croissant' },
+              { value: 'price-desc', label: 'Prix décroissant' },
+              { value: 'year-desc', label: 'Plus récents' },
+              { value: 'name-asc', label: 'Nom A-Z' },
+            ]}
+          />
+
+          {/* Promo Checkbox */}
+          <CheckboxCard
+            checked={promo}
+            onChange={checked => updateFilter('promo', checked ? 'true' : '')}
+            title="En promotion uniquement"
+            description="Afficher seulement les véhicules en promotion"
+          />
         </div>
-      )}
+      </Drawer>
     </div>
   );
 }

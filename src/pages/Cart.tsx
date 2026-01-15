@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ShoppingCart,
@@ -10,6 +11,9 @@ import {
 import QuantitySelector from '../components/ui/QuantitySelector';
 import EmptyState from '../components/ui/EmptyState';
 import FilterSelect from '../components/ui/FilterSelect';
+import Pagination from '../components/ui/Pagination';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
 import type { PaysLivraison } from '../data/mockData';
 import {
   formatPrice,
@@ -20,6 +24,8 @@ import {
 } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+
+const ITEMS_PER_PAGE = 5;
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -35,6 +41,7 @@ export default function Cart() {
     updateQuantity,
     setPaysLivraison,
   } = useCart();
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
@@ -46,8 +53,8 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
-      <div className="py-16">
-        <div className="container">
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="container py-12">
           <EmptyState
             icon={<ShoppingCart className="w-8 h-8" />}
             title="Votre panier est vide"
@@ -62,113 +69,135 @@ export default function Cart() {
     );
   }
 
+  // Pagination
+  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+  const paginatedItems = items.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
-    <div className="py-8 lg:py-12">
-      <div className="container">
+    <div className="bg-background min-h-screen">
+      <div className="container py-6 sm:py-8 lg:py-12">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-text-light mb-6">
+        <nav className="flex items-center gap-2 text-sm text-text-light mb-6">
           <Link to="/" className="hover:text-secondary">Accueil</Link>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-primary">Panier</span>
-        </div>
+          <span className="text-primary font-medium">Panier</span>
+        </nav>
 
-        <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-8">
+        {/* Page Title */}
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary mb-6 sm:mb-8">
           Mon Panier ({itemCount} article{itemCount > 1 ? 's' : ''})
         </h1>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4">
-            {items.map(item => {
-              const vehicle = getVehiculeById(item.vehiculeId);
-              if (!vehicle) return null;
+          <div className="lg:col-span-2">
+            <div className="space-y-4">
+              {paginatedItems.map(item => {
+                const vehicle = getVehiculeById(item.vehiculeId);
+                if (!vehicle) return null;
 
-              return (
-                <div key={item.id} className="card p-4 lg:p-6">
-                  <div className="flex gap-4">
-                    {/* Image */}
-                    <Link
-                      to={`/vehicule/${vehicle.id}`}
-                      className="w-24 h-24 lg:w-32 lg:h-32 rounded-lg overflow-hidden flex-shrink-0"
-                    >
-                      <img
-                        src={item.vehiculeImage}
-                        alt={item.vehiculeNom}
-                        className="w-full h-full object-cover"
-                      />
-                    </Link>
-
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <Link
-                            to={`/vehicule/${vehicle.id}`}
-                            className="font-semibold text-primary hover:text-secondary"
-                          >
-                            {item.vehiculeNom}
-                          </Link>
-                          <p className="text-sm text-text-light">
-                            Couleur: {item.couleurSelectionnee}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="p-2 text-text-muted hover:text-error transition-colors"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-
-                      {/* Options */}
-                      {item.optionsSelectionnees.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-xs text-text-muted mb-1">Options:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {item.optionsSelectionnees.map(optId => {
-                              const opt = getOptionById(optId);
-                              return opt ? (
-                                <span key={optId} className="badge badge-neutral text-xs">
-                                  {opt.nom}
-                                </span>
-                              ) : null;
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Price & Quantity */}
-                      <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <QuantitySelector
-                          value={item.quantite}
-                          onChange={qty => updateQuantity(item.id, qty)}
-                          max={vehicle.stock.quantite}
+                return (
+                  <article key={item.id} className="card">
+                    <div className="flex gap-4">
+                      {/* Product Image */}
+                      <Link
+                        to={`/vehicule/${vehicle.id}`}
+                        className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden flex-shrink-0"
+                      >
+                        <img
+                          src={item.vehiculeImage}
+                          alt={item.vehiculeNom}
+                          className="w-full h-full object-cover"
                         />
-                        <div className="text-right">
-                          <p className="text-sm text-text-muted">
-                            {formatPrice(item.prixUnitaire + item.prixOptions)} x {item.quantite}
-                          </p>
-                          <p className="text-lg font-bold text-secondary">
-                            {formatPrice(item.sousTotal)}
-                          </p>
+                      </Link>
+
+                      {/* Product Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div>
+                            <Link
+                              to={`/vehicule/${vehicle.id}`}
+                              className="font-semibold text-primary hover:text-secondary text-sm sm:text-base line-clamp-1"
+                            >
+                              {item.vehiculeNom}
+                            </Link>
+                            <p className="text-xs sm:text-sm text-text-light">
+                              Couleur: {item.couleurSelectionnee}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => removeFromCart(item.id)}
+                            className="w-9 h-9 flex items-center justify-center text-text-muted hover:text-error hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                            aria-label="Supprimer du panier"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        {/* Selected Options */}
+                        {item.optionsSelectionnees.length > 0 && (
+                          <div className="mb-3">
+                            <p className="text-xs text-text-muted mb-1.5">Options:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {item.optionsSelectionnees.map(optId => {
+                                const opt = getOptionById(optId);
+                                return opt ? (
+                                  <Badge key={optId} variant="neutral" size="sm">
+                                    {opt.nom}
+                                  </Badge>
+                                ) : null;
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Price & Quantity */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-gray-100">
+                          <QuantitySelector
+                            value={item.quantite}
+                            onChange={qty => updateQuantity(item.id, qty)}
+                            max={vehicle.stock.quantite}
+                          />
+                          <div className="text-right">
+                            <p className="text-xs sm:text-sm text-text-muted">
+                              {formatPrice(item.prixUnitaire + item.prixOptions)} x {item.quantite}
+                            </p>
+                            <p className="text-lg font-bold text-secondary">
+                              {formatPrice(item.sousTotal)}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                  </article>
+                );
+              })}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Summary */}
+          {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="card sticky top-24">
-              <h2 className="text-lg font-semibold text-primary mb-4">
+              <h2 className="text-base sm:text-lg font-semibold text-primary mb-4">
                 Récapitulatif
               </h2>
 
               {/* Delivery Country */}
-              <div className="mb-4">
+              <div className="mb-5">
                 <label className="text-sm font-medium text-text-light mb-2 flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
                   Pays de livraison
@@ -185,16 +214,17 @@ export default function Cart() {
                 />
               </div>
 
-              <div className="space-y-3 py-4 border-t border-b">
+              {/* Price Breakdown */}
+              <div className="space-y-3 py-4 border-t border-b border-gray-100">
                 <div className="flex justify-between text-sm">
                   <span className="text-text-light">Sous-total HT</span>
-                  <span>{formatPrice(subtotal)}</span>
+                  <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-text-light">
                     TVA ({tauxTVA[paysLivraison]}% - {getPaysLabel(paysLivraison)})
                   </span>
-                  <span>{formatPrice(taxes)}</span>
+                  <span className="font-medium">{formatPrice(taxes)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-text-light">Livraison</span>
@@ -202,6 +232,7 @@ export default function Cart() {
                 </div>
               </div>
 
+              {/* Total */}
               <div className="flex justify-between items-center py-4 mb-4">
                 <span className="font-semibold text-primary">Total TTC</span>
                 <span className="text-2xl font-bold text-secondary">
@@ -209,13 +240,14 @@ export default function Cart() {
                 </span>
               </div>
 
-              <button
+              {/* Checkout Button */}
+              <Button
                 onClick={handleCheckout}
-                className="btn-primary w-full"
+                fullWidth
+                rightIcon={<ArrowRight className="w-5 h-5" />}
               >
                 {isAuthenticated ? 'Passer la commande' : 'Se connecter pour commander'}
-                <ArrowRight className="w-5 h-5" />
-              </button>
+              </Button>
 
               {!isAuthenticated && (
                 <p className="text-xs text-text-muted text-center mt-3">
@@ -223,11 +255,14 @@ export default function Cart() {
                 </p>
               )}
 
-              <div className="mt-4 p-3 bg-info/10 rounded-lg">
-                <p className="text-xs text-info flex items-start gap-2">
+              {/* Info Box */}
+              <div className="mt-4 p-3 sm:p-4 bg-info/10 rounded-lg">
+                <p className="text-xs sm:text-sm text-info flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                  Les prix affichés incluent toutes les options sélectionnées.
-                  La livraison est gratuite pour le {getPaysLabel(paysLivraison)}.
+                  <span>
+                    Les prix affichés incluent toutes les options sélectionnées.
+                    La livraison est gratuite pour le {getPaysLabel(paysLivraison)}.
+                  </span>
                 </p>
               </div>
             </div>

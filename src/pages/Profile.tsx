@@ -17,6 +17,13 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { formatDate, getPaysLabel } from '../data/mockData';
 import { cn } from '../lib/utils';
+import {
+  Button,
+  Breadcrumb,
+  FormField,
+  FormInput,
+  CheckboxCard,
+} from '../components/ui';
 
 type Tab = 'profile' | 'security' | 'notifications';
 
@@ -43,42 +50,41 @@ export default function Profile() {
   ];
 
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-6 sm:py-8 lg:py-12">
       <div className="container">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-text-light mb-6">
-          <Link to="/" className="hover:text-secondary">Accueil</Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-primary">Mon profil</span>
-        </div>
+        <Breadcrumb
+          items={[{ label: 'Mon profil' }]}
+          className="mb-6"
+        />
 
-        <div className="grid lg:grid-cols-4 gap-8">
+        <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="card mb-4">
-              <div className="text-center mb-4">
-                <div className="w-20 h-20 rounded-full bg-secondary-50 flex items-center justify-center mx-auto mb-3">
+            <div className="card mb-4 sm:mb-6">
+              <div className="text-center mb-4 sm:mb-5">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-secondary-50 flex items-center justify-center mx-auto mb-3">
                   {user.type === 'CLIENT' ? (
-                    <User className="w-10 h-10 text-secondary" />
+                    <User className="w-8 h-8 sm:w-10 sm:h-10 text-secondary" />
                   ) : (
-                    <Building className="w-10 h-10 text-secondary" />
+                    <Building className="w-8 h-8 sm:w-10 sm:h-10 text-secondary" />
                   )}
                 </div>
                 <h2 className="font-semibold text-primary">
                   {user.type === 'CLIENT' ? `${user.prenom} ${user.nom}` : user.nom}
                 </h2>
-                <p className="text-sm text-text-muted">
+                <p className="text-sm text-text-muted mt-1">
                   {user.type === 'CLIENT' ? 'Compte particulier' : 'Compte société'}
                 </p>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1 sm:space-y-2">
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={cn(
-                      'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                      'w-full flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg text-sm font-medium transition-colors',
                       activeTab === tab.id
                         ? 'bg-secondary-50 text-secondary'
                         : 'text-text hover:bg-primary-50'
@@ -94,15 +100,15 @@ export default function Profile() {
             <div className="card">
               <Link
                 to="/mes-commandes"
-                className="flex items-center justify-between py-2 text-sm font-medium text-text hover:text-secondary"
+                className="flex items-center justify-between min-h-[44px] py-2 text-sm font-medium text-text hover:text-secondary"
               >
                 Mes commandes
                 <ChevronRight className="w-5 h-5" />
               </Link>
-              <hr className="my-2" />
+              <hr className="my-3" />
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 py-2 text-sm font-medium text-error hover:text-error/80 w-full"
+                className="flex items-center gap-2 min-h-[44px] py-2 text-sm font-medium text-error hover:text-error/80 w-full"
               >
                 <LogOut className="w-5 h-5" />
                 Déconnexion
@@ -114,29 +120,21 @@ export default function Profile() {
           <div className="lg:col-span-3">
             {activeTab === 'profile' && (
               <div className="card">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-semibold text-primary">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 sm:mb-6">
+                  <h2 className="text-base sm:text-lg font-semibold text-primary">
                     Informations personnelles
                   </h2>
-                  <button
+                  <Button
                     onClick={() => setIsEditing(!isEditing)}
-                    className="btn-ghost text-sm py-2 px-4"
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={isEditing ? <Save className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
                   >
-                    {isEditing ? (
-                      <>
-                        <Save className="w-4 h-4" />
-                        Enregistrer
-                      </>
-                    ) : (
-                      <>
-                        <Edit className="w-4 h-4" />
-                        Modifier
-                      </>
-                    )}
-                  </button>
+                    {isEditing ? 'Enregistrer' : 'Modifier'}
+                  </Button>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-6">
+                <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
                   {user.type === 'CLIENT' && (
                     <>
                       <div>
@@ -271,50 +269,41 @@ export default function Profile() {
 
             {activeTab === 'security' && (
               <div className="card">
-                <h2 className="text-lg font-semibold text-primary mb-6">
+                <h2 className="text-base sm:text-lg font-semibold text-primary mb-5 sm:mb-6">
                   Sécurité du compte
                 </h2>
 
-                <div className="space-y-6">
+                <div className="space-y-6 sm:space-y-8">
                   <div>
-                    <h3 className="font-medium text-primary mb-2">
+                    <h3 className="font-medium text-primary mb-3 sm:mb-4">
                       Changer le mot de passe
                     </h3>
                     <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-text-muted mb-2">
-                          Mot de passe actuel
-                        </label>
-                        <input type="password" className="input" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-text-muted mb-2">
-                          Nouveau mot de passe
-                        </label>
-                        <input type="password" className="input" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-text-muted mb-2">
-                          Confirmer le nouveau mot de passe
-                        </label>
-                        <input type="password" className="input" />
-                      </div>
-                      <button className="btn-primary">
+                      <FormField label="Mot de passe actuel">
+                        <FormInput type="password" />
+                      </FormField>
+                      <FormField label="Nouveau mot de passe">
+                        <FormInput type="password" />
+                      </FormField>
+                      <FormField label="Confirmer le nouveau mot de passe">
+                        <FormInput type="password" />
+                      </FormField>
+                      <Button>
                         Mettre à jour le mot de passe
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
-                  <hr />
+                  <hr className="border-gray-100" />
 
                   <div>
-                    <h3 className="font-medium text-primary mb-2">
+                    <h3 className="font-medium text-primary mb-2 sm:mb-3">
                       Authentification à deux facteurs
                     </h3>
                     <p className="text-sm text-text-light mb-4">
                       Ajoutez une couche de sécurité supplémentaire à votre compte.
                     </p>
-                    <button className="btn-outline">Activer la 2FA</button>
+                    <Button variant="outline">Activer la 2FA</Button>
                   </div>
                 </div>
               </div>
@@ -322,53 +311,40 @@ export default function Profile() {
 
             {activeTab === 'notifications' && (
               <div className="card">
-                <h2 className="text-lg font-semibold text-primary mb-6">
+                <h2 className="text-base sm:text-lg font-semibold text-primary mb-5 sm:mb-6">
                   Préférences de notification
                 </h2>
 
-                <div className="space-y-4">
-                  {[
-                    {
-                      title: 'Notifications par email',
-                      description: 'Recevoir des notifications par email',
-                      checked: true,
-                    },
-                    {
-                      title: 'Mises à jour de commande',
-                      description: 'Être notifié du statut de mes commandes',
-                      checked: true,
-                    },
-                    {
-                      title: 'Offres promotionnelles',
-                      description: 'Recevoir les offres et promotions',
-                      checked: false,
-                    },
-                    {
-                      title: 'Newsletter',
-                      description: 'Recevoir notre newsletter mensuelle',
-                      checked: false,
-                    },
-                  ].map((item, index) => (
-                    <label
-                      key={index}
-                      className="flex items-center justify-between p-4 rounded-lg border hover:border-primary-200 cursor-pointer"
-                    >
-                      <div>
-                        <p className="font-medium">{item.title}</p>
-                        <p className="text-sm text-text-muted">{item.description}</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        defaultChecked={item.checked}
-                        className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary"
-                      />
-                    </label>
-                  ))}
+                <div className="space-y-3 sm:space-y-4">
+                  <CheckboxCard
+                    checked={true}
+                    onChange={() => {}}
+                    title="Notifications par email"
+                    description="Recevoir des notifications par email"
+                  />
+                  <CheckboxCard
+                    checked={true}
+                    onChange={() => {}}
+                    title="Mises à jour de commande"
+                    description="Être notifié du statut de mes commandes"
+                  />
+                  <CheckboxCard
+                    checked={false}
+                    onChange={() => {}}
+                    title="Offres promotionnelles"
+                    description="Recevoir les offres et promotions"
+                  />
+                  <CheckboxCard
+                    checked={false}
+                    onChange={() => {}}
+                    title="Newsletter"
+                    description="Recevoir notre newsletter mensuelle"
+                  />
                 </div>
 
-                <button className="btn-primary mt-6">
+                <Button className="mt-6 sm:mt-8">
                   Enregistrer les préférences
-                </button>
+                </Button>
               </div>
             )}
           </div>

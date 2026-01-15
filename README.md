@@ -1,73 +1,109 @@
-# React + TypeScript + Vite
+# MED Motors - Frontend Web Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application web client pour MED Motors, une plateforme de vente de vehicules premium.
 
-Currently, two official plugins are available:
+## Technologies
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** avec TypeScript
+- **Vite** pour le bundling et le dev server
+- **Tailwind CSS 4** pour le styling
+- **React Router DOM** pour la navigation
+- **Lucide React** pour les icones
 
-## React Compiler
+## Fonctionnalites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Pages principales
+- **Accueil** - Hero, vehicules vedettes, categories, partenaires
+- **Catalogue** - Liste des vehicules avec filtres et pagination
+- **Detail vehicule** - Specifications, options, galerie d'images
+- **Panier** - Gestion du panier avec calcul des taxes par pays
+- **Commande** - Processus de checkout en 3 etapes
+- **Authentification** - Connexion et inscription (Particulier/Societe)
+- **Profil** - Gestion du compte utilisateur
+- **Mes commandes** - Historique et suivi des commandes
 
-## Expanding the ESLint configuration
+### Design System
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+#### Theme Premium
+- **Couleur primaire** : Navy (#1A1A2E)
+- **Couleur secondaire** : Gold (#C9A227)
+- **Typographie** : Inter (Google Fonts)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+#### Espacements Material Design
+Echelle de spacing cohérente basée sur Material Design :
+- `4px` (xs) - micro espacements
+- `8px` (sm) - espacements petits
+- `12px` (md) - espacements moyens
+- `16px` (base) - espacement de base
+- `24px` (lg) - grands espacements
+- `32px` (xl) - tres grands espacements
+- `48px` (2xl) - sections
+- `64px` (3xl) - grandes sections
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+#### Mobile-First & Accessibilite
+- Design responsive avec breakpoints : `sm (640px)`, `md (768px)`, `lg (1024px)`, `xl (1280px)`
+- Touch targets minimum de `48px` pour l'accessibilite mobile
+- Navigation accessible avec ARIA labels
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Gestion d'etat
+- **AuthContext** - Authentification utilisateur
+- **CartContext** - Panier avec persistance localStorage
+
+### Donnees
+L'application utilise des donnees mock pour la demonstration :
+- Vehicules (SUV, Berlines, Utilitaires)
+- Options (Packs, Equipements)
+- Utilisateurs (Clients, Societes)
+- Commandes et documents
+
+### Calcul des taxes
+TVA par pays de livraison :
+- Cameroun : 19.25%
+- France : 20%
+- Etats-Unis : 8%
+- Nigeria : 7.5%
+
+## Installation
+
+```bash
+# Installer les dependances
+npm install
+
+# Lancer le serveur de developpement
+npm run dev
+
+# Build pour la production
+npm run build
+
+# Preview du build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Structure du projet
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/
+│   ├── layout/          # Header, Footer
+│   └── ui/              # Composants reutilisables
+├── context/             # Contextes React (Auth, Cart)
+├── data/                # Donnees mock
+├── lib/                 # Utilitaires
+├── pages/               # Pages de l'application
+└── index.css            # Styles globaux Tailwind
+```
+
+## Comptes de demonstration
+
+### Particulier
+- Email : `jean.fotso@email.com`
+- Mot de passe : `password123`
+
+### Societe
+- Email : `contact@autofleet-cm.com`
+- Mot de passe : `societe123`
+
+## Devise
+
+L'application utilise le Franc CFA (XAF) comme devise.
+Format : `XX XXX XXX FCFA`

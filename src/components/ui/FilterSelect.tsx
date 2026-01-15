@@ -23,9 +23,11 @@ export default function FilterSelect({
   label,
 }: FilterSelectProps) {
   return (
-    <div className={cn('flex flex-col gap-1.5', className)}>
+    <div className={cn('flex flex-col', className)}>
       {label && (
-        <label className="text-sm font-medium text-text-light">{label}</label>
+        <label className="text-sm font-medium text-text-light mb-2">
+          {label}
+        </label>
       )}
       <select
         value={value}

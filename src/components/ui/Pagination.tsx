@@ -42,43 +42,57 @@ export default function Pagination({
   }
 
   return (
-    <div className={cn('flex items-center justify-center gap-2', className)}>
+    <nav
+      className={cn('flex items-center justify-center gap-1 sm:gap-2', className)}
+      aria-label="Pagination"
+    >
+      {/* Previous Button */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-2 rounded-lg border border-gray-200 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-lg border border-gray-200 bg-white hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        aria-label="Page précédente"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
 
-      {pages.map((page, index) =>
-        typeof page === 'number' ? (
-          <button
-            key={index}
-            onClick={() => onPageChange(page)}
-            className={cn(
-              'w-10 h-10 rounded-lg font-medium transition-colors',
-              currentPage === page
-                ? 'bg-primary text-white'
-                : 'border border-gray-200 hover:bg-primary-50'
-            )}
-          >
-            {page}
-          </button>
-        ) : (
-          <span key={index} className="px-2 text-text-muted">
-            {page}
-          </span>
-        )
-      )}
+      {/* Page Numbers */}
+      <div className="flex items-center gap-1">
+        {pages.map((page, index) =>
+          typeof page === 'number' ? (
+            <button
+              key={index}
+              onClick={() => onPageChange(page)}
+              className={cn(
+                'w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-lg font-medium text-sm transition-colors',
+                currentPage === page
+                  ? 'bg-primary text-white'
+                  : 'border border-gray-200 bg-white hover:bg-primary-50'
+              )}
+              aria-current={currentPage === page ? 'page' : undefined}
+            >
+              {page}
+            </button>
+          ) : (
+            <span
+              key={index}
+              className="w-8 flex items-center justify-center text-text-muted"
+            >
+              {page}
+            </span>
+          )
+        )}
+      </div>
 
+      {/* Next Button */}
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="p-2 rounded-lg border border-gray-200 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-lg border border-gray-200 bg-white hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        aria-label="Page suivante"
       >
         <ChevronRight className="w-5 h-5" />
       </button>
-    </div>
+    </nav>
   );
 }

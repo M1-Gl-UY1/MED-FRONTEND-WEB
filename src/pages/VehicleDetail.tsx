@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
   Heart,
   Share2,
@@ -11,9 +11,17 @@ import {
   Gauge,
   Calendar,
   Settings,
-  ChevronRight,
 } from 'lucide-react';
 import QuantitySelector from '../components/ui/QuantitySelector';
+import {
+  Button,
+  Badge,
+  Breadcrumb,
+  PriceDisplay,
+  SpecCard,
+  SpecGrid,
+  Alert,
+} from '../components/ui';
 import {
   getVehiculeById,
   getOptionById,
@@ -40,15 +48,17 @@ export default function VehicleDetail() {
 
   if (!vehicle) {
     return (
-      <div className="py-16">
-        <div className="container text-center">
-          <h1 className="text-2xl font-bold text-primary mb-4">Véhicule non trouvé</h1>
-          <p className="text-text-light mb-6">
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="container text-center py-12">
+          <h1 className="text-xl sm:text-2xl font-bold text-primary mb-3">
+            Véhicule non trouvé
+          </h1>
+          <p className="text-text-light mb-6 max-w-md mx-auto">
             Le véhicule que vous recherchez n'existe pas ou a été retiré du catalogue.
           </p>
-          <Link to="/catalogue" className="btn-primary">
+          <Button asChild to="/catalogue">
             Retour au catalogue
-          </Link>
+          </Button>
         </div>
       </div>
     );
@@ -86,11 +96,9 @@ export default function VehicleDetail() {
     if (selectedOptions.includes(optionId)) {
       setSelectedOptions(prev => prev.filter(id => id !== optionId));
     } else {
-      // Check compatibility - get all incompatible IDs and find which are selected
       const allIncompatibles = getOptionsIncompatibles(optionId);
       const incompatibles = allIncompatibles.filter(id => selectedOptions.includes(id));
       if (incompatibles.length > 0) {
-        // Remove incompatible options first
         setSelectedOptions(prev => [
           ...prev.filter(id => !incompatibles.includes(id)),
           optionId,
@@ -119,22 +127,22 @@ export default function VehicleDetail() {
   };
 
   return (
-    <div className="py-8 lg:py-12">
-      <div className="container">
+    <div className="bg-background min-h-screen">
+      <div className="container py-6 sm:py-8 lg:py-12">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-text-light mb-6">
-          <Link to="/" className="hover:text-secondary">Accueil</Link>
-          <ChevronRight className="w-4 h-4" />
-          <Link to="/catalogue" className="hover:text-secondary">Catalogue</Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-primary">{vehicle.marque} {vehicle.nom}</span>
-        </div>
+        <Breadcrumb
+          items={[
+            { label: 'Catalogue', href: '/catalogue' },
+            { label: `${vehicle.marque} ${vehicle.nom}` },
+          ]}
+          className="mb-6"
+        />
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Images */}
-          <div>
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-10 xl:gap-12">
+          {/* Images Column */}
+          <div className="space-y-4">
             {/* Main Image */}
-            <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-4">
+            <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-white">
               <img
                 src={vehicle.images[selectedImage]}
                 alt={`${vehicle.marque} ${vehicle.nom}`}
@@ -142,23 +150,29 @@ export default function VehicleDetail() {
               />
 
               {/* Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
+              <div className="absolute top-3 sm:top-4 left-3 sm:left-4 flex flex-col gap-2">
                 {vehicle.nouveau && (
-                  <span className="badge badge-info">Nouveau</span>
+                  <Badge variant="info">Nouveau</Badge>
                 )}
                 {hasDiscount && (
-                  <span className="badge badge-error">
+                  <Badge variant="error">
                     -{Math.round(vehicle.facteurReduction * 100)}%
-                  </span>
+                  </Badge>
                 )}
               </div>
 
-              {/* Actions */}
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-primary-50 transition-colors">
+              {/* Action Buttons */}
+              <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex gap-2">
+                <button
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-primary-50 transition-colors"
+                  aria-label="Ajouter aux favoris"
+                >
                   <Heart className="w-5 h-5" />
                 </button>
-                <button className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-primary-50 transition-colors">
+                <button
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-primary-50 transition-colors"
+                  aria-label="Partager"
+                >
                   <Share2 className="w-5 h-5" />
                 </button>
               </div>
@@ -166,13 +180,13 @@ export default function VehicleDetail() {
 
             {/* Thumbnails */}
             {vehicle.images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
                 {vehicle.images.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={cn(
-                      'w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors',
+                      'w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors',
                       selectedImage === index
                         ? 'border-secondary'
                         : 'border-transparent hover:border-primary-200'
@@ -189,87 +203,85 @@ export default function VehicleDetail() {
             )}
           </div>
 
-          {/* Info */}
-          <div>
-            <div className="mb-6">
-              <p className="text-sm text-text-muted uppercase tracking-wide mb-1">
+          {/* Info Column */}
+          <div className="space-y-6 sm:space-y-8">
+            {/* Title & Price */}
+            <div>
+              <p className="text-xs sm:text-sm text-text-muted uppercase tracking-wider mb-1">
                 {vehicle.marque}
               </p>
-              <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-1">
                 {vehicle.nom}
               </h1>
-              <p className="text-lg text-text-light">{vehicle.modele}</p>
-            </div>
-
-            {/* Price */}
-            <div className="mb-6">
-              {hasDiscount && (
-                <p className="text-lg text-text-muted line-through">
-                  {formatPrice(vehicle.prixBase)}
-                </p>
-              )}
-              <p className="text-3xl font-bold text-secondary">
-                {formatPrice(prixBase)}
+              <p className="text-base sm:text-lg text-text-light mb-4">
+                {vehicle.modele}
               </p>
-              <p className="text-sm text-text-light">Prix de base</p>
+
+              {/* Price */}
+              <PriceDisplay
+                price={prixBase}
+                originalPrice={hasDiscount ? vehicle.prixBase : undefined}
+                size="xl"
+                suffix="Prix de base"
+              />
             </div>
 
-            {/* Specs */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-              <div className="card p-3">
-                <Calendar className="w-5 h-5 text-secondary mb-2" />
-                <p className="text-xs text-text-muted">Année</p>
-                <p className="font-semibold">{vehicle.annee}</p>
-              </div>
-              <div className="card p-3">
-                <Gauge className="w-5 h-5 text-secondary mb-2" />
-                <p className="text-xs text-text-muted">Puissance</p>
-                <p className="font-semibold">{vehicle.caracteristiques.puissance}</p>
-              </div>
-              <div className="card p-3">
-                {vehicle.typeMoteur === 'ELECTRIQUE' ? (
-                  <Zap className="w-5 h-5 text-secondary mb-2" />
-                ) : (
-                  <Fuel className="w-5 h-5 text-secondary mb-2" />
-                )}
-                <p className="text-xs text-text-muted">Conso.</p>
-                <p className="font-semibold">{vehicle.caracteristiques.consommation}</p>
-              </div>
-              <div className="card p-3">
-                <Settings className="w-5 h-5 text-secondary mb-2" />
-                <p className="text-xs text-text-muted">Transmission</p>
-                <p className="font-semibold text-sm">{vehicle.caracteristiques.transmission}</p>
-              </div>
-              <div className="card p-3">
-                <Gauge className="w-5 h-5 text-secondary mb-2" />
-                <p className="text-xs text-text-muted">0-100 km/h</p>
-                <p className="font-semibold">{vehicle.caracteristiques.acceleration}</p>
-              </div>
-              <div className="card p-3">
-                <Gauge className="w-5 h-5 text-secondary mb-2" />
-                <p className="text-xs text-text-muted">Vitesse max</p>
-                <p className="font-semibold">{vehicle.caracteristiques.vitesseMax}</p>
-              </div>
-            </div>
+            {/* Specs Grid */}
+            <SpecGrid columns={3}>
+              <SpecCard
+                icon={<Calendar className="w-5 h-5" />}
+                label="Année"
+                value={vehicle.annee}
+              />
+              <SpecCard
+                icon={<Gauge className="w-5 h-5" />}
+                label="Puissance"
+                value={vehicle.caracteristiques.puissance}
+              />
+              <SpecCard
+                icon={vehicle.typeMoteur === 'ELECTRIQUE' ? <Zap className="w-5 h-5" /> : <Fuel className="w-5 h-5" />}
+                label="Conso."
+                value={vehicle.caracteristiques.consommation}
+              />
+              <SpecCard
+                icon={<Settings className="w-5 h-5" />}
+                label="Transmission"
+                value={vehicle.caracteristiques.transmission}
+              />
+              <SpecCard
+                icon={<Gauge className="w-5 h-5" />}
+                label="0-100 km/h"
+                value={vehicle.caracteristiques.acceleration}
+              />
+              <SpecCard
+                icon={<Gauge className="w-5 h-5" />}
+                label="Vitesse max"
+                value={vehicle.caracteristiques.vitesseMax}
+              />
+            </SpecGrid>
 
             {/* Description */}
-            <div className="mb-8">
-              <h2 className="text-lg font-semibold text-primary mb-3">Description</h2>
-              <p className="text-text-light">{vehicle.description}</p>
+            <div>
+              <h2 className="text-base sm:text-lg font-semibold text-primary mb-3">
+                Description
+              </h2>
+              <p className="text-sm sm:text-base text-text-light leading-relaxed">
+                {vehicle.description}
+              </p>
             </div>
 
             {/* Color Selection */}
-            <div className="mb-8">
-              <h2 className="text-lg font-semibold text-primary mb-3">
+            <div>
+              <h2 className="text-base sm:text-lg font-semibold text-primary mb-3">
                 Couleur: <span className="font-normal text-text-light">{selectedColor}</span>
               </h2>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 {vehicle.couleurs.map(color => (
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
                     className={cn(
-                      'px-4 py-2 rounded-lg border-2 text-sm font-medium transition-colors',
+                      'h-11 px-4 rounded-lg border-2 text-sm font-medium transition-colors',
                       selectedColor === color
                         ? 'border-secondary bg-secondary-50 text-secondary'
                         : 'border-gray-200 hover:border-primary-200'
@@ -283,15 +295,17 @@ export default function VehicleDetail() {
 
             {/* Options */}
             {availableOptions.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-lg font-semibold text-primary mb-4">Options</h2>
-                <div className="space-y-6">
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-primary mb-4">
+                  Options
+                </h2>
+                <div className="space-y-5 sm:space-y-6">
                   {Object.entries(optionsByCategory).map(([category, opts]) => (
                     <div key={category}>
                       <h3 className="text-sm font-medium text-text-muted mb-3">
                         {categoryLabels[category] || category}
                       </h3>
-                      <div className="space-y-2">
+                      <div className="space-y-2 sm:space-y-3">
                         {opts.map(option => {
                           const isSelected = selectedOptions.includes(option.id);
                           const isCompatible = isOptionCompatible(option.id);
@@ -304,7 +318,7 @@ export default function VehicleDetail() {
                               key={option.id}
                               onClick={() => toggleOption(option.id)}
                               className={cn(
-                                'w-full flex items-center justify-between p-4 rounded-lg border-2 transition-all text-left',
+                                'w-full flex items-start sm:items-center justify-between p-3 sm:p-4 rounded-lg border-2 transition-all text-left gap-3',
                                 isSelected
                                   ? 'border-secondary bg-secondary-50'
                                   : !isCompatible
@@ -312,7 +326,7 @@ export default function VehicleDetail() {
                                   : 'border-gray-200 hover:border-primary-200'
                               )}
                             >
-                              <div className="flex items-start gap-3">
+                              <div className="flex items-start gap-3 flex-1 min-w-0">
                                 <div
                                   className={cn(
                                     'w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5',
@@ -323,23 +337,27 @@ export default function VehicleDetail() {
                                 >
                                   {isSelected && <Check className="w-3 h-3" />}
                                 </div>
-                                <div>
-                                  <p className="font-medium">{option.nom}</p>
-                                  <p className="text-sm text-text-light">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-sm sm:text-base">
+                                    {option.nom}
+                                  </p>
+                                  <p className="text-xs sm:text-sm text-text-light mt-0.5">
                                     {option.description}
                                   </p>
                                   {!isCompatible && incompatibles.length > 0 && (
-                                    <p className="text-xs text-error mt-1 flex items-center gap-1">
-                                      <AlertCircle className="w-3 h-3" />
-                                      Incompatible avec:{' '}
-                                      {incompatibles
-                                        .map(id => getOptionById(id)?.nom)
-                                        .join(', ')}
+                                    <p className="text-xs text-error mt-1.5 flex items-center gap-1">
+                                      <AlertCircle className="w-3 h-3 flex-shrink-0" />
+                                      <span>
+                                        Incompatible avec:{' '}
+                                        {incompatibles
+                                          .map(id => getOptionById(id)?.nom)
+                                          .join(', ')}
+                                      </span>
                                     </p>
                                   )}
                                 </div>
                               </div>
-                              <span className="font-semibold text-secondary ml-4">
+                              <span className="font-semibold text-secondary text-sm sm:text-base whitespace-nowrap">
                                 +{formatPrice(option.prix)}
                               </span>
                             </button>
@@ -352,53 +370,48 @@ export default function VehicleDetail() {
               </div>
             )}
 
-            {/* Quantity & Add to Cart */}
-            <div className="sticky bottom-0 bg-white pt-4 pb-2 border-t mt-8">
+            {/* Add to Cart Section */}
+            <div className="sticky bottom-0 bg-white rounded-t-xl shadow-lg -mx-4 px-4 sm:-mx-0 sm:px-0 sm:shadow-none pt-4 sm:pt-6 pb-4 sm:pb-0 border-t sm:border-t-0 border-gray-100">
               {/* Stock Warning */}
               {vehicle.stock.quantite <= 3 && (
-                <p className="text-sm text-warning mb-3 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
+                <Alert variant="warning" className="mb-4">
                   Plus que {vehicle.stock.quantite} en stock
-                </p>
+                </Alert>
               )}
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div>
-                  <p className="text-sm text-text-muted mb-1">Quantité</p>
-                  <QuantitySelector
-                    value={quantity}
-                    onChange={setQuantity}
-                    max={vehicle.stock.quantite}
-                  />
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                {/* Quantity */}
+                <div className="flex items-center gap-4 sm:gap-6">
+                  <div>
+                    <p className="text-xs sm:text-sm text-text-muted mb-1.5">Quantité</p>
+                    <QuantitySelector
+                      value={quantity}
+                      onChange={setQuantity}
+                      max={vehicle.stock.quantite}
+                    />
+                  </div>
+
+                  {/* Total */}
+                  <div className="flex-1 sm:flex-initial">
+                    <p className="text-xs sm:text-sm text-text-muted mb-1">Total</p>
+                    <p className="text-xl sm:text-2xl font-bold text-secondary">
+                      {formatPrice(totalPrice)}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="flex-1 w-full sm:w-auto">
-                  <p className="text-sm text-text-muted mb-1">Total</p>
-                  <p className="text-2xl font-bold text-secondary">
-                    {formatPrice(totalPrice)}
-                  </p>
-                </div>
-
-                <button
+                {/* Add to Cart Button */}
+                <Button
                   onClick={handleAddToCart}
                   disabled={vehicle.stock.quantite === 0 || isAddedToCart}
+                  leftIcon={isAddedToCart ? <Check className="w-5 h-5" /> : <ShoppingCart className="w-5 h-5" />}
                   className={cn(
-                    'btn-primary w-full sm:w-auto px-8',
+                    'sm:ml-auto',
                     isAddedToCart && 'bg-success hover:bg-success'
                   )}
                 >
-                  {isAddedToCart ? (
-                    <>
-                      <Check className="w-5 h-5" />
-                      Ajouté au panier
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-5 h-5" />
-                      Ajouter au panier
-                    </>
-                  )}
-                </button>
+                  {isAddedToCart ? 'Ajouté au panier' : 'Ajouter au panier'}
+                </Button>
               </div>
             </div>
           </div>

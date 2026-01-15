@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Car, Eye, EyeOff, User, Building, ArrowRight } from 'lucide-react';
+import { Car, Eye, EyeOff, User, Building, ArrowRight, Shield, Truck, CreditCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/utils';
+import { Button } from '../components/ui/Button';
 
 type AuthMode = 'login' | 'register';
 type UserType = 'CLIENT' | 'SOCIETE';
@@ -80,250 +81,360 @@ export default function Auth() {
     }
   };
 
+  const features = [
+    {
+      icon: Shield,
+      title: 'Garantie Premium',
+      description: 'Tous nos véhicules sont garantis',
+    },
+    {
+      icon: Truck,
+      title: 'Livraison Gratuite',
+      description: 'Dans tout le Cameroun',
+    },
+    {
+      icon: CreditCard,
+      title: 'Financement Flexible',
+      description: 'Paiement en plusieurs fois',
+    },
+  ];
+
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-            <Car className="w-7 h-7 text-secondary" />
-          </div>
-          <span className="text-2xl font-bold text-primary">MED Motors</span>
-        </Link>
+    <div className="min-h-[calc(100vh-80px)] flex">
+      {/* Left Panel - Branding (Hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 xl:w-[45%] hero-gradient relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-accent/90" />
 
-        <div className="card">
-          {/* Mode Toggle */}
-          <div className="flex mb-6">
-            <button
-              type="button"
-              onClick={() => setMode('login')}
-              className={cn(
-                'flex-1 py-3 text-sm font-medium border-b-2 transition-colors',
-                mode === 'login'
-                  ? 'border-secondary text-secondary'
-                  : 'border-transparent text-text-muted hover:text-text'
-              )}
-            >
-              Connexion
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('register')}
-              className={cn(
-                'flex-1 py-3 text-sm font-medium border-b-2 transition-colors',
-                mode === 'register'
-                  ? 'border-secondary text-secondary'
-                  : 'border-transparent text-text-muted hover:text-text'
-              )}
-            >
-              Inscription
-            </button>
-          </div>
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-64 h-64 border border-white/20 rounded-full" />
+          <div className="absolute bottom-40 right-20 w-96 h-96 border border-white/20 rounded-full" />
+          <div className="absolute top-1/2 left-1/3 w-48 h-48 border border-white/20 rounded-full" />
+        </div>
 
-          {/* User Type Selection (Register only) */}
-          {mode === 'register' && (
-            <div className="mb-6">
-              <p className="text-sm font-medium text-text-light mb-3">
-                Type de compte
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setUserType('CLIENT')}
-                  className={cn(
-                    'flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors',
-                    userType === 'CLIENT'
-                      ? 'border-secondary bg-secondary-50'
-                      : 'border-gray-200 hover:border-primary-200'
-                  )}
-                >
-                  <User className="w-6 h-6" />
-                  <span className="text-sm font-medium">Particulier</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUserType('SOCIETE')}
-                  className={cn(
-                    'flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors',
-                    userType === 'SOCIETE'
-                      ? 'border-secondary bg-secondary-50'
-                      : 'border-gray-200 hover:border-primary-200'
-                  )}
-                >
-                  <Building className="w-6 h-6" />
-                  <span className="text-sm font-medium">Société</span>
-                </button>
-              </div>
+        <div className="relative z-10 flex flex-col justify-between p-12 xl:p-16 w-full">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-secondary rounded-xl flex items-center justify-center">
+              <Car className="w-7 h-7 text-primary" />
             </div>
-          )}
+            <span className="text-2xl font-bold text-white">MED Motors</span>
+          </Link>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === 'register' && (
-              <>
-                {userType === 'CLIENT' && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-light mb-1">
-                        Prénom
-                      </label>
-                      <input
-                        type="text"
-                        value={prenom}
-                        onChange={e => setPrenom(e.target.value)}
-                        className="input"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-text-light mb-1">
-                        Nom
-                      </label>
-                      <input
-                        type="text"
-                        value={nom}
-                        onChange={e => setNom(e.target.value)}
-                        className="input"
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
+          {/* Main Content */}
+          <div className="my-auto">
+            <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
+              Bienvenue chez
+              <span className="text-secondary block mt-2">MED Motors</span>
+            </h1>
+            <p className="text-xl text-primary-200 leading-relaxed max-w-md">
+              Votre partenaire de confiance pour l'achat de véhicules premium au Cameroun.
+            </p>
+          </div>
 
-                {userType === 'SOCIETE' && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-text-light mb-1">
-                        Raison sociale
-                      </label>
-                      <input
-                        type="text"
-                        value={nom}
-                        onChange={e => setNom(e.target.value)}
-                        className="input"
-                        placeholder="Nom de votre société"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-text-light mb-1">
-                        Numéro fiscal
-                      </label>
-                      <input
-                        type="text"
-                        value={numeroFiscal}
-                        onChange={e => setNumeroFiscal(e.target.value)}
-                        className="input"
-                        placeholder="Ex: CM12345678901"
-                        required
-                      />
-                    </div>
-                  </>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium text-text-light mb-1">
-                    Téléphone
-                  </label>
-                  <input
-                    type="tel"
-                    value={telephone}
-                    onChange={e => setTelephone(e.target.value)}
-                    className="input"
-                    placeholder="+237 6XX XXX XXX"
-                    required
-                  />
+          {/* Features */}
+          <div className="space-y-4">
+            {features.map((feature, index) => (
+              <div key={index} className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <feature.icon className="w-6 h-6 text-secondary" />
                 </div>
-              </>
+                <div>
+                  <p className="font-semibold text-white">{feature.title}</p>
+                  <p className="text-sm text-primary-200">{feature.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Form */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-background">
+        <div className="w-full max-w-lg">
+          {/* Mobile Logo */}
+          <Link to="/" className="lg:hidden flex items-center justify-center gap-3 mb-8">
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+              <Car className="w-7 h-7 text-secondary" />
+            </div>
+            <span className="text-2xl font-bold text-primary">MED Motors</span>
+          </Link>
+
+          {/* Form Card */}
+          <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 lg:p-10">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-2">
+                {mode === 'login' ? 'Connexion' : 'Créer un compte'}
+              </h2>
+              <p className="text-text-light">
+                {mode === 'login'
+                  ? 'Connectez-vous pour accéder à votre espace'
+                  : 'Rejoignez MED Motors dès maintenant'}
+              </p>
+            </div>
+
+            {/* Mode Toggle */}
+            <div className="flex bg-gray-100 rounded-xl p-1 mb-8">
+              <button
+                type="button"
+                onClick={() => setMode('login')}
+                className={cn(
+                  'flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all',
+                  mode === 'login'
+                    ? 'bg-white text-primary shadow-sm'
+                    : 'text-text-muted hover:text-text'
+                )}
+              >
+                Connexion
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('register')}
+                className={cn(
+                  'flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all',
+                  mode === 'register'
+                    ? 'bg-white text-primary shadow-sm'
+                    : 'text-text-muted hover:text-text'
+                )}
+              >
+                Inscription
+              </button>
+            </div>
+
+            {/* User Type Selection (Register only) */}
+            {mode === 'register' && (
+              <div className="mb-6">
+                <p className="text-sm font-medium text-text mb-3">
+                  Type de compte
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setUserType('CLIENT')}
+                    className={cn(
+                      'flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all',
+                      userType === 'CLIENT'
+                        ? 'border-secondary bg-secondary-50 shadow-sm'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    )}
+                  >
+                    <div className={cn(
+                      'w-12 h-12 rounded-full flex items-center justify-center',
+                      userType === 'CLIENT' ? 'bg-secondary/20' : 'bg-gray-100'
+                    )}>
+                      <User className={cn(
+                        'w-6 h-6',
+                        userType === 'CLIENT' ? 'text-secondary' : 'text-gray-500'
+                      )} />
+                    </div>
+                    <span className="font-semibold">Particulier</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUserType('SOCIETE')}
+                    className={cn(
+                      'flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all',
+                      userType === 'SOCIETE'
+                        ? 'border-secondary bg-secondary-50 shadow-sm'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    )}
+                  >
+                    <div className={cn(
+                      'w-12 h-12 rounded-full flex items-center justify-center',
+                      userType === 'SOCIETE' ? 'bg-secondary/20' : 'bg-gray-100'
+                    )}>
+                      <Building className={cn(
+                        'w-6 h-6',
+                        userType === 'SOCIETE' ? 'text-secondary' : 'text-gray-500'
+                      )} />
+                    </div>
+                    <span className="font-semibold">Société</span>
+                  </button>
+                </div>
+              </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-text-light mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="input"
-                placeholder="votre@email.com"
-                required
-              />
-            </div>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {mode === 'register' && (
+                <>
+                  {userType === 'CLIENT' && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-text mb-2">
+                          Prénom
+                        </label>
+                        <input
+                          type="text"
+                          value={prenom}
+                          onChange={e => setPrenom(e.target.value)}
+                          className="input"
+                          placeholder="Jean"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-text mb-2">
+                          Nom
+                        </label>
+                        <input
+                          type="text"
+                          value={nom}
+                          onChange={e => setNom(e.target.value)}
+                          className="input"
+                          placeholder="Fotso"
+                          required
+                        />
+                      </div>
+                    </div>
+                  )}
 
-            <div>
-              <label className="block text-sm font-medium text-text-light mb-1">
-                Mot de passe
-              </label>
-              <div className="relative">
+                  {userType === 'SOCIETE' && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-text mb-2">
+                          Raison sociale
+                        </label>
+                        <input
+                          type="text"
+                          value={nom}
+                          onChange={e => setNom(e.target.value)}
+                          className="input"
+                          placeholder="Nom de votre société"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-text mb-2">
+                          Numéro fiscal
+                        </label>
+                        <input
+                          type="text"
+                          value={numeroFiscal}
+                          onChange={e => setNumeroFiscal(e.target.value)}
+                          className="input"
+                          placeholder="Ex: CM12345678901"
+                          required
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-text mb-2">
+                      Téléphone
+                    </label>
+                    <input
+                      type="tel"
+                      value={telephone}
+                      onChange={e => setTelephone(e.target.value)}
+                      className="input"
+                      placeholder="+237 6XX XXX XXX"
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-text mb-2">
+                  Adresse email
+                </label>
                 <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="input pr-10"
-                  placeholder="••••••••"
-                  minLength={6}
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="input"
+                  placeholder="votre@email.com"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
               </div>
-            </div>
 
-            {error && (
-              <div className="p-3 bg-error/10 text-error text-sm rounded-lg">
-                {error}
+              <div>
+                <label className="block text-sm font-medium text-text mb-2">
+                  Mot de passe
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="input pr-12"
+                    placeholder="••••••••"
+                    minLength={6}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-text-muted hover:text-text rounded-lg transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="p-4 bg-error/10 text-error text-sm rounded-xl border border-error/20">
+                  {error}
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                isLoading={isLoading}
+                fullWidth
+                size="lg"
+                rightIcon={!isLoading ? <ArrowRight className="w-5 h-5" /> : undefined}
+              >
+                {mode === 'login' ? 'Se connecter' : 'Créer mon compte'}
+              </Button>
+            </form>
+
+            {/* Demo credentials */}
+            {mode === 'login' && (
+              <div className="mt-8 p-5 bg-primary-50 rounded-xl border border-primary-100">
+                <p className="text-sm font-semibold text-primary mb-3">
+                  Comptes de démonstration
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                    <span className="text-text-light">Particulier</span>
+                    <code className="text-xs text-primary bg-primary-50 px-2 py-1 rounded">
+                      jean.fotso@email.com
+                    </code>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                    <span className="text-text-light">Société</span>
+                    <code className="text-xs text-primary bg-primary-50 px-2 py-1 rounded">
+                      contact@autofleet-cm.com
+                    </code>
+                  </div>
+                  <p className="text-xs text-text-muted text-center mt-2">
+                    Mot de passe : password123 / societe123
+                  </p>
+                </div>
               </div>
             )}
+          </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="btn-primary w-full"
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              ) : mode === 'login' ? (
-                <>
-                  Se connecter
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              ) : (
-                <>
-                  Créer mon compte
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Demo credentials */}
-          {mode === 'login' && (
-            <div className="mt-6 p-4 bg-primary-50 rounded-lg">
-              <p className="text-xs font-medium text-primary mb-2">
-                Comptes de démonstration :
-              </p>
-              <div className="text-xs text-text-light space-y-1">
-                <p>
-                  <span className="font-medium">Particulier:</span>{' '}
-                  jean.fotso@email.com / password123
-                </p>
-                <p>
-                  <span className="font-medium">Société:</span>{' '}
-                  contact@autofleet-cm.com / societe123
-                </p>
-              </div>
-            </div>
-          )}
+          {/* Footer */}
+          <p className="text-center text-sm text-text-muted mt-6">
+            En continuant, vous acceptez nos{' '}
+            <Link to="#" className="text-secondary hover:underline">
+              Conditions d'utilisation
+            </Link>{' '}
+            et notre{' '}
+            <Link to="#" className="text-secondary hover:underline">
+              Politique de confidentialité
+            </Link>
+          </p>
         </div>
       </div>
     </div>

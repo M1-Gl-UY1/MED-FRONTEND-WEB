@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Package,
@@ -10,6 +11,9 @@ import {
   FileText,
 } from 'lucide-react';
 import EmptyState from '../components/ui/EmptyState';
+import Pagination from '../components/ui/Pagination';
+import { Button } from '../components/ui/Button';
+import { Badge, type BadgeVariant } from '../components/ui/Badge';
 import {
   getCommandesByUserId,
   getVehiculeById,
@@ -21,18 +25,27 @@ import {
   getPaysLabel,
 } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
-import { cn } from '../lib/utils';
+
+const ITEMS_PER_PAGE = 5;
 
 export default function Orders() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const [currentPage, setCurrentPage] = useState(1);
 
   if (!isAuthenticated || !user) {
     navigate('/connexion');
     return null;
   }
 
-  const orders = getCommandesByUserId(user.id);
+  const allOrders = getCommandesByUserId(user.id);
+
+  // Pagination
+  const totalPages = Math.ceil(allOrders.length / ITEMS_PER_PAGE);
+  const paginatedOrders = allOrders.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const getStatusIcon = (statut: string) => {
     switch (statut) {
@@ -47,9 +60,9 @@ export default function Orders() {
     }
   };
 
-  if (orders.length === 0) {
+  if (allOrders.length === 0) {
     return (
-      <div className="py-16">
+      <div className="py-8 sm:py-12 lg:py-16">
         <div className="container">
           <EmptyState
             icon={<Package className="w-8 h-8" />}
@@ -66,46 +79,56 @@ export default function Orders() {
   }
 
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-6 sm:py-8 lg:py-12">
       <div className="container">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-text-light mb-6">
+        <nav className="flex items-center gap-2 text-sm text-text-light mb-6">
           <Link to="/" className="hover:text-secondary">Accueil</Link>
           <ChevronRight className="w-4 h-4" />
           <Link to="/profil" className="hover:text-secondary">Mon profil</Link>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-primary">Mes commandes</span>
+          <span className="text-primary font-medium">Mes commandes</span>
+        </nav>
+
+        {/* Header with count */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+          <div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">
+              Mes Commandes
+            </h1>
+            <p className="text-sm text-text-light mt-1">
+              {allOrders.length} commande{allOrders.length > 1 ? 's' : ''} au total
+            </p>
+          </div>
         </div>
 
-        <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-8">
-          Mes Commandes
-        </h1>
-
-        <div className="space-y-6">
-          {orders.map(order => {
+        <div className="space-y-4 sm:space-y-6">
+          {paginatedOrders.map(order => {
             const StatusIcon = getStatusIcon(order.statut);
             const statusColor = getStatutColor(order.statut);
 
             return (
               <div key={order.id} className="card overflow-hidden">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 border-b border-gray-100">
                   <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <h2 className="font-semibold text-primary">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
+                      <h2 className="font-semibold text-primary text-sm sm:text-base">
                         {order.reference}
                       </h2>
-                      <span className={cn('badge', `badge-${statusColor}`)}>
-                        <StatusIcon className="w-3 h-3 mr-1" />
+                      <Badge
+                        variant={statusColor as BadgeVariant}
+                        icon={<StatusIcon className="w-3 h-3" />}
+                      >
                         {getStatutLabel(order.statut)}
-                      </span>
+                      </Badge>
                     </div>
-                    <p className="text-sm text-text-muted">
+                    <p className="text-xs sm:text-sm text-text-muted">
                       Commandé le {formatDate(order.dateCommande)}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-secondary">
+                  <div className="text-left sm:text-right">
+                    <p className="text-xl sm:text-2xl font-bold text-secondary">
                       {formatPrice(order.montantTTC)}
                     </p>
                     <p className="text-xs text-text-muted">TTC</p>
@@ -113,16 +136,16 @@ export default function Orders() {
                 </div>
 
                 {/* Items */}
-                <div className="py-4 space-y-4">
+                <div className="py-4 sm:py-5 space-y-4">
                   {order.lignes.map(ligne => {
                     const vehicle = getVehiculeById(ligne.vehiculeId);
                     if (!vehicle) return null;
 
                     return (
-                      <div key={ligne.id} className="flex gap-4">
+                      <div key={ligne.id} className="flex gap-3 sm:gap-4">
                         <Link
                           to={`/vehicule/${vehicle.id}`}
-                          className="w-24 h-20 rounded-lg overflow-hidden flex-shrink-0"
+                          className="w-20 h-16 sm:w-24 sm:h-20 rounded-lg overflow-hidden flex-shrink-0"
                         >
                           <img
                             src={vehicle.image}
@@ -133,14 +156,14 @@ export default function Orders() {
                         <div className="flex-1 min-w-0">
                           <Link
                             to={`/vehicule/${vehicle.id}`}
-                            className="font-medium text-primary hover:text-secondary"
+                            className="font-medium text-sm sm:text-base text-primary hover:text-secondary line-clamp-1"
                           >
                             {vehicle.marque} {vehicle.nom}
                           </Link>
-                          <p className="text-sm text-text-muted">
+                          <p className="text-xs sm:text-sm text-text-muted mt-0.5">
                             {vehicle.modele} • Couleur: {ligne.couleur}
                           </p>
-                          <p className="text-sm text-text-light">
+                          <p className="text-xs sm:text-sm text-text-light mt-0.5">
                             Quantité: {ligne.quantite} • {formatPrice(ligne.prixUnitaireHT)} /unité
                           </p>
                         </div>
@@ -150,73 +173,87 @@ export default function Orders() {
                 </div>
 
                 {/* Details */}
-                <div className="py-4 border-t grid sm:grid-cols-3 gap-4 text-sm">
+                <div className="py-4 sm:py-5 border-t border-gray-100 grid sm:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <p className="text-text-muted mb-1">Mode de paiement</p>
-                    <p className="font-medium">
+                    <p className="text-text-muted text-xs sm:text-sm mb-1">Mode de paiement</p>
+                    <p className="font-medium text-sm sm:text-base">
                       {getMethodePaiementLabel(order.methodePaiement)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-text-muted mb-1">Livraison</p>
-                    <p className="font-medium">
+                    <p className="text-text-muted text-xs sm:text-sm mb-1">Livraison</p>
+                    <p className="font-medium text-sm sm:text-base">
                       {getPaysLabel(order.paysLivraison)}
                     </p>
                     {order.dateLivraison && (
-                      <p className="text-xs text-success">
+                      <p className="text-xs text-success mt-0.5">
                         Livré le {formatDate(order.dateLivraison)}
                       </p>
                     )}
                   </div>
                   <div>
-                    <p className="text-text-muted mb-1">Adresse</p>
-                    <p className="font-medium">{order.adresseLivraison}</p>
+                    <p className="text-text-muted text-xs sm:text-sm mb-1">Adresse</p>
+                    <p className="font-medium text-sm sm:text-base">{order.adresseLivraison}</p>
                   </div>
                 </div>
 
                 {/* Documents */}
                 {order.documents.length > 0 && (
-                  <div className="pt-4 border-t">
+                  <div className="pt-4 sm:pt-5 border-t border-gray-100">
                     <p className="text-sm font-medium text-primary mb-3 flex items-center gap-2">
                       <FileText className="w-4 h-4" />
                       Documents
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
                       {order.documents.map(doc => (
-                        <button
+                        <Button
                           key={doc.id}
-                          className="btn-outline text-xs py-2 px-3"
+                          variant="outline"
+                          size="sm"
+                          leftIcon={<Download className="w-3 h-3" />}
                         >
-                          <Download className="w-3 h-3" />
                           {doc.type === 'BON_COMMANDE' && 'Bon de commande'}
                           {doc.type === 'CERTIFICAT_CESSION' && 'Certificat de cession'}
                           {doc.type === 'DEMANDE_IMMATRICULATION' && 'Demande immatriculation'}
                           ({doc.format})
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>
                 )}
 
                 {/* Actions */}
-                <div className="pt-4 border-t flex flex-wrap gap-3">
-                  <Link
+                <div className="pt-4 sm:pt-5 border-t border-gray-100 flex flex-wrap gap-3">
+                  <Button
+                    asChild
                     to={`/vehicule/${order.lignes[0]?.vehiculeId}`}
-                    className="btn-ghost text-sm py-2 px-4"
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<Eye className="w-4 h-4" />}
                   >
-                    <Eye className="w-4 h-4" />
                     Voir le véhicule
-                  </Link>
+                  </Button>
                   {order.statut === 'LIVREE' && (
-                    <button className="btn-outline text-sm py-2 px-4">
+                    <Button variant="outline" size="sm">
                       Laisser un avis
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
             );
           })}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-8 sm:mt-10">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

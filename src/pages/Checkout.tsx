@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   ChevronRight,
   CreditCard,
   Building,
   Check,
-  AlertCircle,
   FileText,
   Download,
 } from 'lucide-react';
@@ -17,6 +16,15 @@ import {
 } from '../data/mockData';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import {
+  Button,
+  Breadcrumb,
+  Alert,
+  SelectionGroup,
+  SelectionCard,
+  FormField,
+  FormTextarea,
+} from '../components/ui';
 import FilterSelect from '../components/ui/FilterSelect';
 
 type CheckoutStep = 'livraison' | 'paiement' | 'confirmation';
@@ -87,25 +95,25 @@ export default function Checkout() {
 
   if (orderComplete) {
     return (
-      <div className="py-16">
+      <div className="py-8 sm:py-12 lg:py-16">
         <div className="container max-w-2xl">
           <div className="card text-center">
-            <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6">
-              <Check className="w-10 h-10 text-success" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <Check className="w-8 h-8 sm:w-10 sm:h-10 text-success" />
             </div>
-            <h1 className="text-2xl font-bold text-primary mb-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-primary mb-2">
               Commande Confirmée !
             </h1>
-            <p className="text-text-light mb-6">
+            <p className="text-sm sm:text-base text-text-light mb-6 sm:mb-8">
               Votre commande a été enregistrée avec succès.
             </p>
 
-            <div className="bg-primary-50 rounded-lg p-4 mb-6">
-              <p className="text-sm text-text-muted">Référence de commande</p>
-              <p className="text-xl font-bold text-primary">{orderReference}</p>
+            <div className="bg-primary-50 rounded-lg p-4 sm:p-5 mb-6">
+              <p className="text-xs sm:text-sm text-text-muted mb-1">Référence de commande</p>
+              <p className="text-lg sm:text-xl font-bold text-primary">{orderReference}</p>
             </div>
 
-            <div className="space-y-3 mb-8">
+            <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
               <p className="text-sm text-text-light">
                 Un email de confirmation a été envoyé à{' '}
                 <span className="font-medium text-primary">{user?.email}</span>
@@ -115,30 +123,28 @@ export default function Checkout() {
               </p>
             </div>
 
-            <div className="bg-secondary-50 rounded-lg p-4 mb-6">
-              <h3 className="font-semibold text-primary mb-3 flex items-center justify-center gap-2">
+            <div className="bg-secondary-50 rounded-lg p-4 sm:p-5 mb-6 sm:mb-8">
+              <h3 className="font-semibold text-primary mb-3 sm:mb-4 flex items-center justify-center gap-2">
                 <FileText className="w-5 h-5" />
                 Documents disponibles
               </h3>
-              <div className="flex flex-wrap justify-center gap-2">
-                <button className="btn-outline text-sm py-2 px-4">
-                  <Download className="w-4 h-4" />
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3">
+                <Button variant="outline" size="sm" leftIcon={<Download className="w-4 h-4" />}>
                   Bon de commande (PDF)
-                </button>
-                <button className="btn-outline text-sm py-2 px-4">
-                  <Download className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" size="sm" leftIcon={<Download className="w-4 h-4" />}>
                   Facture proforma (PDF)
-                </button>
+                </Button>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/mes-commandes" className="btn-primary">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <Button asChild to="/mes-commandes">
                 Voir mes commandes
-              </Link>
-              <Link to="/catalogue" className="btn-outline">
+              </Button>
+              <Button asChild to="/catalogue" variant="outline">
                 Continuer mes achats
-              </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -147,27 +153,27 @@ export default function Checkout() {
   }
 
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-6 sm:py-8 lg:py-12">
       <div className="container max-w-4xl">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-text-light mb-6">
-          <Link to="/" className="hover:text-secondary">Accueil</Link>
-          <ChevronRight className="w-4 h-4" />
-          <Link to="/panier" className="hover:text-secondary">Panier</Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-primary">Commande</span>
-        </div>
+        <Breadcrumb
+          items={[
+            { label: 'Panier', href: '/panier' },
+            { label: 'Commande' },
+          ]}
+          className="mb-6"
+        />
 
-        <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-8">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary mb-6 sm:mb-8">
           Finaliser ma commande
         </h1>
 
         {/* Steps */}
-        <div className="flex items-center justify-center mb-8">
+        <div className="flex items-center justify-center mb-6 sm:mb-8 lg:mb-10">
           {steps.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold ${
+                className={`flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full font-semibold text-sm sm:text-base ${
                   currentStep === step.id
                     ? 'bg-secondary text-primary'
                     : steps.findIndex(s => s.id === currentStep) > index
@@ -182,29 +188,29 @@ export default function Checkout() {
                 )}
               </div>
               <span
-                className={`ml-2 text-sm font-medium hidden sm:block ${
+                className={`ml-2 sm:ml-3 text-sm font-medium hidden sm:block ${
                   currentStep === step.id ? 'text-primary' : 'text-text-muted'
                 }`}
               >
                 {step.label}
               </span>
               {index < steps.length - 1 && (
-                <div className="w-12 sm:w-20 h-0.5 bg-primary-100 mx-2 sm:mx-4" />
+                <div className="w-8 sm:w-16 lg:w-20 h-0.5 bg-primary-100 mx-2 sm:mx-4" />
               )}
             </div>
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Form */}
           <div className="lg:col-span-2">
             {currentStep === 'livraison' && (
               <form onSubmit={handleSubmitLivraison} className="card">
-                <h2 className="text-lg font-semibold text-primary mb-6">
+                <h2 className="text-base sm:text-lg font-semibold text-primary mb-5 sm:mb-6">
                   Informations de livraison
                 </h2>
 
-                <div className="space-y-4">
+                <div className="space-y-4 sm:space-y-5">
                   <div>
                     <label className="block text-sm font-medium text-text-light mb-2">
                       Pays de livraison
@@ -221,134 +227,88 @@ export default function Checkout() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-text-light mb-2">
-                      Adresse de livraison
-                    </label>
-                    <textarea
+                  <FormField label="Adresse de livraison" required>
+                    <FormTextarea
                       value={adresseLivraison}
                       onChange={e => setAdresseLivraison(e.target.value)}
-                      className="input min-h-[100px]"
                       placeholder="Adresse complète..."
                       required
+                      rows={4}
                     />
-                  </div>
+                  </FormField>
 
-                  <div className="bg-info/10 rounded-lg p-4">
-                    <p className="text-sm text-info flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                      La livraison est gratuite. Le délai estimé est de 2 à 4 semaines
-                      selon la destination.
-                    </p>
-                  </div>
+                  <Alert variant="info">
+                    La livraison est gratuite. Le délai estimé est de 2 à 4 semaines
+                    selon la destination.
+                  </Alert>
                 </div>
 
-                <div className="flex justify-end mt-6">
-                  <button type="submit" className="btn-primary">
+                <div className="flex justify-end mt-6 sm:mt-8">
+                  <Button type="submit" rightIcon={<ChevronRight className="w-5 h-5" />}>
                     Continuer vers le paiement
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
+                  </Button>
                 </div>
               </form>
             )}
 
             {currentStep === 'paiement' && (
               <form onSubmit={handleSubmitPaiement} className="card">
-                <h2 className="text-lg font-semibold text-primary mb-6">
+                <h2 className="text-base sm:text-lg font-semibold text-primary mb-5 sm:mb-6">
                   Mode de paiement
                 </h2>
 
-                <div className="space-y-4">
-                  {(['CARTE_BANCAIRE', 'PAYPAL', 'COMPTANT', 'CREDIT'] as MethodePaiement[]).map(
-                    method => (
-                      <label
-                        key={method}
-                        className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-colors ${
-                          methodePaiement === method
-                            ? 'border-secondary bg-secondary-50'
-                            : 'border-gray-200 hover:border-primary-200'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="paiement"
-                          value={method}
-                          checked={methodePaiement === method}
-                          onChange={e =>
-                            setMethodePaiement(e.target.value as MethodePaiement)
-                          }
-                          className="sr-only"
-                        />
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            methodePaiement === method
-                              ? 'border-secondary'
-                              : 'border-gray-300'
-                          }`}
-                        >
-                          {methodePaiement === method && (
-                            <div className="w-3 h-3 rounded-full bg-secondary" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium">
-                            {getMethodePaiementLabel(method)}
-                          </p>
-                          <p className="text-sm text-text-muted">
-                            {method === 'CARTE_BANCAIRE' &&
-                              'Paiement sécurisé par carte Visa, Mastercard'}
-                            {method === 'PAYPAL' && 'Paiement via votre compte PayPal'}
-                            {method === 'COMPTANT' && 'Paiement intégral à la livraison'}
-                            {method === 'CREDIT' &&
-                              'Financement en plusieurs mensualités'}
-                          </p>
-                        </div>
-                        {method === 'CARTE_BANCAIRE' && (
-                          <CreditCard className="w-6 h-6 text-text-muted" />
-                        )}
-                        {method === 'CREDIT' && (
-                          <Building className="w-6 h-6 text-text-muted" />
-                        )}
-                      </label>
-                    )
-                  )}
+                <SelectionGroup
+                  name="paiement"
+                  value={methodePaiement}
+                  onChange={value => setMethodePaiement(value as MethodePaiement)}
+                >
+                  <SelectionCard
+                    value="CARTE_BANCAIRE"
+                    title={getMethodePaiementLabel('CARTE_BANCAIRE')}
+                    description="Paiement sécurisé par carte Visa, Mastercard"
+                    rightIcon={<CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />}
+                  />
+                  <SelectionCard
+                    value="PAYPAL"
+                    title={getMethodePaiementLabel('PAYPAL')}
+                    description="Paiement via votre compte PayPal"
+                  />
+                  <SelectionCard
+                    value="COMPTANT"
+                    title={getMethodePaiementLabel('COMPTANT')}
+                    description="Paiement intégral à la livraison"
+                  />
+                  <SelectionCard
+                    value="CREDIT"
+                    title={getMethodePaiementLabel('CREDIT')}
+                    description="Financement en plusieurs mensualités"
+                    rightIcon={<Building className="w-5 h-5 sm:w-6 sm:h-6" />}
+                  />
+                </SelectionGroup>
 
-                  {methodePaiement === 'CREDIT' && (
-                    <div className="bg-warning/10 rounded-lg p-4">
-                      <p className="text-sm text-warning flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                        Une demande de crédit nécessite une étude de dossier.
-                        Vous serez contacté par notre service financier.
-                      </p>
-                    </div>
-                  )}
-                </div>
+                {methodePaiement === 'CREDIT' && (
+                  <Alert variant="warning" className="mt-4">
+                    Une demande de crédit nécessite une étude de dossier.
+                    Vous serez contacté par notre service financier.
+                  </Alert>
+                )}
 
-                <div className="flex justify-between mt-6">
-                  <button
+                <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 mt-6 sm:mt-8">
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => setCurrentStep('livraison')}
-                    className="btn-ghost"
                   >
                     Retour
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
                     disabled={isProcessing}
-                    className="btn-primary"
+                    isLoading={isProcessing}
+                    rightIcon={!isProcessing ? <Check className="w-5 h-5" /> : undefined}
                   >
-                    {isProcessing ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                        Traitement...
-                      </>
-                    ) : (
-                      <>
-                        Confirmer la commande
-                        <Check className="w-5 h-5" />
-                      </>
-                    )}
-                  </button>
+                    {isProcessing ? 'Traitement...' : 'Confirmer la commande'}
+                  </Button>
                 </div>
               </form>
             )}
@@ -357,43 +317,43 @@ export default function Checkout() {
           {/* Summary */}
           <div className="lg:col-span-1">
             <div className="card sticky top-24">
-              <h2 className="text-lg font-semibold text-primary mb-4">
+              <h2 className="text-base sm:text-lg font-semibold text-primary mb-4">
                 Récapitulatif
               </h2>
 
-              <div className="space-y-3 py-4 border-b">
+              <div className="space-y-3 sm:space-y-4 py-4 border-b border-gray-100">
                 {items.map(item => (
                   <div key={item.id} className="flex gap-3">
                     <img
                       src={item.vehiculeImage}
                       alt={item.vehiculeNom}
-                      className="w-16 h-12 rounded object-cover"
+                      className="w-16 h-12 rounded-lg object-cover flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">
                         {item.vehiculeNom}
                       </p>
-                      <p className="text-xs text-text-muted">
+                      <p className="text-xs text-text-muted mt-0.5">
                         Qté: {item.quantite}
                       </p>
                     </div>
-                    <p className="text-sm font-semibold">
+                    <p className="text-sm font-semibold flex-shrink-0">
                       {formatPrice(item.sousTotal)}
                     </p>
                   </div>
                 ))}
               </div>
 
-              <div className="space-y-2 py-4 border-b text-sm">
+              <div className="space-y-2 sm:space-y-3 py-4 border-b border-gray-100 text-sm">
                 <div className="flex justify-between">
                   <span className="text-text-light">Sous-total HT</span>
-                  <span>{formatPrice(subtotal)}</span>
+                  <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-light">
                     TVA ({tauxTVA[paysLivraison]}%)
                   </span>
-                  <span>{formatPrice(taxes)}</span>
+                  <span className="font-medium">{formatPrice(taxes)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-text-light">Livraison</span>
@@ -403,7 +363,7 @@ export default function Checkout() {
 
               <div className="flex justify-between items-center pt-4">
                 <span className="font-semibold text-primary">Total TTC</span>
-                <span className="text-2xl font-bold text-secondary">
+                <span className="text-xl sm:text-2xl font-bold text-secondary">
                   {formatPrice(total)}
                 </span>
               </div>

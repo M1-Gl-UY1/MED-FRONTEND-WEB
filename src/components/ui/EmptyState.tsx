@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 import { cn } from '../../lib/utils';
+import { Button } from './Button';
 
 interface EmptyStateProps {
   icon: ReactNode;
@@ -30,13 +30,13 @@ export default function EmptyState({
       <p className="text-text-light text-sm max-w-md mb-6">{description}</p>
       {action && (
         action.href ? (
-          <Link to={action.href} className="btn-primary">
+          <Button asChild to={action.href}>
             {action.label}
-          </Link>
+          </Button>
         ) : (
-          <button onClick={action.onClick} className="btn-primary">
+          <Button onClick={action.onClick}>
             {action.label}
-          </button>
+          </Button>
         )
       )}
     </div>

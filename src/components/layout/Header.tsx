@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { cn } from '../../lib/utils';
+import { Button } from '../ui/Button';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,25 +55,26 @@ export default function Header() {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        {/* Main Header Row */}
+        <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Car className="w-6 h-6 text-secondary" />
+          <Link to="/" className="flex items-center gap-3 flex-shrink-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary rounded-lg flex items-center justify-center">
+              <Car className="w-6 h-6 sm:w-7 sm:h-7 text-secondary" />
             </div>
-            <span className="text-xl font-bold text-primary hidden sm:block">
+            <span className="text-lg sm:text-xl font-bold text-primary hidden sm:block">
               MED Motors
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             {navigation.map(item => (
               <Link
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  'text-sm font-medium transition-colors hover:text-secondary',
+                  'text-sm font-medium py-2 transition-colors hover:text-secondary',
                   isActive(item.href) ? 'text-secondary' : 'text-text-light'
                 )}
               >
@@ -82,7 +84,7 @@ export default function Header() {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-2">
             {/* Search */}
             <div className="relative">
               {isSearchOpen ? (
@@ -92,13 +94,13 @@ export default function Header() {
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Rechercher..."
-                    className="input w-64 pr-10"
+                    className="input w-56 xl:w-64 h-11 text-sm pr-10"
                     autoFocus
                   />
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(false)}
-                    className="absolute right-3 text-text-muted hover:text-text"
+                    className="absolute right-3 text-text-muted hover:text-text p-1"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -106,7 +108,7 @@ export default function Header() {
               ) : (
                 <button
                   onClick={() => setIsSearchOpen(true)}
-                  className="p-2 text-text-light hover:text-primary transition-colors"
+                  className="w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
                 >
                   <Search className="w-5 h-5" />
                 </button>
@@ -116,12 +118,12 @@ export default function Header() {
             {/* Cart */}
             <Link
               to="/panier"
-              className="relative p-2 text-text-light hover:text-primary transition-colors"
+              className="relative w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
             >
               <ShoppingCart className="w-5 h-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-primary text-xs font-bold rounded-full flex items-center justify-center">
-                  {itemCount}
+                <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 bg-secondary text-primary text-xs font-bold rounded-full flex items-center justify-center">
+                  {itemCount > 9 ? '9+' : itemCount}
                 </span>
               )}
             </Link>
@@ -131,69 +133,91 @@ export default function Header() {
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center gap-2 p-2 text-text-light hover:text-primary transition-colors"
+                  className="flex items-center gap-2 h-11 px-3 text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
                 >
                   <User className="w-5 h-5" />
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium max-w-24 truncate">
                     {user?.type === 'CLIENT'
                       ? user.prenom
                       : user?.nom.split(' ')[0]}
                   </span>
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className={cn(
+                    "w-4 h-4 transition-transform",
+                    isProfileOpen && "rotate-180"
+                  )} />
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2">
-                    <Link
-                      to="/profil"
+                  <>
+                    {/* Backdrop */}
+                    <div
+                      className="fixed inset-0 z-10"
                       onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-primary-50"
-                    >
-                      <User className="w-4 h-4" />
-                      Mon profil
-                    </Link>
-                    <Link
-                      to="/mes-commandes"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-primary-50"
-                    >
-                      <ShoppingCart className="w-4 h-4" />
-                      Mes commandes
-                    </Link>
-                    <hr className="my-2" />
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-error hover:bg-red-50 w-full"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Déconnexion
-                    </button>
-                  </div>
+                    />
+                    {/* Dropdown */}
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20">
+                      <Link
+                        to="/profil"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-primary-50 transition-colors"
+                      >
+                        <User className="w-5 h-5 text-text-muted" />
+                        Mon profil
+                      </Link>
+                      <Link
+                        to="/mes-commandes"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-primary-50 transition-colors"
+                      >
+                        <ShoppingCart className="w-5 h-5 text-text-muted" />
+                        Mes commandes
+                      </Link>
+                      <hr className="my-2 border-gray-100" />
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-error hover:bg-red-50 w-full transition-colors"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        Déconnexion
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             ) : (
-              <Link to="/connexion" className="btn-primary text-sm py-2 px-4">
+              <Button asChild to="/connexion" size="sm">
                 Connexion
-              </Link>
+              </Button>
             )}
           </div>
 
           {/* Mobile Actions */}
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-1 lg:hidden">
+            {/* Mobile Search Toggle */}
+            <button
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+
+            {/* Cart */}
             <Link
               to="/panier"
-              className="relative p-2 text-text-light hover:text-primary"
+              className="relative w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
             >
               <ShoppingCart className="w-5 h-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-primary text-xs font-bold rounded-full flex items-center justify-center">
-                  {itemCount}
+                <span className="absolute top-0.5 right-0.5 min-w-5 h-5 px-1 bg-secondary text-primary text-xs font-bold rounded-full flex items-center justify-center">
+                  {itemCount > 9 ? '9+' : itemCount}
                 </span>
               )}
             </Link>
+
+            {/* Menu Toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 text-text-light hover:text-primary"
+              className="w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
             >
               {isMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -204,37 +228,42 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden border-t border-gray-100 py-4">
-            {/* Mobile Search */}
-            <form onSubmit={handleSearch} className="mb-4">
+        {/* Mobile Search Bar */}
+        {isSearchOpen && (
+          <div className="lg:hidden pb-4">
+            <form onSubmit={handleSearch}>
               <div className="relative">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Rechercher un véhicule..."
-                  className="input pr-10"
+                  className="input pr-12"
+                  autoFocus
                 />
                 <button
                   type="submit"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-text-muted hover:text-primary rounded-lg"
                 >
                   <Search className="w-5 h-5" />
                 </button>
               </div>
             </form>
+          </div>
+        )}
 
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="lg:hidden border-t border-gray-100 py-4">
             {/* Mobile Navigation */}
-            <nav className="space-y-1">
+            <nav className="space-y-1 mb-4">
               {navigation.map(item => (
                 <Link
                   key={item.name}
                   to={item.href}
                   onClick={() => setIsMenuOpen(false)}
                   className={cn(
-                    'block px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                    'flex items-center h-12 px-4 rounded-lg text-sm font-medium transition-colors',
                     isActive(item.href)
                       ? 'bg-secondary-50 text-secondary'
                       : 'text-text hover:bg-primary-50'
@@ -245,42 +274,38 @@ export default function Header() {
               ))}
             </nav>
 
-            {/* Mobile Profile */}
-            <div className="mt-4 pt-4 border-t border-gray-100">
+            {/* Mobile Profile Section */}
+            <div className="pt-4 border-t border-gray-100">
               {isAuthenticated ? (
-                <>
+                <div className="space-y-1">
                   <Link
                     to="/profil"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-primary-50 rounded-lg"
+                    className="flex items-center gap-3 h-12 px-4 text-sm text-text hover:bg-primary-50 rounded-lg transition-colors"
                   >
-                    <User className="w-5 h-5" />
+                    <User className="w-5 h-5 text-text-muted" />
                     Mon profil
                   </Link>
                   <Link
                     to="/mes-commandes"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-primary-50 rounded-lg"
+                    className="flex items-center gap-3 h-12 px-4 text-sm text-text hover:bg-primary-50 rounded-lg transition-colors"
                   >
-                    <ShoppingCart className="w-5 h-5" />
+                    <ShoppingCart className="w-5 h-5 text-text-muted" />
                     Mes commandes
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-error hover:bg-red-50 rounded-lg w-full"
+                    className="flex items-center gap-3 h-12 px-4 text-sm text-error hover:bg-red-50 rounded-lg w-full transition-colors"
                   >
                     <LogOut className="w-5 h-5" />
                     Déconnexion
                   </button>
-                </>
+                </div>
               ) : (
-                <Link
-                  to="/connexion"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="btn-primary w-full"
-                >
+                <Button asChild to="/connexion" fullWidth onClick={() => setIsMenuOpen(false)}>
                   Connexion
-                </Link>
+                </Button>
               )}
             </div>
           </div>
