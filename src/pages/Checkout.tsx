@@ -110,27 +110,31 @@ export default function Checkout() {
       return {
         nom: item.vehiculeNom,
         marque: vehicule?.marque || 'N/A',
+        modele: vehicule?.modele || 'N/A',
         annee: vehicule?.annee || new Date().getFullYear(),
-        vin: `VIN${String(item.vehiculeId).padStart(14, '0')}`,
-        prixUnitaire: item.prixUnitaire,
+        couleur: item.couleurSelectionnee || 'Standard',
+        prixUnitaireHT: item.prixUnitaire,
         quantite: item.quantite,
       };
     });
 
     const clientInfo: ClientInfo = {
-      nom: user?.type === 'SOCIETE' ? user.raisonSociale : `${user?.prenom || ''} ${user?.nom || ''}`,
+      nom: user?.type === 'SOCIETE' ? user.nom : `${user?.prenom || ''} ${user?.nom || ''}`.trim(),
+      prenom: user?.type === 'CLIENT' ? user.prenom : undefined,
       adresse: adresseLivraison,
+      ville: user?.ville || '',
+      pays: getPaysLabel(user?.pays || paysLivraison),
       telephone: user?.telephone || '',
       email: user?.email || '',
+      type: user?.type || 'CLIENT',
       ...(user?.type === 'SOCIETE' && {
-        siret: user.siret,
-        raisonSociale: user.raisonSociale
+        numeroFiscal: user.numeroFiscal,
       }),
     };
 
     const orderInfo: OrderInfo = {
       reference: ref,
-      date: new Date(),
+      date: new Date().toISOString(),
       methodePaiement: getMethodePaiementLabel(methodePaiement),
       paysLivraison: getPaysLabel(paysLivraison),
       adresseLivraison: adresseLivraison,
