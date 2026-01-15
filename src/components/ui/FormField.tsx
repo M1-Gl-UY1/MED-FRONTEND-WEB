@@ -25,7 +25,7 @@ export function FormField({
 
   return (
     <div className={cn('w-full', className)}>
-      <label htmlFor={id} className="block text-sm font-medium text-text mb-2">
+      <label htmlFor={id} className="block text-sm font-medium text-content mb-2">
         {label}
         {required && <span className="text-error ml-1">*</span>}
       </label>
@@ -37,7 +37,7 @@ export function FormField({
         </p>
       )}
       {hint && !error && (
-        <p className="text-sm text-text-muted mt-2">{hint}</p>
+        <p className="text-sm text-content-muted mt-2">{hint}</p>
       )}
     </div>
   );
@@ -56,9 +56,9 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
       <input
         ref={ref}
         className={cn(
-          'w-full min-h-[48px] px-4 py-3 rounded-xl border bg-white text-text',
+          'w-full min-h-[48px] px-4 py-3 rounded-xl border bg-white text-content',
           'transition-all duration-200',
-          'placeholder:text-text-muted',
+          'placeholder:text-content-muted',
           'focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50',
           hasError
@@ -86,9 +86,9 @@ export const FormTextarea = forwardRef<HTMLTextAreaElement, FormTextareaProps>(
         ref={ref}
         rows={rows}
         className={cn(
-          'w-full px-4 py-3 rounded-xl border bg-white text-text',
+          'w-full px-4 py-3 rounded-xl border bg-white text-content',
           'transition-all duration-200',
-          'placeholder:text-text-muted resize-y',
+          'placeholder:text-content-muted resize-y',
           'focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50',
           hasError
@@ -115,7 +115,7 @@ export const FormSelect = forwardRef<HTMLSelectElement, FormSelectProps>(
       <select
         ref={ref}
         className={cn(
-          'w-full min-h-[48px] px-4 py-3 rounded-xl border bg-white text-text',
+          'w-full min-h-[48px] px-4 py-3 rounded-xl border bg-white text-content',
           'transition-all duration-200',
           'focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-50',

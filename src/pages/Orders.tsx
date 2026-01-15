@@ -79,10 +79,10 @@ export default function Orders() {
   }
 
   return (
-    <div className="py-6 sm:py-8 lg:py-12">
+    <div className="py-6 sm:py-7 md:py-8 lg:py-10">
       <div className="container">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-text-light mb-6">
+        <nav className="flex items-center gap-2 text-sm text-content-light mb-5 md:mb-6">
           <Link to="/" className="hover:text-secondary">Accueil</Link>
           <ChevronRight className="w-4 h-4" />
           <Link to="/profil" className="hover:text-secondary">Mon profil</Link>
@@ -91,18 +91,18 @@ export default function Orders() {
         </nav>
 
         {/* Header with count */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 sm:mb-6 md:mb-7">
           <div>
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">
               Mes Commandes
             </h1>
-            <p className="text-sm text-text-light mt-1">
+            <p className="text-sm text-content-light mt-1">
               {allOrders.length} commande{allOrders.length > 1 ? 's' : ''} au total
             </p>
           </div>
         </div>
 
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-4 md:space-y-5 lg:space-y-6">
           {paginatedOrders.map(order => {
             const StatusIcon = getStatusIcon(order.statut);
             const statusColor = getStatutColor(order.statut);
@@ -123,7 +123,7 @@ export default function Orders() {
                         {getStatutLabel(order.statut)}
                       </Badge>
                     </div>
-                    <p className="text-xs sm:text-sm text-text-muted">
+                    <p className="text-xs sm:text-sm text-content-muted">
                       Commandé le {formatDate(order.dateCommande)}
                     </p>
                   </div>
@@ -131,7 +131,7 @@ export default function Orders() {
                     <p className="text-xl sm:text-2xl font-bold text-secondary">
                       {formatPrice(order.montantTTC)}
                     </p>
-                    <p className="text-xs text-text-muted">TTC</p>
+                    <p className="text-xs text-content-muted">TTC</p>
                   </div>
                 </div>
 
@@ -160,10 +160,10 @@ export default function Orders() {
                           >
                             {vehicle.marque} {vehicle.nom}
                           </Link>
-                          <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                          <p className="text-xs sm:text-sm text-content-muted mt-0.5">
                             {vehicle.modele} • Couleur: {ligne.couleur}
                           </p>
-                          <p className="text-xs sm:text-sm text-text-light mt-0.5">
+                          <p className="text-xs sm:text-sm text-content-light mt-0.5">
                             Quantité: {ligne.quantite} • {formatPrice(ligne.prixUnitaireHT)} /unité
                           </p>
                         </div>
@@ -175,13 +175,13 @@ export default function Orders() {
                 {/* Details */}
                 <div className="py-4 sm:py-5 border-t border-gray-100 grid sm:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <p className="text-text-muted text-xs sm:text-sm mb-1">Mode de paiement</p>
+                    <p className="text-content-muted text-xs sm:text-sm mb-1">Mode de paiement</p>
                     <p className="font-medium text-sm sm:text-base">
                       {getMethodePaiementLabel(order.methodePaiement)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-text-muted text-xs sm:text-sm mb-1">Livraison</p>
+                    <p className="text-content-muted text-xs sm:text-sm mb-1">Livraison</p>
                     <p className="font-medium text-sm sm:text-base">
                       {getPaysLabel(order.paysLivraison)}
                     </p>
@@ -192,7 +192,7 @@ export default function Orders() {
                     )}
                   </div>
                   <div>
-                    <p className="text-text-muted text-xs sm:text-sm mb-1">Adresse</p>
+                    <p className="text-content-muted text-xs sm:text-sm mb-1">Adresse</p>
                     <p className="font-medium text-sm sm:text-base">{order.adresseLivraison}</p>
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export default function Orders() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-8 sm:mt-10">
+          <div className="mt-6 sm:mt-8 md:mt-10">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

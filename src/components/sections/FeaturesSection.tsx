@@ -29,7 +29,7 @@ export function FeaturesSection({
   columns = 4,
 }: FeaturesSectionProps) {
   return (
-    <section className="bg-white py-12 sm:py-16 lg:py-20">
+    <section className="bg-white py-10 sm:py-12 md:py-14 lg:py-16 xl:py-20">
       <div className="container">
         <SectionHeader
           label={label}
@@ -39,19 +39,19 @@ export function FeaturesSection({
         />
 
         {/* Features Grid */}
-        <div className={`grid ${columnClasses[columns]} gap-6 lg:gap-8`}>
+        <div className={`grid ${columnClasses[columns]} gap-4 sm:gap-5 md:gap-6 lg:gap-8`}>
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group bg-gray-50 hover:bg-white rounded-2xl p-6 sm:p-8 text-center transition-all hover:shadow-xl border border-transparent hover:border-gray-100"
+              className="group bg-gray-50 hover:bg-white rounded-xl md:rounded-2xl p-5 sm:p-6 lg:p-8 text-center transition-all hover:shadow-xl border border-transparent hover:border-gray-100"
             >
-              <div className="w-16 h-16 rounded-2xl bg-secondary-50 flex items-center justify-center mx-auto mb-5 group-hover:bg-secondary group-hover:scale-110 transition-all">
-                <feature.icon className="w-8 h-8 text-secondary group-hover:text-primary transition-colors" />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-secondary-50 flex items-center justify-center mx-auto mb-4 lg:mb-5 group-hover:bg-secondary group-hover:scale-110 transition-all">
+                <feature.icon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-secondary group-hover:text-primary transition-colors" />
               </div>
-              <h3 className="font-bold text-primary text-lg mb-3">
+              <h3 className="font-bold text-primary text-base sm:text-lg mb-2 sm:mb-3">
                 {feature.title}
               </h3>
-              <p className="text-text-light leading-relaxed">
+              <p className="text-content-light text-sm sm:text-base leading-relaxed">
                 {feature.description}
               </p>
             </div>

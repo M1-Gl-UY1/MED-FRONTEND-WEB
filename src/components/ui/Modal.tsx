@@ -82,7 +82,7 @@ export function Drawer({
             <h2 className="text-lg font-semibold text-primary">{title}</h2>
             <button
               onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center text-text-muted hover:text-primary hover:bg-gray-100 rounded-lg transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-content-muted hover:text-primary hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Fermer"
             >
               <X className="w-5 h-5" />
@@ -185,7 +185,7 @@ export function Modal({
             <h2 className="text-lg font-semibold text-primary">{title}</h2>
             <button
               onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center text-text-muted hover:text-primary hover:bg-gray-100 rounded-lg transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-content-muted hover:text-primary hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Fermer"
             >
               <X className="w-5 h-5" />

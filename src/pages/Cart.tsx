@@ -78,20 +78,20 @@ export default function Cart() {
 
   return (
     <div className="bg-background min-h-screen">
-      <div className="container py-6 sm:py-8 lg:py-12">
+      <div className="container py-6 sm:py-7 md:py-8 lg:py-10">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-text-light mb-6">
+        <nav className="flex items-center gap-2 text-sm text-content-light mb-5 md:mb-6">
           <Link to="/" className="hover:text-secondary">Accueil</Link>
           <ChevronRight className="w-4 h-4" />
           <span className="text-primary font-medium">Panier</span>
         </nav>
 
         {/* Page Title */}
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-bold text-primary mb-5 sm:mb-6 md:mb-7">
           Mon Panier ({itemCount} article{itemCount > 1 ? 's' : ''})
         </h1>
 
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className="space-y-4">
@@ -105,7 +105,7 @@ export default function Cart() {
                       {/* Product Image */}
                       <Link
                         to={`/vehicule/${vehicle.id}`}
-                        className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden flex-shrink-0"
+                        className="w-28 h-20 sm:w-32 sm:h-24 md:w-36 md:h-28 rounded-lg overflow-hidden flex-shrink-0"
                       >
                         <img
                           src={item.vehiculeImage}
@@ -124,13 +124,13 @@ export default function Cart() {
                             >
                               {item.vehiculeNom}
                             </Link>
-                            <p className="text-xs sm:text-sm text-text-light">
+                            <p className="text-xs sm:text-sm text-content-light">
                               Couleur: {item.couleurSelectionnee}
                             </p>
                           </div>
                           <button
                             onClick={() => removeFromCart(item.id)}
-                            className="w-9 h-9 flex items-center justify-center text-text-muted hover:text-error hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                            className="w-9 h-9 flex items-center justify-center text-content-muted hover:text-error hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
                             aria-label="Supprimer du panier"
                           >
                             <Trash2 className="w-5 h-5" />
@@ -140,7 +140,7 @@ export default function Cart() {
                         {/* Selected Options */}
                         {item.optionsSelectionnees.length > 0 && (
                           <div className="mb-3">
-                            <p className="text-xs text-text-muted mb-1.5">Options:</p>
+                            <p className="text-xs text-content-muted mb-1.5">Options:</p>
                             <div className="flex flex-wrap gap-1.5">
                               {item.optionsSelectionnees.map(optId => {
                                 const opt = getOptionById(optId);
@@ -162,7 +162,7 @@ export default function Cart() {
                             max={vehicle.stock.quantite}
                           />
                           <div className="text-right">
-                            <p className="text-xs sm:text-sm text-text-muted">
+                            <p className="text-xs sm:text-sm text-content-muted">
                               {formatPrice(item.prixUnitaire + item.prixOptions)} x {item.quantite}
                             </p>
                             <p className="text-lg font-bold text-secondary">
@@ -191,14 +191,14 @@ export default function Cart() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="card sticky top-24">
+            <div className="card lg:sticky lg:top-[88px]">
               <h2 className="text-base sm:text-lg font-semibold text-primary mb-4">
                 Récapitulatif
               </h2>
 
               {/* Delivery Country */}
               <div className="mb-5">
-                <label className="text-sm font-medium text-text-light mb-2 flex items-center gap-2">
+                <label className="text-sm font-medium text-content-light mb-2 flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
                   Pays de livraison
                 </label>
@@ -217,17 +217,17 @@ export default function Cart() {
               {/* Price Breakdown */}
               <div className="space-y-3 py-4 border-t border-b border-gray-100">
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-light">Sous-total HT</span>
+                  <span className="text-content-light">Sous-total HT</span>
                   <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-light">
+                  <span className="text-content-light">
                     TVA ({tauxTVA[paysLivraison]}% - {getPaysLabel(paysLivraison)})
                   </span>
                   <span className="font-medium">{formatPrice(taxes)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-light">Livraison</span>
+                  <span className="text-content-light">Livraison</span>
                   <span className="text-success font-medium">Gratuite</span>
                 </div>
               </div>
@@ -250,7 +250,7 @@ export default function Cart() {
               </Button>
 
               {!isAuthenticated && (
-                <p className="text-xs text-text-muted text-center mt-3">
+                <p className="text-xs text-content-muted text-center mt-3">
                   Vous devez être connecté pour passer commande
                 </p>
               )}

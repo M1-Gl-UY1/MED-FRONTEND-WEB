@@ -36,7 +36,7 @@ export function VehiclesGridSection({
   background = 'gray',
 }: VehiclesGridSectionProps) {
   return (
-    <section className={`${bgClasses[background]} py-12 sm:py-16 lg:py-20`}>
+    <section className={`${bgClasses[background]} py-10 sm:py-12 md:py-14 lg:py-16 xl:py-20`}>
       <div className="container">
         <SectionHeader
           label={label}
@@ -46,7 +46,7 @@ export function VehiclesGridSection({
         />
 
         {/* Vehicles Grid */}
-        <div className={`grid ${columnClasses[columns]} gap-6`}>
+        <div className={`grid ${columnClasses[columns]} gap-4 sm:gap-5 md:gap-6 lg:gap-7`}>
           {vehicles.map(vehicle => (
             <VehicleCard key={vehicle.id} vehicle={vehicle} />
           ))}

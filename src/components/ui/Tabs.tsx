@@ -102,17 +102,17 @@ const triggerVariants = {
   default: {
     base: 'px-4 py-2 rounded-lg text-sm font-medium transition-all',
     active: 'bg-white text-primary shadow-sm',
-    inactive: 'text-text-muted hover:text-primary',
+    inactive: 'text-content-muted hover:text-primary',
   },
   pills: {
     base: 'px-4 py-2 rounded-full text-sm font-medium transition-all',
     active: 'bg-secondary text-primary',
-    inactive: 'bg-gray-100 text-text-muted hover:bg-gray-200',
+    inactive: 'bg-gray-100 text-content-muted hover:bg-gray-200',
   },
   underline: {
     base: 'px-4 py-3 text-sm font-medium border-b-2 transition-all -mb-px',
     active: 'border-secondary text-primary',
-    inactive: 'border-transparent text-text-muted hover:text-primary hover:border-gray-300',
+    inactive: 'border-transparent text-content-muted hover:text-primary hover:border-gray-300',
   },
 } as const;
 

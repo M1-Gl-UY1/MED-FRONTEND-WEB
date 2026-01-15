@@ -53,7 +53,7 @@ export default function VehicleDetail() {
           <h1 className="text-xl sm:text-2xl font-bold text-primary mb-3">
             Véhicule non trouvé
           </h1>
-          <p className="text-text-light mb-6 max-w-md mx-auto">
+          <p className="text-content-light mb-6 max-w-md mx-auto">
             Le véhicule que vous recherchez n'existe pas ou a été retiré du catalogue.
           </p>
           <Button asChild to="/catalogue">
@@ -128,17 +128,17 @@ export default function VehicleDetail() {
 
   return (
     <div className="bg-background min-h-screen">
-      <div className="container py-6 sm:py-8 lg:py-12">
+      <div className="container py-6 sm:py-7 md:py-8 lg:py-10">
         {/* Breadcrumb */}
         <Breadcrumb
           items={[
             { label: 'Catalogue', href: '/catalogue' },
             { label: `${vehicle.marque} ${vehicle.nom}` },
           ]}
-          className="mb-6"
+          className="mb-5 md:mb-6"
         />
 
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-10 xl:gap-12">
+        <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 xl:gap-12">
           {/* Images Column */}
           <div className="space-y-4">
             {/* Main Image */}
@@ -204,16 +204,16 @@ export default function VehicleDetail() {
           </div>
 
           {/* Info Column */}
-          <div className="space-y-6 sm:space-y-8">
+          <div className="space-y-5 sm:space-y-6 lg:space-y-7 pb-24 lg:pb-0">
             {/* Title & Price */}
             <div>
-              <p className="text-xs sm:text-sm text-text-muted uppercase tracking-wider mb-1">
+              <p className="text-xs sm:text-sm text-content-muted uppercase tracking-wider mb-1">
                 {vehicle.marque}
               </p>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-1">
                 {vehicle.nom}
               </h1>
-              <p className="text-base sm:text-lg text-text-light mb-4">
+              <p className="text-base sm:text-lg text-content-light mb-4">
                 {vehicle.modele}
               </p>
 
@@ -265,7 +265,7 @@ export default function VehicleDetail() {
               <h2 className="text-base sm:text-lg font-semibold text-primary mb-3">
                 Description
               </h2>
-              <p className="text-sm sm:text-base text-text-light leading-relaxed">
+              <p className="text-sm sm:text-base text-content-light leading-relaxed">
                 {vehicle.description}
               </p>
             </div>
@@ -273,7 +273,7 @@ export default function VehicleDetail() {
             {/* Color Selection */}
             <div>
               <h2 className="text-base sm:text-lg font-semibold text-primary mb-3">
-                Couleur: <span className="font-normal text-text-light">{selectedColor}</span>
+                Couleur: <span className="font-normal text-content-light">{selectedColor}</span>
               </h2>
               <div className="flex flex-wrap gap-2 sm:gap-3">
                 {vehicle.couleurs.map(color => (
@@ -302,7 +302,7 @@ export default function VehicleDetail() {
                 <div className="space-y-5 sm:space-y-6">
                   {Object.entries(optionsByCategory).map(([category, opts]) => (
                     <div key={category}>
-                      <h3 className="text-sm font-medium text-text-muted mb-3">
+                      <h3 className="text-sm font-medium text-content-muted mb-3">
                         {categoryLabels[category] || category}
                       </h3>
                       <div className="space-y-2 sm:space-y-3">
@@ -341,7 +341,7 @@ export default function VehicleDetail() {
                                   <p className="font-medium text-sm sm:text-base">
                                     {option.nom}
                                   </p>
-                                  <p className="text-xs sm:text-sm text-text-light mt-0.5">
+                                  <p className="text-xs sm:text-sm text-content-light mt-0.5">
                                     {option.description}
                                   </p>
                                   {!isCompatible && incompatibles.length > 0 && (
@@ -371,7 +371,7 @@ export default function VehicleDetail() {
             )}
 
             {/* Add to Cart Section */}
-            <div className="sticky bottom-0 bg-white rounded-t-xl shadow-lg -mx-4 px-4 sm:-mx-0 sm:px-0 sm:shadow-none pt-4 sm:pt-6 pb-4 sm:pb-0 border-t sm:border-t-0 border-gray-100">
+            <div className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-4 z-40 lg:relative lg:shadow-none lg:p-0 lg:pt-6 lg:mt-2 lg:border-t lg:border-gray-100">
               {/* Stock Warning */}
               {vehicle.stock.quantite <= 3 && (
                 <Alert variant="warning" className="mb-4">
@@ -383,7 +383,7 @@ export default function VehicleDetail() {
                 {/* Quantity */}
                 <div className="flex items-center gap-4 sm:gap-6">
                   <div>
-                    <p className="text-xs sm:text-sm text-text-muted mb-1.5">Quantité</p>
+                    <p className="text-xs sm:text-sm text-content-muted mb-1.5">Quantité</p>
                     <QuantitySelector
                       value={quantity}
                       onChange={setQuantity}
@@ -393,7 +393,7 @@ export default function VehicleDetail() {
 
                   {/* Total */}
                   <div className="flex-1 sm:flex-initial">
-                    <p className="text-xs sm:text-sm text-text-muted mb-1">Total</p>
+                    <p className="text-xs sm:text-sm text-content-muted mb-1">Total</p>
                     <p className="text-xl sm:text-2xl font-bold text-secondary">
                       {formatPrice(totalPrice)}
                     </p>

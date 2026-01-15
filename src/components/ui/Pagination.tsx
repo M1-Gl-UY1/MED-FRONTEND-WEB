@@ -76,7 +76,7 @@ export default function Pagination({
           ) : (
             <span
               key={index}
-              className="w-8 flex items-center justify-center text-text-muted"
+              className="w-8 flex items-center justify-center text-content-muted"
             >
               {page}
             </span>

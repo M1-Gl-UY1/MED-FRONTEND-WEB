@@ -22,29 +22,29 @@ export function CategoriesSection({
   categories,
 }: CategoriesSectionProps) {
   return (
-    <section className="bg-white py-12 sm:py-16 lg:py-20">
+    <section className="bg-white py-10 sm:py-12 md:py-14 lg:py-16 xl:py-20">
       <div className="container">
         <SectionHeader title={title} subtitle={subtitle} centered />
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
           {categories.map(category => (
             <Link
               key={category.name}
               to={category.href}
-              className="group relative bg-gray-50 hover:bg-white rounded-2xl p-6 sm:p-8 transition-all hover:shadow-xl border border-transparent hover:border-gray-100"
+              className="group relative bg-gray-50 hover:bg-white rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 transition-all hover:shadow-xl border border-transparent hover:border-gray-100"
             >
               <div
-                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${category.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                className={`w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl ${category.color} flex items-center justify-center mb-3 lg:mb-4 group-hover:scale-110 transition-transform`}
               >
-                <category.icon className="w-7 h-7 sm:w-8 sm:h-8" />
+                <category.icon className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />
               </div>
-              <h3 className="font-bold text-primary text-lg sm:text-xl mb-1">
+              <h3 className="font-bold text-primary text-base sm:text-lg lg:text-xl mb-0.5 lg:mb-1">
                 {category.name}
               </h3>
-              <p className="text-text-light">
+              <p className="text-content-light text-sm lg:text-base">
                 {category.count} véhicule{category.count > 1 ? 's' : ''}
               </p>
-              <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              <ChevronRight className="absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 w-4 h-4 lg:w-5 lg:h-5 text-content-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </Link>
           ))}
         </div>

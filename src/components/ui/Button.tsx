@@ -9,7 +9,7 @@ const buttonVariants = {
     primary: 'bg-secondary text-primary hover:bg-secondary-300 active:bg-secondary-400',
     secondary: 'bg-primary text-white hover:bg-accent active:bg-accent-dark',
     outline: 'border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white',
-    ghost: 'bg-transparent text-text hover:bg-primary-50 active:bg-primary-100',
+    ghost: 'bg-transparent text-content hover:bg-primary-50 active:bg-primary-100',
     link: 'bg-transparent text-secondary hover:underline underline-offset-4 p-0 h-auto min-h-0',
     danger: 'bg-error text-white hover:bg-error/90 active:bg-error/80',
   },

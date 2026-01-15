@@ -42,7 +42,7 @@ export default {
           DEFAULT: '#F8F9FA',
           card: '#FFFFFF',
         },
-        text: {
+        content: {
           DEFAULT: '#1A1A2E',
           light: '#6C757D',
           muted: '#9CA3AF',

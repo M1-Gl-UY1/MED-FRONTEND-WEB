@@ -37,7 +37,7 @@ const variantStyles = {
   white: {
     section: 'bg-white',
     title: 'text-primary',
-    description: 'text-text-light',
+    description: 'text-content-light',
     primaryVariant: 'primary' as const,
     primaryClass: '',
     secondaryVariant: 'outline' as const,
@@ -55,12 +55,12 @@ export function CTASection({
   const styles = variantStyles[variant];
 
   return (
-    <section className={`${styles.section} py-16 sm:py-20 lg:py-24`}>
+    <section className={`${styles.section} py-12 sm:py-14 md:py-16 lg:py-20 xl:py-24`}>
       <div className="container text-center">
-        <h2 className={`text-2xl sm:text-3xl lg:text-4xl font-bold ${styles.title} mb-4`}>
+        <h2 className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold ${styles.title} mb-3 md:mb-4`}>
           {title}
         </h2>
-        <p className={`${styles.description} mb-8 max-w-2xl mx-auto text-lg`}>
+        <p className={`${styles.description} mb-6 md:mb-8 max-w-2xl mx-auto text-base sm:text-lg`}>
           {description}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

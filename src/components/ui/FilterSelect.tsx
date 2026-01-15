@@ -25,7 +25,7 @@ export default function FilterSelect({
   return (
     <div className={cn('flex flex-col', className)}>
       {label && (
-        <label className="text-sm font-medium text-text-light mb-2">
+        <label className="text-sm font-medium text-content-light mb-2">
           {label}
         </label>
       )}

@@ -55,8 +55,8 @@ export function HeroSection({
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-accent/20 rounded-full blur-3xl" />
       </div>
 
-      <div className="container relative py-16 sm:py-20 lg:py-28">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div className="container relative py-12 sm:py-14 md:py-16 lg:py-20 xl:py-24">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 xl:gap-16 items-center">
           {/* Hero Content */}
           <div>
             {badge && (
@@ -65,14 +65,14 @@ export function HeroSection({
                 {badge}
               </span>
             )}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-[1.1]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold mb-5 md:mb-6 leading-[1.1]">
               {title.line1}
               <br />
               <span className="text-secondary">{title.highlight}</span>
               <br />
               {title.line2}
             </h1>
-            <p className="text-lg sm:text-xl text-primary-200 mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg lg:text-xl text-primary-200 mb-6 md:mb-8 leading-relaxed max-w-xl">
               {description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -92,18 +92,18 @@ export function HeroSection({
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-12 pt-8 border-t border-white/10">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 mt-8 md:mt-10 lg:mt-12 pt-6 md:pt-8 border-t border-white/10">
               {stats.map((stat, index) => (
                 <div key={index}>
-                  <p className="text-2xl sm:text-3xl font-bold text-secondary">{stat.value}</p>
-                  <p className="text-sm text-primary-200">{stat.label}</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary">{stat.value}</p>
+                  <p className="text-xs sm:text-sm text-primary-200">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Hero Image */}
-          <div className="relative hidden lg:block">
+          {/* Hero Image - Now visible on medium screens too */}
+          <div className="relative hidden md:block">
             <div className="relative">
               <img
                 src={image.src}
@@ -113,12 +113,12 @@ export function HeroSection({
               {/* Price Badge */}
               {priceTag && (
                 <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl p-6 shadow-xl">
-                  <p className="text-sm text-text-muted mb-1">{priceTag.label}</p>
+                  <p className="text-sm text-content-muted mb-1">{priceTag.label}</p>
                   <p className="text-3xl font-bold text-secondary">
                     {formatPrice(priceTag.price)}
                   </p>
                   {priceTag.suffix && (
-                    <p className="text-xs text-text-muted mt-1">{priceTag.suffix}</p>
+                    <p className="text-xs text-content-muted mt-1">{priceTag.suffix}</p>
                   )}
                 </div>
               )}

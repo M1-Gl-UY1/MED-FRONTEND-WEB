@@ -104,21 +104,21 @@ export default function Checkout() {
             <h1 className="text-xl sm:text-2xl font-bold text-primary mb-2">
               Commande Confirmée !
             </h1>
-            <p className="text-sm sm:text-base text-text-light mb-6 sm:mb-8">
+            <p className="text-sm sm:text-base text-content-light mb-6 sm:mb-8">
               Votre commande a été enregistrée avec succès.
             </p>
 
             <div className="bg-primary-50 rounded-lg p-4 sm:p-5 mb-6">
-              <p className="text-xs sm:text-sm text-text-muted mb-1">Référence de commande</p>
+              <p className="text-xs sm:text-sm text-content-muted mb-1">Référence de commande</p>
               <p className="text-lg sm:text-xl font-bold text-primary">{orderReference}</p>
             </div>
 
             <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-              <p className="text-sm text-text-light">
+              <p className="text-sm text-content-light">
                 Un email de confirmation a été envoyé à{' '}
                 <span className="font-medium text-primary">{user?.email}</span>
               </p>
-              <p className="text-sm text-text-light">
+              <p className="text-sm text-content-light">
                 Vous pouvez suivre votre commande dans votre espace personnel.
               </p>
             </div>
@@ -153,7 +153,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="py-6 sm:py-8 lg:py-12">
+    <div className="py-6 sm:py-7 md:py-8 lg:py-10">
       <div className="container max-w-4xl">
         {/* Breadcrumb */}
         <Breadcrumb
@@ -161,15 +161,15 @@ export default function Checkout() {
             { label: 'Panier', href: '/panier' },
             { label: 'Commande' },
           ]}
-          className="mb-6"
+          className="mb-5 md:mb-6"
         />
 
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-bold text-primary mb-5 sm:mb-6 md:mb-7">
           Finaliser ma commande
         </h1>
 
         {/* Steps */}
-        <div className="flex items-center justify-center mb-6 sm:mb-8 lg:mb-10">
+        <div className="flex items-center justify-center mb-5 sm:mb-6 md:mb-8">
           {steps.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div
@@ -189,7 +189,7 @@ export default function Checkout() {
               </div>
               <span
                 className={`ml-2 sm:ml-3 text-sm font-medium hidden sm:block ${
-                  currentStep === step.id ? 'text-primary' : 'text-text-muted'
+                  currentStep === step.id ? 'text-primary' : 'text-content-muted'
                 }`}
               >
                 {step.label}
@@ -201,7 +201,7 @@ export default function Checkout() {
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid lg:grid-cols-3 gap-5 md:gap-6 lg:gap-8">
           {/* Form */}
           <div className="lg:col-span-2">
             {currentStep === 'livraison' && (
@@ -212,7 +212,7 @@ export default function Checkout() {
 
                 <div className="space-y-4 sm:space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-text-light mb-2">
+                    <label className="block text-sm font-medium text-content-light mb-2">
                       Pays de livraison
                     </label>
                     <FilterSelect
@@ -316,7 +316,7 @@ export default function Checkout() {
 
           {/* Summary */}
           <div className="lg:col-span-1">
-            <div className="card sticky top-24">
+            <div className="card lg:sticky lg:top-[88px]">
               <h2 className="text-base sm:text-lg font-semibold text-primary mb-4">
                 Récapitulatif
               </h2>
@@ -333,7 +333,7 @@ export default function Checkout() {
                       <p className="text-sm font-medium truncate">
                         {item.vehiculeNom}
                       </p>
-                      <p className="text-xs text-text-muted mt-0.5">
+                      <p className="text-xs text-content-muted mt-0.5">
                         Qté: {item.quantite}
                       </p>
                     </div>
@@ -346,17 +346,17 @@ export default function Checkout() {
 
               <div className="space-y-2 sm:space-y-3 py-4 border-b border-gray-100 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-text-light">Sous-total HT</span>
+                  <span className="text-content-light">Sous-total HT</span>
                   <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-light">
+                  <span className="text-content-light">
                     TVA ({tauxTVA[paysLivraison]}%)
                   </span>
                   <span className="font-medium">{formatPrice(taxes)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-light">Livraison</span>
+                  <span className="text-content-light">Livraison</span>
                   <span className="text-success font-medium">Gratuite</span>
                 </div>
               </div>

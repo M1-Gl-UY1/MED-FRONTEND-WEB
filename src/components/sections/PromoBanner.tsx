@@ -36,7 +36,7 @@ export function PromoBanner({
   highlight,
 }: PromoBannerProps) {
   return (
-    <section className="bg-primary text-white py-16 sm:py-20 lg:py-24 relative overflow-hidden">
+    <section className="bg-primary text-white py-12 sm:py-14 md:py-16 lg:py-20 xl:py-24 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div
@@ -49,7 +49,7 @@ export function PromoBanner({
       </div>
 
       <div className="container relative">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
           {/* Promo Content */}
           <div className="order-2 lg:order-1">
             {badge && (
@@ -58,11 +58,11 @@ export function PromoBanner({
                 {badge}
               </span>
             )}
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold mb-4 md:mb-6 leading-tight">
               {title.main}
               <span className="text-secondary block">{title.highlight}</span>
             </h2>
-            <p className="text-lg text-primary-200 mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg text-primary-200 mb-6 md:mb-8 leading-relaxed max-w-xl">
               {description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">

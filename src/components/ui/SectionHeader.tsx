@@ -18,9 +18,9 @@ interface SectionHeaderProps {
 }
 
 const titleSizes = {
-  sm: 'text-xl sm:text-2xl',
-  md: 'text-2xl sm:text-3xl lg:text-4xl',
-  lg: 'text-3xl sm:text-4xl lg:text-5xl',
+  sm: 'text-lg sm:text-xl md:text-2xl',
+  md: 'text-xl sm:text-2xl md:text-3xl lg:text-3xl',
+  lg: 'text-2xl sm:text-3xl md:text-4xl lg:text-4xl',
 } as const;
 
 export function SectionHeader({
@@ -36,8 +36,8 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        'mb-8 lg:mb-10',
-        centered ? 'text-center' : 'flex flex-col sm:flex-row sm:items-end justify-between gap-4',
+        'mb-6 sm:mb-7 md:mb-8 lg:mb-10',
+        centered ? 'text-center' : 'flex flex-col sm:flex-row sm:items-end justify-between gap-3 md:gap-4',
         className
       )}
     >
@@ -51,7 +51,7 @@ export function SectionHeader({
           {title}
         </h2>
         {subtitle && (
-          <p className={cn('text-text-light mt-2', size === 'lg' && 'text-lg')}>
+          <p className={cn('text-content-light mt-2', size === 'lg' && 'text-lg')}>
             {subtitle}
           </p>
         )}

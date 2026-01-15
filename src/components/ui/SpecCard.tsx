@@ -12,7 +12,7 @@ export function SpecCard({ icon, label, value, className }: SpecCardProps) {
   return (
     <div className={cn('card p-3 sm:p-4', className)}>
       <span className="text-secondary mb-2 block">{icon}</span>
-      <p className="text-xs text-text-muted mb-0.5">{label}</p>
+      <p className="text-xs text-content-muted mb-0.5">{label}</p>
       <p className="font-semibold text-primary text-sm sm:text-base">{value}</p>
     </div>
   );
@@ -79,7 +79,7 @@ export function FeatureCard({
         </span>
       </div>
       <h3 className="font-bold text-primary text-lg mb-3">{title}</h3>
-      <p className="text-text-light leading-relaxed">{description}</p>
+      <p className="text-content-light leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -97,8 +97,8 @@ interface InfoItemProps {
 export function InfoItem({ icon, label, value, className }: InfoItemProps) {
   return (
     <div className={cn('flex items-center gap-2 text-sm', className)}>
-      {icon && <span className="text-text-muted flex-shrink-0">{icon}</span>}
-      <span className="text-text-muted">{label}:</span>
+      {icon && <span className="text-content-muted flex-shrink-0">{icon}</span>}
+      <span className="text-content-muted">{label}:</span>
       <span className="font-medium text-primary">{value}</span>
     </div>
   );

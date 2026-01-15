@@ -156,7 +156,7 @@ function CardHeader({ title, subtitle, action, className, children, ...props }: 
               </h3>
             )}
             {subtitle && (
-              <p className="text-sm text-text-light mt-1">{subtitle}</p>
+              <p className="text-sm text-content-light mt-1">{subtitle}</p>
             )}
           </div>
           {action && <div className="flex-shrink-0">{action}</div>}

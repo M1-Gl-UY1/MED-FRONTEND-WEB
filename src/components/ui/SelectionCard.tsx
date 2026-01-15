@@ -111,7 +111,7 @@ export function SelectionCard({
 
       {/* Icon */}
       {icon && (
-        <span className={cn('flex-shrink-0', isSelected ? 'text-secondary' : 'text-text-muted')}>
+        <span className={cn('flex-shrink-0', isSelected ? 'text-secondary' : 'text-content-muted')}>
           {icon}
         </span>
       )}
@@ -120,14 +120,14 @@ export function SelectionCard({
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm sm:text-base text-primary">{title}</p>
         {description && (
-          <p className="text-xs sm:text-sm text-text-muted mt-0.5">{description}</p>
+          <p className="text-xs sm:text-sm text-content-muted mt-0.5">{description}</p>
         )}
         {children}
       </div>
 
       {/* Right icon */}
       {rightIcon && (
-        <span className="flex-shrink-0 text-text-muted">{rightIcon}</span>
+        <span className="flex-shrink-0 text-content-muted">{rightIcon}</span>
       )}
     </label>
   );
@@ -190,7 +190,7 @@ export function CheckboxCard({
 
       {/* Icon */}
       {icon && (
-        <span className={cn('flex-shrink-0', checked ? 'text-secondary' : 'text-text-muted')}>
+        <span className={cn('flex-shrink-0', checked ? 'text-secondary' : 'text-content-muted')}>
           {icon}
         </span>
       )}
@@ -199,7 +199,7 @@ export function CheckboxCard({
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm sm:text-base text-primary">{title}</p>
         {description && (
-          <p className="text-xs sm:text-sm text-text-muted mt-0.5">{description}</p>
+          <p className="text-xs sm:text-sm text-content-muted mt-0.5">{description}</p>
         )}
         {children}
       </div>
@@ -234,7 +234,7 @@ export function OptionCard({
         'p-3 sm:p-4 rounded-xl border-2 transition-all text-center min-h-[48px]',
         selected
           ? 'border-secondary bg-secondary-50 text-primary font-medium'
-          : 'border-gray-200 hover:border-primary-200 text-text',
+          : 'border-gray-200 hover:border-primary-200 text-content',
         disabled && 'opacity-50 cursor-not-allowed hover:border-gray-200',
         className
       )}

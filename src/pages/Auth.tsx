@@ -100,7 +100,7 @@ export default function Auth() {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex">
+    <div className="min-h-[calc(100vh-64px)] lg:min-h-[calc(100vh-72px)] flex">
       {/* Left Panel - Branding (Hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[45%] hero-gradient relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-accent/90" />
@@ -150,8 +150,8 @@ export default function Auth() {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-background">
-        <div className="w-full max-w-lg">
+      <div className="flex-1 flex items-center justify-center p-5 sm:p-6 md:p-8 lg:p-10 xl:p-12 bg-background">
+        <div className="w-full max-w-md lg:max-w-lg">
           {/* Mobile Logo */}
           <Link to="/" className="lg:hidden flex items-center justify-center gap-3 mb-8">
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
@@ -161,13 +161,13 @@ export default function Auth() {
           </Link>
 
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 lg:p-10">
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-5 sm:p-6 md:p-8 lg:p-9">
             {/* Header */}
             <div className="text-center mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-2">
                 {mode === 'login' ? 'Connexion' : 'Créer un compte'}
               </h2>
-              <p className="text-text-light">
+              <p className="text-content-light">
                 {mode === 'login'
                   ? 'Connectez-vous pour accéder à votre espace'
                   : 'Rejoignez MED Motors dès maintenant'}
@@ -183,7 +183,7 @@ export default function Auth() {
                   'flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all',
                   mode === 'login'
                     ? 'bg-white text-primary shadow-sm'
-                    : 'text-text-muted hover:text-text'
+                    : 'text-content-muted hover:text-content'
                 )}
               >
                 Connexion
@@ -195,7 +195,7 @@ export default function Auth() {
                   'flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all',
                   mode === 'register'
                     ? 'bg-white text-primary shadow-sm'
-                    : 'text-text-muted hover:text-text'
+                    : 'text-content-muted hover:text-content'
                 )}
               >
                 Inscription
@@ -205,7 +205,7 @@ export default function Auth() {
             {/* User Type Selection (Register only) */}
             {mode === 'register' && (
               <div className="mb-6">
-                <p className="text-sm font-medium text-text mb-3">
+                <p className="text-sm font-medium text-content mb-3">
                   Type de compte
                 </p>
                 <div className="grid grid-cols-2 gap-4">
@@ -262,7 +262,7 @@ export default function Auth() {
                   {userType === 'CLIENT' && (
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-text mb-2">
+                        <label className="block text-sm font-medium text-content mb-2">
                           Prénom
                         </label>
                         <input
@@ -275,7 +275,7 @@ export default function Auth() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text mb-2">
+                        <label className="block text-sm font-medium text-content mb-2">
                           Nom
                         </label>
                         <input
@@ -293,7 +293,7 @@ export default function Auth() {
                   {userType === 'SOCIETE' && (
                     <>
                       <div>
-                        <label className="block text-sm font-medium text-text mb-2">
+                        <label className="block text-sm font-medium text-content mb-2">
                           Raison sociale
                         </label>
                         <input
@@ -306,7 +306,7 @@ export default function Auth() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text mb-2">
+                        <label className="block text-sm font-medium text-content mb-2">
                           Numéro fiscal
                         </label>
                         <input
@@ -322,7 +322,7 @@ export default function Auth() {
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-text mb-2">
+                    <label className="block text-sm font-medium text-content mb-2">
                       Téléphone
                     </label>
                     <input
@@ -338,7 +338,7 @@ export default function Auth() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-text mb-2">
+                <label className="block text-sm font-medium text-content mb-2">
                   Adresse email
                 </label>
                 <input
@@ -352,7 +352,7 @@ export default function Auth() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text mb-2">
+                <label className="block text-sm font-medium text-content mb-2">
                   Mot de passe
                 </label>
                 <div className="relative">
@@ -368,7 +368,7 @@ export default function Auth() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-text-muted hover:text-text rounded-lg transition-colors"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-content-muted hover:text-content rounded-lg transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -405,18 +405,18 @@ export default function Auth() {
                 </p>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between p-2 bg-white rounded-lg">
-                    <span className="text-text-light">Particulier</span>
+                    <span className="text-content-light">Particulier</span>
                     <code className="text-xs text-primary bg-primary-50 px-2 py-1 rounded">
                       jean.fotso@email.com
                     </code>
                   </div>
                   <div className="flex items-center justify-between p-2 bg-white rounded-lg">
-                    <span className="text-text-light">Société</span>
+                    <span className="text-content-light">Société</span>
                     <code className="text-xs text-primary bg-primary-50 px-2 py-1 rounded">
                       contact@autofleet-cm.com
                     </code>
                   </div>
-                  <p className="text-xs text-text-muted text-center mt-2">
+                  <p className="text-xs text-content-muted text-center mt-2">
                     Mot de passe : password123 / societe123
                   </p>
                 </div>
@@ -425,7 +425,7 @@ export default function Auth() {
           </div>
 
           {/* Footer */}
-          <p className="text-center text-sm text-text-muted mt-6">
+          <p className="text-center text-sm text-content-muted mt-6">
             En continuant, vous acceptez nos{' '}
             <Link to="#" className="text-secondary hover:underline">
               Conditions d'utilisation

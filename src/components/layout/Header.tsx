@@ -53,10 +53,10 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100/50">
       <div className="container">
         {/* Main Header Row */}
-        <div className="flex items-center justify-between h-16 sm:h-18 lg:h-20">
+        <div className="flex items-center justify-between h-16 lg:h-[72px]">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 flex-shrink-0">
             <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary rounded-lg flex items-center justify-center">
@@ -68,14 +68,14 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-6">
             {navigation.map(item => (
               <Link
                 key={item.name}
                 to={item.href}
                 className={cn(
                   'text-sm font-medium py-2 transition-colors hover:text-secondary',
-                  isActive(item.href) ? 'text-secondary' : 'text-text-light'
+                  isActive(item.href) ? 'text-secondary' : 'text-content-light'
                 )}
               >
                 {item.name}
@@ -100,7 +100,7 @@ export default function Header() {
                   <button
                     type="button"
                     onClick={() => setIsSearchOpen(false)}
-                    className="absolute right-3 text-text-muted hover:text-text p-1"
+                    className="absolute right-3 text-content-muted hover:text-content p-1"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -108,7 +108,7 @@ export default function Header() {
               ) : (
                 <button
                   onClick={() => setIsSearchOpen(true)}
-                  className="w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+                  className="w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
                 >
                   <Search className="w-5 h-5" />
                 </button>
@@ -118,7 +118,7 @@ export default function Header() {
             {/* Cart */}
             <Link
               to="/panier"
-              className="relative w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+              className="relative w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
             >
               <ShoppingCart className="w-5 h-5" />
               {itemCount > 0 && (
@@ -133,7 +133,7 @@ export default function Header() {
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center gap-2 h-11 px-3 text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+                  className="flex items-center gap-2 h-11 px-3 text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
                 >
                   <User className="w-5 h-5" />
                   <span className="text-sm font-medium max-w-24 truncate">
@@ -159,17 +159,17 @@ export default function Header() {
                       <Link
                         to="/profil"
                         onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-primary-50 transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-content hover:bg-primary-50 transition-colors"
                       >
-                        <User className="w-5 h-5 text-text-muted" />
+                        <User className="w-5 h-5 text-content-muted" />
                         Mon profil
                       </Link>
                       <Link
                         to="/mes-commandes"
                         onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-3 px-4 py-3 text-sm text-text hover:bg-primary-50 transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 text-sm text-content hover:bg-primary-50 transition-colors"
                       >
-                        <ShoppingCart className="w-5 h-5 text-text-muted" />
+                        <ShoppingCart className="w-5 h-5 text-content-muted" />
                         Mes commandes
                       </Link>
                       <hr className="my-2 border-gray-100" />
@@ -196,7 +196,7 @@ export default function Header() {
             {/* Mobile Search Toggle */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+              className="w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
             >
               <Search className="w-5 h-5" />
             </button>
@@ -204,7 +204,7 @@ export default function Header() {
             {/* Cart */}
             <Link
               to="/panier"
-              className="relative w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+              className="relative w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
             >
               <ShoppingCart className="w-5 h-5" />
               {itemCount > 0 && (
@@ -217,7 +217,7 @@ export default function Header() {
             {/* Menu Toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="w-11 h-11 flex items-center justify-center text-text-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+              className="w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
             >
               {isMenuOpen ? (
                 <X className="w-6 h-6" />
@@ -243,7 +243,7 @@ export default function Header() {
                 />
                 <button
                   type="submit"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-text-muted hover:text-primary rounded-lg"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-content-muted hover:text-primary rounded-lg"
                 >
                   <Search className="w-5 h-5" />
                 </button>
@@ -266,7 +266,7 @@ export default function Header() {
                     'flex items-center h-12 px-4 rounded-lg text-sm font-medium transition-colors',
                     isActive(item.href)
                       ? 'bg-secondary-50 text-secondary'
-                      : 'text-text hover:bg-primary-50'
+                      : 'text-content hover:bg-primary-50'
                   )}
                 >
                   {item.name}
@@ -281,17 +281,17 @@ export default function Header() {
                   <Link
                     to="/profil"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 h-12 px-4 text-sm text-text hover:bg-primary-50 rounded-lg transition-colors"
+                    className="flex items-center gap-3 h-12 px-4 text-sm text-content hover:bg-primary-50 rounded-lg transition-colors"
                   >
-                    <User className="w-5 h-5 text-text-muted" />
+                    <User className="w-5 h-5 text-content-muted" />
                     Mon profil
                   </Link>
                   <Link
                     to="/mes-commandes"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center gap-3 h-12 px-4 text-sm text-text hover:bg-primary-50 rounded-lg transition-colors"
+                    className="flex items-center gap-3 h-12 px-4 text-sm text-content hover:bg-primary-50 rounded-lg transition-colors"
                   >
-                    <ShoppingCart className="w-5 h-5 text-text-muted" />
+                    <ShoppingCart className="w-5 h-5 text-content-muted" />
                     Mes commandes
                   </Link>
                   <button

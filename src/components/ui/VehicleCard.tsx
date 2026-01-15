@@ -20,7 +20,7 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
       className="card-hover group block overflow-hidden"
     >
       {/* Image Container */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[16/10] overflow-hidden">
         <img
           src={vehicle.image}
           alt={`${vehicle.marque} ${vehicle.nom}`}
@@ -60,10 +60,10 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
       </div>
 
       {/* Content */}
-      <div className={cn('p-4', compact ? 'sm:p-4' : 'sm:p-5')}>
+      <div className={cn('p-4', compact ? 'sm:p-4' : 'sm:p-5 lg:p-6')}>
         {/* Brand & Model */}
-        <div className="mb-3">
-          <p className="text-xs text-text-muted uppercase tracking-wider mb-1">
+        <div className="mb-2.5 sm:mb-3">
+          <p className="text-xs text-content-muted uppercase tracking-wider mb-1">
             {vehicle.marque}
           </p>
           <h3
@@ -74,25 +74,25 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
           >
             {vehicle.nom}
           </h3>
-          <p className="text-sm text-text-light mt-1">{vehicle.modele}</p>
+          <p className="text-sm text-content-light mt-1">{vehicle.modele}</p>
         </div>
 
         {/* Specs - Hidden in compact mode */}
         {!compact && (
-          <div className="flex flex-wrap gap-x-4 gap-y-2 mb-4 text-xs text-text-light">
+          <div className="flex flex-wrap gap-x-3 sm:gap-x-4 gap-y-1.5 sm:gap-y-2 mb-3 sm:mb-4 text-xs text-content-light">
             <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-text-muted" />
+              <Calendar className="w-3.5 h-3.5 text-content-muted" />
               {vehicle.annee}
             </span>
             <span className="flex items-center gap-1.5">
-              <Gauge className="w-3.5 h-3.5 text-text-muted" />
+              <Gauge className="w-3.5 h-3.5 text-content-muted" />
               {vehicle.caracteristiques.puissance}
             </span>
             <span className="flex items-center gap-1.5">
               {vehicle.typeMoteur === 'ELECTRIQUE' ? (
-                <Zap className="w-3.5 h-3.5 text-text-muted" />
+                <Zap className="w-3.5 h-3.5 text-content-muted" />
               ) : (
-                <Fuel className="w-3.5 h-3.5 text-text-muted" />
+                <Fuel className="w-3.5 h-3.5 text-content-muted" />
               )}
               {vehicle.caracteristiques.consommation}
             </span>
@@ -103,7 +103,7 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
         <div className="flex items-end justify-between gap-2 pt-2 border-t border-gray-100">
           <div>
             {hasDiscount && (
-              <p className="text-sm text-text-muted line-through">
+              <p className="text-sm text-content-muted line-through">
                 {formatPrice(vehicle.prixBase)}
               </p>
             )}
@@ -116,7 +116,7 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
               {formatPrice(prixActuel)}
             </p>
           </div>
-          <span className="text-xs text-text-muted pb-1">
+          <span className="text-xs text-content-muted pb-1">
             {vehicle.typeVehicule === 'AUTOMOBILE' ? 'Auto' : 'Scooter'}
           </span>
         </div>

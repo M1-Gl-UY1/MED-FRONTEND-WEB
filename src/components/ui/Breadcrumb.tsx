@@ -20,7 +20,7 @@ export function Breadcrumb({ items, showHome = true, className }: BreadcrumbProp
 
   return (
     <nav
-      className={cn('flex items-center gap-2 text-sm text-text-light mb-6', className)}
+      className={cn('flex items-center gap-2 text-sm text-content-light mb-6', className)}
       aria-label="Fil d'Ariane"
     >
       {allItems.map((item, index) => {

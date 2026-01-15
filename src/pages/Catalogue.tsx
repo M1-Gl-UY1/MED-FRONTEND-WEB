@@ -119,19 +119,20 @@ export default function Catalogue() {
 
   return (
     <div className="bg-background min-h-screen">
-      <div className="container py-6 sm:py-8 lg:py-12">
+      <div className="container py-6 sm:py-7 md:py-8 lg:py-10">
         {/* Page Header */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary mb-2">
+        <div className="mb-5 sm:mb-6 md:mb-7">
+          <h1 className="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-bold text-primary mb-1.5 sm:mb-2">
             Catalogue de Véhicules
           </h1>
-          <p className="text-sm sm:text-base text-text-light">
+          <p className="text-sm sm:text-base text-content-light">
             {filteredVehicles.length} véhicule{filteredVehicles.length > 1 ? 's' : ''} disponible{filteredVehicles.length > 1 ? 's' : ''}
           </p>
         </div>
 
         {/* Filters Bar */}
-        <div className="flex flex-col gap-4 mb-6 sm:mb-8">
+        <div className="bg-white rounded-xl border border-gray-100 p-4 md:p-5 lg:p-6 mb-5 sm:mb-6 md:mb-7">
+          <div className="flex flex-col gap-4">
           {/* Search Row */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             {/* Search Input */}
@@ -159,81 +160,82 @@ export default function Catalogue() {
             </Button>
           </div>
 
-          {/* Desktop Filters Row */}
-          <div className="hidden lg:flex items-center gap-3">
-            <FilterSelect
-              value={type}
-              onChange={value => updateFilter('type', value)}
-              placeholder="Type"
-              options={[
-                { value: 'AUTOMOBILE', label: 'Automobiles' },
-                { value: 'SCOOTER', label: 'Scooters' },
-              ]}
-            />
-            <FilterSelect
-              value={moteur}
-              onChange={value => updateFilter('moteur', value)}
-              placeholder="Motorisation"
-              options={[
-                { value: 'ESSENCE', label: 'Essence' },
-                { value: 'ELECTRIQUE', label: 'Électrique' },
-              ]}
-            />
-            <FilterSelect
-              value={marque}
-              onChange={value => updateFilter('marque', value)}
-              placeholder="Marque"
-              options={marques}
-            />
-            <FilterSelect
-              value={sort}
-              onChange={value => updateFilter('sort', value)}
-              placeholder="Trier par"
-              options={[
-                { value: 'price-asc', label: 'Prix croissant' },
-                { value: 'price-desc', label: 'Prix décroissant' },
-                { value: 'year-desc', label: 'Plus récents' },
-                { value: 'name-asc', label: 'Nom A-Z' },
-              ]}
-            />
+            {/* Desktop Filters Row */}
+            <div className="hidden lg:flex items-center gap-3">
+              <FilterSelect
+                value={type}
+                onChange={value => updateFilter('type', value)}
+                placeholder="Type"
+                options={[
+                  { value: 'AUTOMOBILE', label: 'Automobiles' },
+                  { value: 'SCOOTER', label: 'Scooters' },
+                ]}
+              />
+              <FilterSelect
+                value={moteur}
+                onChange={value => updateFilter('moteur', value)}
+                placeholder="Motorisation"
+                options={[
+                  { value: 'ESSENCE', label: 'Essence' },
+                  { value: 'ELECTRIQUE', label: 'Électrique' },
+                ]}
+              />
+              <FilterSelect
+                value={marque}
+                onChange={value => updateFilter('marque', value)}
+                placeholder="Marque"
+                options={marques}
+              />
+              <FilterSelect
+                value={sort}
+                onChange={value => updateFilter('sort', value)}
+                placeholder="Trier par"
+                options={[
+                  { value: 'price-asc', label: 'Prix croissant' },
+                  { value: 'price-desc', label: 'Prix décroissant' },
+                  { value: 'year-desc', label: 'Plus récents' },
+                  { value: 'name-asc', label: 'Nom A-Z' },
+                ]}
+              />
 
-            {/* Spacer */}
-            <div className="flex-1" />
+              {/* Spacer */}
+              <div className="flex-1" />
 
-            {/* View Mode Toggle */}
-            <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={cn(
-                  'w-10 h-10 flex items-center justify-center rounded-md transition-colors',
-                  viewMode === 'grid'
-                    ? 'bg-primary text-white'
-                    : 'hover:bg-primary-50 text-text-light'
-                )}
-                aria-label="Vue grille"
-              >
-                <Grid3X3 className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={cn(
-                  'w-10 h-10 flex items-center justify-center rounded-md transition-colors',
-                  viewMode === 'list'
-                    ? 'bg-primary text-white'
-                    : 'hover:bg-primary-50 text-text-light'
-                )}
-                aria-label="Vue liste"
-              >
-                <LayoutList className="w-5 h-5" />
-              </button>
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={cn(
+                    'w-9 h-9 flex items-center justify-center rounded-md transition-colors',
+                    viewMode === 'grid'
+                      ? 'bg-white text-primary shadow-sm'
+                      : 'hover:bg-white/50 text-content-light'
+                  )}
+                  aria-label="Vue grille"
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={cn(
+                    'w-9 h-9 flex items-center justify-center rounded-md transition-colors',
+                    viewMode === 'list'
+                      ? 'bg-white text-primary shadow-sm'
+                      : 'hover:bg-white/50 text-content-light'
+                  )}
+                  aria-label="Vue liste"
+                >
+                  <LayoutList className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Active Filters Tags */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2 mb-6">
-            <span className="text-sm text-text-light">Filtres actifs:</span>
+          <div className="flex flex-wrap items-center gap-2 mb-5 md:mb-6">
+            <span className="text-sm text-content-light">Filtres actifs:</span>
             {search && (
               <Badge variant="neutral" removable onRemove={() => updateFilter('search', '')}>
                 Recherche: {search}
@@ -273,9 +275,9 @@ export default function Catalogue() {
           <>
             <div
               className={cn(
-                'grid gap-4 sm:gap-6',
+                'grid gap-4 sm:gap-5 md:gap-6',
                 viewMode === 'grid'
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3'
                   : 'grid-cols-1'
               )}
             >
@@ -290,7 +292,7 @@ export default function Catalogue() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-8 sm:mt-10">
+              <div className="mt-6 sm:mt-8 md:mt-10">
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}

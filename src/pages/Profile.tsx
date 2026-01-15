@@ -50,17 +50,17 @@ export default function Profile() {
   ];
 
   return (
-    <div className="py-6 sm:py-8 lg:py-12">
+    <div className="py-6 sm:py-7 md:py-8 lg:py-10">
       <div className="container">
         {/* Breadcrumb */}
         <Breadcrumb
           items={[{ label: 'Mon profil' }]}
-          className="mb-6"
+          className="mb-5 md:mb-6"
         />
 
-        <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
+        <div className="grid lg:grid-cols-4 gap-5 md:gap-6 lg:gap-8">
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 lg:sticky lg:top-[88px] lg:self-start">
             <div className="card mb-4 sm:mb-6">
               <div className="text-center mb-4 sm:mb-5">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-secondary-50 flex items-center justify-center mx-auto mb-3">
@@ -73,7 +73,7 @@ export default function Profile() {
                 <h2 className="font-semibold text-primary">
                   {user.type === 'CLIENT' ? `${user.prenom} ${user.nom}` : user.nom}
                 </h2>
-                <p className="text-sm text-text-muted mt-1">
+                <p className="text-sm text-content-muted mt-1">
                   {user.type === 'CLIENT' ? 'Compte particulier' : 'Compte société'}
                 </p>
               </div>
@@ -87,7 +87,7 @@ export default function Profile() {
                       'w-full flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg text-sm font-medium transition-colors',
                       activeTab === tab.id
                         ? 'bg-secondary-50 text-secondary'
-                        : 'text-text hover:bg-primary-50'
+                        : 'text-content hover:bg-primary-50'
                     )}
                   >
                     <tab.icon className="w-5 h-5" />
@@ -100,7 +100,7 @@ export default function Profile() {
             <div className="card">
               <Link
                 to="/mes-commandes"
-                className="flex items-center justify-between min-h-[44px] py-2 text-sm font-medium text-text hover:text-secondary"
+                className="flex items-center justify-between min-h-[44px] py-2 text-sm font-medium text-content hover:text-secondary"
               >
                 Mes commandes
                 <ChevronRight className="w-5 h-5" />
@@ -138,7 +138,7 @@ export default function Profile() {
                   {user.type === 'CLIENT' && (
                     <>
                       <div>
-                        <label className="block text-sm font-medium text-text-muted mb-2">
+                        <label className="block text-sm font-medium text-content-muted mb-2">
                           Prénom
                         </label>
                         <input
@@ -149,7 +149,7 @@ export default function Profile() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text-muted mb-2">
+                        <label className="block text-sm font-medium text-content-muted mb-2">
                           Nom
                         </label>
                         <input
@@ -165,7 +165,7 @@ export default function Profile() {
                   {user.type === 'SOCIETE' && (
                     <>
                       <div className="sm:col-span-2">
-                        <label className="block text-sm font-medium text-text-muted mb-2">
+                        <label className="block text-sm font-medium text-content-muted mb-2">
                           Raison sociale
                         </label>
                         <input
@@ -176,7 +176,7 @@ export default function Profile() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-text-muted mb-2">
+                        <label className="block text-sm font-medium text-content-muted mb-2">
                           Numéro fiscal
                         </label>
                         <input
@@ -190,7 +190,7 @@ export default function Profile() {
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-text-muted mb-2">
+                    <label className="block text-sm font-medium text-content-muted mb-2">
                       <Mail className="w-4 h-4 inline mr-1" />
                       Email
                     </label>
@@ -203,7 +203,7 @@ export default function Profile() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-text-muted mb-2">
+                    <label className="block text-sm font-medium text-content-muted mb-2">
                       <Phone className="w-4 h-4 inline mr-1" />
                       Téléphone
                     </label>
@@ -216,7 +216,7 @@ export default function Profile() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-text-muted mb-2">
+                    <label className="block text-sm font-medium text-content-muted mb-2">
                       <MapPin className="w-4 h-4 inline mr-1" />
                       Ville
                     </label>
@@ -229,7 +229,7 @@ export default function Profile() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-text-muted mb-2">
+                    <label className="block text-sm font-medium text-content-muted mb-2">
                       Pays
                     </label>
                     <input
@@ -241,7 +241,7 @@ export default function Profile() {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-text-muted mb-2">
+                    <label className="block text-sm font-medium text-content-muted mb-2">
                       Adresse
                     </label>
                     <textarea
@@ -252,7 +252,7 @@ export default function Profile() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-text-muted mb-2">
+                    <label className="block text-sm font-medium text-content-muted mb-2">
                       <Calendar className="w-4 h-4 inline mr-1" />
                       Membre depuis
                     </label>
@@ -300,7 +300,7 @@ export default function Profile() {
                     <h3 className="font-medium text-primary mb-2 sm:mb-3">
                       Authentification à deux facteurs
                     </h3>
-                    <p className="text-sm text-text-light mb-4">
+                    <p className="text-sm text-content-light mb-4">
                       Ajoutez une couche de sécurité supplémentaire à votre compte.
                     </p>
                     <Button variant="outline">Activer la 2FA</Button>

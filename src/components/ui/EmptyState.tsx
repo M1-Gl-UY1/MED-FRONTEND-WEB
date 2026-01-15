@@ -27,7 +27,7 @@ export default function EmptyState({
         {icon}
       </div>
       <h3 className="text-lg font-semibold text-primary mb-2">{title}</h3>
-      <p className="text-text-light text-sm max-w-md mb-6">{description}</p>
+      <p className="text-content-light text-sm max-w-md mb-6">{description}</p>
       {action && (
         action.href ? (
           <Button asChild to={action.href}>

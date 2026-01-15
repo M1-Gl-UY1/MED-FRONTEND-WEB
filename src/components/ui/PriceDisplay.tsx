@@ -58,13 +58,13 @@ export function PriceDisplay({
   return (
     <div className={cn(alignClasses[align], className)}>
       {hasDiscount && formattedOriginal && (
-        <p className={cn('text-text-muted line-through', styles.original)}>
+        <p className={cn('text-content-muted line-through', styles.original)}>
           {formattedOriginal}
         </p>
       )}
       <p className={cn('text-secondary', styles.current)}>
         {formattedPrice}
-        {suffix && <span className="text-text-muted font-normal text-sm ml-1">{suffix}</span>}
+        {suffix && <span className="text-content-muted font-normal text-sm ml-1">{suffix}</span>}
       </p>
     </div>
   );
@@ -93,7 +93,7 @@ export function PriceBreakdown({ items, total, className }: PriceBreakdownProps)
       <div className="space-y-3 py-4 border-t border-b border-gray-100">
         {items.map((item, index) => (
           <div key={index} className="flex justify-between text-sm">
-            <span className="text-text-light">{item.label}</span>
+            <span className="text-content-light">{item.label}</span>
             <span className={cn('font-medium', item.free && 'text-success')}>
               {item.free
                 ? 'Gratuit'

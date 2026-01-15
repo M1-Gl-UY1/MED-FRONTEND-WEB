@@ -59,7 +59,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-text mb-2"
+            className="block text-sm font-medium text-content mb-2"
           >
             {label}
           </label>
@@ -67,7 +67,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
         <div className="relative">
           {leftIcon && (
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-content-muted pointer-events-none">
               {leftIcon}
             </span>
           )}
@@ -79,9 +79,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             disabled={disabled}
             className={cn(
               // Base styles
-              'w-full rounded-xl border bg-white text-text',
+              'w-full rounded-xl border bg-white text-content',
               'transition-all duration-200',
-              'placeholder:text-text-muted',
+              'placeholder:text-content-muted',
               // Focus styles
               'focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary',
               // Disabled styles
@@ -108,7 +108,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-text-muted hover:text-text rounded-lg transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-content-muted hover:text-content rounded-lg transition-colors"
               tabIndex={-1}
               aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
             >
@@ -121,7 +121,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
 
           {rightIcon && !isPassword && (
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-content-muted pointer-events-none">
               {rightIcon}
             </span>
           )}
@@ -138,7 +138,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
 
         {hint && !error && (
-          <p id={`${inputId}-hint`} className="text-sm text-text-muted mt-2">
+          <p id={`${inputId}-hint`} className="text-sm text-content-muted mt-2">
             {hint}
           </p>
         )}
@@ -178,7 +178,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={textareaId}
-            className="block text-sm font-medium text-text mb-2"
+            className="block text-sm font-medium text-content mb-2"
           >
             {label}
           </label>
@@ -191,9 +191,9 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           rows={rows}
           className={cn(
             // Base styles
-            'w-full rounded-xl border bg-white text-text',
+            'w-full rounded-xl border bg-white text-content',
             'transition-all duration-200',
-            'placeholder:text-text-muted',
+            'placeholder:text-content-muted',
             'resize-y',
             // Focus styles
             'focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary',
@@ -227,7 +227,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
 
         {hint && !error && (
-          <p id={`${textareaId}-hint`} className="text-sm text-text-muted mt-2">
+          <p id={`${textareaId}-hint`} className="text-sm text-content-muted mt-2">
             {hint}
           </p>
         )}
