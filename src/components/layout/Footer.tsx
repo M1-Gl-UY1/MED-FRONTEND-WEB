@@ -165,11 +165,11 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:contact@med-motors.cm"
+                  href="mailto:contact@med-auto.cm"
                   className="flex items-center gap-3 text-primary-200 hover:text-secondary transition-colors"
                 >
                   <Mail className="w-5 h-5 text-secondary flex-shrink-0" />
-                  <span className="text-sm">contact@med-motors.cm</span>
+                  <span className="text-sm">contact@med-auto.cm</span>
                 </a>
               </li>
             </ul>

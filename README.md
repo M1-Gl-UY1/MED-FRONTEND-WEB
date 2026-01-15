@@ -1,6 +1,6 @@
-# MED Motors - Frontend Web Client
+# MED Auto - Frontend Web Client
 
-Application web client pour MED Motors, une plateforme de vente de vehicules premium.
+Application web client pour MED Auto, une plateforme de vente de vehicules premium.
 
 ## Technologies
 

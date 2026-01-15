@@ -50,8 +50,8 @@ const COMPANY_INFO = {
   address: '123 Avenue de l\'Indépendance',
   city: 'Douala, Cameroun',
   phone: '+237 699 000 000',
-  email: 'contact@med-motors.cm',
-  website: 'www.med-motors.cm',
+  email: 'contact@med-auto.cm',
+  website: 'www.med-auto.cm',
   rccm: 'RC/DLA/2024/A/001234',
   niu: 'M012400001234A',
 };

@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 
-// Couleurs de la marque MED Motors
+// Couleurs de la marque MED Auto
 const COLORS = {
   primary: [26, 26, 46] as [number, number, number],
   secondary: [201, 162, 39] as [number, number, number],
@@ -13,7 +13,7 @@ const COLORS = {
 
 // Informations du projet
 const PROJECT_INFO = {
-  name: 'MED Motors',
+  name: 'MED Auto',
   subtitle: 'Plateforme E-commerce Automobile',
   version: '1.0.0',
   date: new Date().toLocaleDateString('fr-FR', {
@@ -21,7 +21,7 @@ const PROJECT_INFO = {
     month: 'long',
     year: 'numeric',
   }),
-  client: 'MED Motors SARL',
+  client: 'MED Auto SARL',
   author: 'Équipe de Développement',
 };
 
@@ -68,7 +68,7 @@ class CahierDesChargesGenerator {
       // Header text
       this.doc.setFontSize(8);
       this.doc.setTextColor(...COLORS.gray);
-      this.doc.text('MED Motors - Cahier des Charges', this.margin, 9);
+      this.doc.text('MED Auto - Cahier des Charges', this.margin, 9);
       this.doc.text(`Page ${this.pageNumber}`, this.pageWidth - this.margin, 9, { align: 'right' });
 
       this.currentY = 20;
@@ -135,7 +135,7 @@ class CahierDesChargesGenerator {
     this.doc.setFontSize(28);
     this.doc.setTextColor(...COLORS.secondary);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('MED MOTORS', this.pageWidth / 2, 130, { align: 'center' });
+    this.doc.text('MED AUTO', this.pageWidth / 2, 130, { align: 'center' });
 
     // Info box
     const boxY = this.pageHeight / 2 + 20;
@@ -369,7 +369,7 @@ class CahierDesChargesGenerator {
 
     this.addSectionTitle('1.1 Présentation du Projet', 2);
     this.addParagraph(
-      'MED Motors est une plateforme e-commerce dédiée à la vente de véhicules premium au Cameroun et à l\'international. ' +
+      'MED Auto est une plateforme e-commerce dédiée à la vente de véhicules premium au Cameroun et à l\'international. ' +
       'Cette application web permet aux utilisateurs de parcourir un catalogue de véhicules, de configurer leurs options, ' +
       'et de finaliser leurs achats en ligne avec différentes méthodes de paiement.'
     );
@@ -404,7 +404,7 @@ class CahierDesChargesGenerator {
     this.addSectionTitle('2.1 Contexte du Marché', 2);
     this.addParagraph(
       'Le marché automobile camerounais connaît une croissance significative avec une demande croissante pour les véhicules premium. ' +
-      'MED Motors se positionne comme un acteur majeur en proposant une expérience d\'achat moderne et digitalisée, ' +
+      'MED Auto se positionne comme un acteur majeur en proposant une expérience d\'achat moderne et digitalisée, ' +
       'répondant aux attentes d\'une clientèle exigeante.'
     );
 
@@ -753,7 +753,7 @@ class CahierDesChargesGenerator {
     this.addSectionTitle('7.1 Bon de Commande', 2);
     this.addParagraph('Document PDF généré à la confirmation de commande, contenant :');
     this.addBulletList([
-      'En-tête avec logo et coordonnées MED Motors',
+      'En-tête avec logo et coordonnées MED Auto',
       'Informations client (nom, adresse, téléphone, email)',
       'Référence et date de commande',
       'Tableau détaillé des véhicules commandés',
@@ -778,11 +778,11 @@ class CahierDesChargesGenerator {
     this.addTable(
       ['Information', 'Valeur'],
       [
-        ['Raison Sociale', 'MED Motors'],
+        ['Raison Sociale', 'MED Auto'],
         ['Adresse', '123 Avenue de l\'Indépendance, Douala'],
         ['Téléphone', '+237 699 000 000'],
-        ['Email', 'contact@med-motors.cm'],
-        ['Site Web', 'www.med-motors.cm'],
+        ['Email', 'contact@med-auto.cm'],
+        ['Site Web', 'www.med-auto.cm'],
         ['RCCM', 'RC/DLA/2024/A/001234'],
         ['NIU', 'M012400001234A'],
       ],
