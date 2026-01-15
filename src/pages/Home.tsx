@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Car, Shield, Truck, CreditCard, Star, Zap } from 'lucide-react';
 import {
   HeroSection,
@@ -7,13 +8,16 @@ import {
   FeaturesSection,
   CTASection,
 } from '../components/sections';
+import { VideoModal } from '../components/ui/VideoModal';
 import {
   vehicules,
   getVehiculesEnVedette,
   getVehiculesPopulaires,
 } from '../data/mockData';
+import pubVideo from '../assets/video/pub_video.mp4';
 
 export default function Home() {
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
   const vehiculesEnVedette = getVehiculesEnVedette();
   const vehiculesPopulaires = getVehiculesPopulaires();
 
@@ -95,6 +99,7 @@ export default function Home() {
         }}
         secondaryAction={{
           label: 'Voir la vidéo',
+          onClick: () => setIsVideoOpen(true),
         }}
         stats={stats}
         image={{
@@ -189,6 +194,14 @@ export default function Home() {
           href: '/connexion',
         }}
         variant="gold"
+      />
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={isVideoOpen}
+        onClose={() => setIsVideoOpen(false)}
+        videoSrc={pubVideo}
+        title="MED Motors - L'Excellence Automobile"
       />
     </div>
   );
