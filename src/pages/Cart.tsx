@@ -130,8 +130,7 @@ export default function Cart() {
               {paginatedItems.map(item => {
                 const vehicule = item.vehicule;
                 // Gestion des différentes structures d'image possibles
-                const imageUrl = vehicule.imageUrl
-                  || vehicule.images?.[0]?.url
+                const imageUrl = vehicule.images?.[0]?.url
                   || (typeof vehicule.images?.[0] === 'string' ? vehicule.images[0] : null)
                   || '/placeholder-car.jpg';
                 const vehiculeNom = `${vehicule.marque} ${vehicule.nom}`;

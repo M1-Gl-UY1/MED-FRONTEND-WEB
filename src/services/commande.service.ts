@@ -122,9 +122,10 @@ export const commandeService = {
    */
   getStatutLabel(statut: StatutCommande): string {
     const labels: Record<StatutCommande, string> = {
-      EN_COURS: 'En cours',
+      ACTIF: 'En cours',
+      CONVERTI: 'Convertie',
       VALIDEE: 'Validée',
-      LIVREE: 'Livrée',
+      REFUSEE: 'Refusée',
     };
     return labels[statut];
   },
@@ -132,11 +133,12 @@ export const commandeService = {
   /**
    * Obtenir la couleur d'un statut (pour les badges)
    */
-  getStatutColor(statut: StatutCommande): 'warning' | 'info' | 'success' {
-    const colors: Record<StatutCommande, 'warning' | 'info' | 'success'> = {
-      EN_COURS: 'warning',
-      VALIDEE: 'info',
-      LIVREE: 'success',
+  getStatutColor(statut: StatutCommande): 'warning' | 'info' | 'success' | 'error' {
+    const colors: Record<StatutCommande, 'warning' | 'info' | 'success' | 'error'> = {
+      ACTIF: 'warning',
+      CONVERTI: 'info',
+      VALIDEE: 'success',
+      REFUSEE: 'error',
     };
     return colors[statut];
   },

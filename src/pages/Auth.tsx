@@ -29,7 +29,7 @@ export default function Auth() {
   const [nom, setNom] = useState('');
   const [prenom, setPrenom] = useState('');
   const [telephone, setTelephone] = useState('');
-  const [numeroFiscal, setNumeroFiscal] = useState('');
+  const [numeroTaxe, setNumeroTaxe] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,23 +52,22 @@ export default function Auth() {
               email,
               telephone,
               motDePasse: password,
-              genre: 'M' as const,
+              sexe: 'M' as const,
               dateNaissance: '1990-01-01',
               adresse: '',
               ville: '',
-              pays: 'CM' as const,
+              pays: 'CM',
             }
           : {
               type: 'SOCIETE' as const,
               nom,
               email,
               telephone,
-              numeroFiscal,
+              numeroTaxe,
               motDePasse: password,
               adresse: '',
               ville: '',
-              pays: 'CM' as const,
-              societeMereId: null,
+              pays: 'CM',
             };
 
         const success = await register(userData, userType);
@@ -313,12 +312,12 @@ export default function Auth() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-content mb-2">
-                          Numéro fiscal
+                          Numéro de taxe
                         </label>
                         <input
                           type="text"
-                          value={numeroFiscal}
-                          onChange={e => setNumeroFiscal(e.target.value)}
+                          value={numeroTaxe}
+                          onChange={e => setNumeroTaxe(e.target.value)}
                           className="input"
                           placeholder="Ex: CM12345678901"
                           required

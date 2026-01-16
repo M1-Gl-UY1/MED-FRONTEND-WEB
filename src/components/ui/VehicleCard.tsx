@@ -113,20 +113,20 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
               <Calendar className="w-3.5 h-3.5 text-content-muted" />
               {vehicle.annee}
             </span>
-            {vehicle.caracteristiques?.puissance && (
+            {vehicle.puissance && (
               <span className="flex items-center gap-1.5">
                 <Gauge className="w-3.5 h-3.5 text-content-muted" />
-                {vehicle.caracteristiques.puissance}
+                {vehicle.puissance}
               </span>
             )}
-            {vehicle.caracteristiques?.consommation && (
+            {vehicle.consommation && (
               <span className="flex items-center gap-1.5">
                 {vehicle.engine === 'ELECTRIQUE' ? (
                   <Zap className="w-3.5 h-3.5 text-content-muted" />
                 ) : (
                   <Fuel className="w-3.5 h-3.5 text-content-muted" />
                 )}
-                {vehicle.caracteristiques.consommation}
+                {vehicle.consommation}
               </span>
             )}
           </div>

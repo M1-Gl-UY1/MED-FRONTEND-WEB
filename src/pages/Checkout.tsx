@@ -7,9 +7,8 @@ import {
   Check,
   FileText,
   Download,
-  Loader2,
 } from 'lucide-react';
-import type { MethodePaiement, PaysLivraison, CreateCommandeDTO } from '../services/types';
+import type { TypeMethodePaiement, PaysLivraison, CreateCommandeDTO } from '../services/types';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { commandeService, TAUX_TVA } from '../services/commande.service';
@@ -42,7 +41,7 @@ const formatPrice = (price: number): string => {
 };
 
 // Labels des méthodes de paiement
-const METHODE_PAIEMENT_LABELS: Record<MethodePaiement, string> = {
+const METHODE_PAIEMENT_LABELS: Record<TypeMethodePaiement, string> = {
   CARTE_BANCAIRE: 'Carte bancaire',
   PAYPAL: 'PayPal',
   COMPTANT: 'Comptant',
@@ -80,7 +79,7 @@ export default function Checkout() {
       ? `${user.adresse}, ${user.ville}`
       : ''
   );
-  const [methodePaiement, setMethodePaiement] = useState<MethodePaiement>('CARTE_BANCAIRE');
+  const [typePaiement, setTypePaiement] = useState<TypeMethodePaiement>('CARTE_BANCAIRE');
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderReference, setOrderReference] = useState('');
@@ -122,10 +121,10 @@ export default function Checkout() {
     try {
       // Préparer les données de commande pour l'API
       const commandeData: CreateCommandeDTO = {
-        type: methodePaiement === 'CREDIT' ? 'credit' : 'comptant',
+        type: typePaiement === 'CREDIT' ? 'credit' : 'comptant',
         paysLivraison: paysLivraison,
         adresseLivraison: adresseLivraison,
-        methodePaiement: methodePaiement,
+        typePaiement: typePaiement,
         lignes: items.map(item => ({
           vehiculeId: item.vehicule.idVehicule,
           quantite: item.quantite,
@@ -153,23 +152,23 @@ export default function Checkout() {
       });
 
       const clientInfo: ClientInfo = {
-        nom: user?.type === 'SOCIETE' ? user.nom : `${user?.prenom || ''} ${user?.nom || ''}`.trim(),
-        prenom: user?.type === 'CLIENT' ? user.prenom : undefined,
+        nom: user?.type === 'SOCIETE' ? user.nom : `${(user as any)?.prenom || ''} ${user?.nom || ''}`.trim(),
+        prenom: user?.type === 'CLIENT' ? (user as any).prenom : undefined,
         adresse: adresseLivraison,
         ville: user?.ville || '',
-        pays: PAYS_LABELS[user?.pays || paysLivraison],
+        pays: PAYS_LABELS[(user?.pays as PaysLivraison) || paysLivraison] || user?.pays || PAYS_LABELS[paysLivraison],
         telephone: user?.telephone || '',
         email: user?.email || '',
         type: user?.type || 'CLIENT',
         ...(user?.type === 'SOCIETE' && {
-          numeroFiscal: user.numeroFiscal,
+          numeroTaxe: (user as any).numeroTaxe,
         }),
       };
 
       const orderInfo: OrderInfo = {
         reference: ref,
         date: new Date().toISOString(),
-        methodePaiement: METHODE_PAIEMENT_LABELS[methodePaiement],
+        typePaiement: METHODE_PAIEMENT_LABELS[typePaiement],
         paysLivraison: PAYS_LABELS[paysLivraison],
         adresseLivraison: adresseLivraison,
       };
@@ -204,23 +203,23 @@ export default function Checkout() {
       });
 
       const clientInfo: ClientInfo = {
-        nom: user?.type === 'SOCIETE' ? user.nom : `${user?.prenom || ''} ${user?.nom || ''}`.trim(),
-        prenom: user?.type === 'CLIENT' ? user.prenom : undefined,
+        nom: user?.type === 'SOCIETE' ? user.nom : `${(user as any)?.prenom || ''} ${user?.nom || ''}`.trim(),
+        prenom: user?.type === 'CLIENT' ? (user as any).prenom : undefined,
         adresse: adresseLivraison,
         ville: user?.ville || '',
-        pays: PAYS_LABELS[user?.pays || paysLivraison],
+        pays: PAYS_LABELS[(user?.pays as PaysLivraison) || paysLivraison] || user?.pays || PAYS_LABELS[paysLivraison],
         telephone: user?.telephone || '',
         email: user?.email || '',
         type: user?.type || 'CLIENT',
         ...(user?.type === 'SOCIETE' && {
-          numeroFiscal: user.numeroFiscal,
+          numeroTaxe: (user as any).numeroTaxe,
         }),
       };
 
       const orderInfo: OrderInfo = {
         reference: ref,
         date: new Date().toISOString(),
-        methodePaiement: METHODE_PAIEMENT_LABELS[methodePaiement],
+        typePaiement: METHODE_PAIEMENT_LABELS[typePaiement],
         paysLivraison: PAYS_LABELS[paysLivraison],
         adresseLivraison: adresseLivraison,
       };
@@ -435,8 +434,8 @@ export default function Checkout() {
 
                 <SelectionGroup
                   name="paiement"
-                  value={methodePaiement}
-                  onChange={value => setMethodePaiement(value as MethodePaiement)}
+                  value={typePaiement}
+                  onChange={value => setTypePaiement(value as TypeMethodePaiement)}
                 >
                   <SelectionCard
                     value="CARTE_BANCAIRE"
@@ -462,7 +461,7 @@ export default function Checkout() {
                   />
                 </SelectionGroup>
 
-                {methodePaiement === 'CREDIT' && (
+                {typePaiement === 'CREDIT' && (
                   <Alert variant="warning" className="mt-4">
                     Une demande de crédit nécessite une étude de dossier.
                     Vous serez contacté par notre service financier.
@@ -501,8 +500,7 @@ export default function Checkout() {
                 {items.map(item => {
                   const vehicule = item.vehicule;
                   // Gestion des différentes structures d'image possibles
-                  const imageUrl = vehicule.imageUrl
-                    || vehicule.images?.[0]?.url
+                  const imageUrl = vehicule.images?.[0]?.url
                     || (typeof vehicule.images?.[0] === 'string' ? vehicule.images[0] : null)
                     || '/placeholder-car.jpg';
                   const vehiculeNom = `${vehicule.marque} ${vehicule.nom}`;

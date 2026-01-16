@@ -14,15 +14,9 @@ export function getUserId(user: Utilisateur): number {
   if ('id' in user) {
     return user.id;
   }
-  // API data uses 'idClient' or 'idSociete' or 'idUtilisateur'
-  if ('idUtilisateur' in user && (user as any).idUtilisateur) {
-    return (user as any).idUtilisateur;
-  }
-  if (user.type === 'CLIENT' && 'idClient' in user) {
-    return user.idClient;
-  }
-  if (user.type === 'SOCIETE' && 'idSociete' in user) {
-    return user.idSociete;
+  // API data uses 'idUtilisateur'
+  if ('idUtilisateur' in user && user.idUtilisateur) {
+    return user.idUtilisateur;
   }
   return 0;
 }

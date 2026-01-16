@@ -3,12 +3,13 @@
 // Enums
 export type TypeMoteur = 'ESSENCE' | 'ELECTRIQUE';
 export type TypeVehicule = 'AUTOMOBILE' | 'SCOOTER';
-export type StatutCommande = 'EN_COURS' | 'VALIDEE' | 'LIVREE';
+export type StatutCommande = 'ACTIF' | 'CONVERTI' | 'VALIDEE' | 'REFUSEE';
 export type PaysLivraison = 'CM' | 'FR' | 'US' | 'NG';
 export type TypeDocument = 'DEMANDE_IMMATRICULATION' | 'CERTIFICAT_CESSION' | 'BON_COMMANDE';
-export type MethodePaiement = 'CARTE_BANCAIRE' | 'PAYPAL' | 'COMPTANT' | 'CREDIT';
-export type StatutPanier = 'ACTIF' | 'CONVERTI' | 'VALIDE' | 'REFUSE';
+export type TypeMethodePaiement = 'CARTE_BANCAIRE' | 'PAYPAL' | 'COMPTANT' | 'CREDIT';
+export type StatutPanier = 'ACTIF' | 'CONVERTI' | 'VALIDEE' | 'REFUSEE';
 export type TypeUtilisateur = 'CLIENT' | 'SOCIETE' | 'ADMIN';
+export type CategorieOption = 'INTERIEUR' | 'EXTERIEUR' | 'PERFORMANCE' | 'TECHNOLOGIE' | 'SECURITE' | 'CONFORT';
 
 // Entités Backend
 export interface Option {
@@ -16,8 +17,8 @@ export interface Option {
   nom: string;
   description: string;
   prix: number;
-  categorie: 'INTERIEUR' | 'EXTERIEUR' | 'PERFORMANCE' | 'TECHNOLOGIE';
-  incompatibilites: number[];
+  categorie: CategorieOption;
+  optionsIncompatible?: Option[];
 }
 
 export interface ImageVehicule {
@@ -30,7 +31,7 @@ export interface ImageVehicule {
 export interface Stock {
   idStock: number;
   quantite: number;
-  dateEntree: string;
+  dateEntre: string;
 }
 
 export interface Vehicule {
@@ -62,36 +63,29 @@ export interface Vehicule {
 }
 
 export interface Client {
-  idClient?: number;
-  idUtilisateur?: number;  // ID backend (utilisateur parent)
-  type: 'CLIENT';
+  idUtilisateur: number;
+  type?: 'CLIENT';
   nom: string;
   prenom?: string;
   email: string;
   telephone?: string;
   dateNaissance?: string;
-  genre?: 'M' | 'F';
-  sexe?: string;  // Alias backend
+  sexe?: 'M' | 'F';
   adresse?: string;
   ville?: string;
-  pays?: PaysLivraison;
-  dateInscription?: string;
+  pays?: string;
 }
 
 export interface Societe {
-  idSociete?: number;
-  idUtilisateur?: number;  // ID backend (utilisateur parent)
-  type: 'SOCIETE';
+  idUtilisateur: number;
+  type?: 'SOCIETE';
   nom: string;
   email: string;
   telephone?: string;
-  numeroFiscal?: string;
-  numeroTaxe?: string;  // Alias backend
+  numeroTaxe: string;
   adresse?: string;
   ville?: string;
-  pays?: PaysLivraison;
-  societeMereId?: number | null;
-  dateInscription?: string;
+  pays?: string;
 }
 
 export interface Utilisateur {
@@ -128,7 +122,7 @@ export interface LigneCommande {
   quantite: number;
   prixUnitaireHT: number;
   tauxTVA: number;
-  optionsSelectionnees: Option[];
+  optionsAchetees: Option[];
   couleur?: string;
 }
 
@@ -144,17 +138,18 @@ export interface Commande {
   idCommande: number;
   reference: string;
   utilisateur: Utilisateur;
-  statut: StatutCommande;
+  statut: StatutCommande | string;
   paysLivraison: PaysLivraison;
   adresseLivraison: string;
-  methodePaiement: MethodePaiement;
-  montantHT: number;
-  taxes: number;
-  montantTTC: number;
-  dateCommande: string;
-  dateLivraison?: string | null;
-  lignes: LigneCommande[];
-  documents: Document[];
+  typePaiement: TypeMethodePaiement;
+  total: number;
+  taxe: number;
+  date: string;
+  lignesCommandes: LigneCommande[];
+  liasseDocuments?: {
+    idLiasse: number;
+    documents: Document[];
+  };
 }
 
 // DTOs pour les requêtes
@@ -170,10 +165,10 @@ export interface RegisterClientDTO {
   telephone: string;
   motDePasse: string;
   dateNaissance?: string;
-  genre?: 'M' | 'F';
+  sexe?: 'M' | 'F';
   adresse?: string;
   ville?: string;
-  pays?: PaysLivraison;
+  pays?: string;
 }
 
 export interface RegisterSocieteDTO {
@@ -181,11 +176,10 @@ export interface RegisterSocieteDTO {
   email: string;
   telephone: string;
   motDePasse: string;
-  numeroFiscal: string;
+  numeroTaxe: string;
   adresse?: string;
   ville?: string;
-  pays?: PaysLivraison;
-  societeMereId?: number | null;
+  pays?: string;
 }
 
 export interface AuthResponse {
@@ -198,7 +192,7 @@ export interface CreateCommandeDTO {
   type: 'comptant' | 'credit';
   paysLivraison: PaysLivraison;
   adresseLivraison: string;
-  methodePaiement: MethodePaiement;
+  typePaiement: TypeMethodePaiement;
   lignes: {
     vehiculeId: number;
     quantite: number;

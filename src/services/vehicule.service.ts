@@ -146,7 +146,7 @@ export const vehiculeService = {
     const option = options.find(o => o.idOption === optionId);
     if (!option) return false;
 
-    return !option.incompatibilites.some(incompId => optionsSelectionnees.includes(incompId));
+    return !(option.optionsIncompatible || []).some(incomp => optionsSelectionnees.includes(incomp.idOption));
   },
 
   /**
@@ -154,7 +154,7 @@ export const vehiculeService = {
    */
   getOptionsIncompatibles(optionId: number, options: Option[]): number[] {
     const option = options.find(o => o.idOption === optionId);
-    return option?.incompatibilites || [];
+    return (option?.optionsIncompatible || []).map(o => o.idOption);
   },
 };
 

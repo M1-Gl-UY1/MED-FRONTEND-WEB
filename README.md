@@ -160,6 +160,8 @@ npm run preview
 
 L'application demarre sur `http://localhost:5173`
 
+> **Note** : Le frontend admin (MED-ADMIN) utilise le port 5174 pour eviter les conflits.
+
 ### Mode avec backend
 1. Demarrer le backend Spring Boot sur le port 8085
 2. Lancer le frontend : `npm run dev`
@@ -209,3 +211,39 @@ Format : `XX XXX XXX FCFA`
 | `/profil` | Mon profil | Authentifie |
 | `/connexion` | Connexion/Inscription | Public |
 | `/documents/:id` | Documents commande | Authentifie |
+
+## Alignement des types avec le backend
+
+Les types TypeScript (`src/services/types.ts`) sont alignes avec les entites du backend Spring Boot :
+
+### StatutCommande
+```typescript
+type StatutCommande = 'ACTIF' | 'CONVERTI' | 'VALIDEE' | 'REFUSEE';
+```
+
+### TypeMethodePaiement
+```typescript
+type TypeMethodePaiement = 'CARTE_BANCAIRE' | 'PAYPAL' | 'COMPTANT' | 'CREDIT';
+```
+
+### Mapping des proprietes
+| Frontend | Backend | Description |
+|----------|---------|-------------|
+| `idUtilisateur` | `id_utilisateur` | ID utilisateur (Client/Societe) |
+| `numeroTaxe` | `numero_taxe` | Numero fiscal (Societe) |
+| `sexe` | `sexe` | Genre (M/F) |
+| `date` | `date_commande` | Date de commande |
+| `total` | `total` | Montant TTC |
+| `taxe` | `taxe` | Montant taxes |
+| `typePaiement` | `type_paiement` | Mode de paiement |
+| `lignesCommandes` | `lignes_commandes` | Lignes de commande |
+| `optionsAchetees` | `options_achetees` | Options achetees |
+| `optionsIncompatible` | `options_incompatible` | Options incompatibles |
+
+### Couleurs des statuts
+| Statut | Couleur | Label |
+|--------|---------|-------|
+| `ACTIF` | warning (jaune) | En cours |
+| `CONVERTI` | info (bleu) | Convertie |
+| `VALIDEE` | success (vert) | Validee |
+| `REFUSEE` | error (rouge) | Refusee |

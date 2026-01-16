@@ -17,7 +17,7 @@ import { Button } from '../components/ui/Button';
 import { Badge, type BadgeVariant } from '../components/ui/Badge';
 import { useAuth } from '../context/AuthContext';
 import { commandeService } from '../services/commande.service';
-import type { Commande, StatutCommande, MethodePaiement, PaysLivraison } from '../services/types';
+import type { Commande } from '../services/types';
 
 // Formatter le prix
 const formatPrice = (price: number): string =>
@@ -211,12 +211,12 @@ export default function Orders() {
                       </Badge>
                     </div>
                     <p className="text-xs sm:text-sm text-content-muted">
-                      Commandé le {formatDate(order.dateCommande || (order as any).date || new Date().toISOString())}
+                      Commandé le {formatDate(order.date || new Date().toISOString())}
                     </p>
                   </div>
                   <div className="text-left sm:text-right">
                     <p className="text-xl sm:text-2xl font-bold text-secondary">
-                      {formatPrice(order.montantTTC || (order as any).total || 0)}
+                      {formatPrice(order.total || 0)}
                     </p>
                     <p className="text-xs text-content-muted">TTC</p>
                   </div>
@@ -224,13 +224,12 @@ export default function Orders() {
 
                 {/* Items */}
                 <div className="py-4 sm:py-5 space-y-4">
-                  {/* Gérer les deux noms possibles: lignes (frontend) ou lignesCommandes (backend) */}
-                  {(order.lignes || (order as any).lignesCommandes || []).map((ligne: any) => {
+                  {/* Utiliser lignesCommandes du backend */}
+                  {(order.lignesCommandes || []).map((ligne: any) => {
                     const vehicule = ligne.vehicule;
                     if (!vehicule) return null;
 
-                    const imageUrl = vehicule.imageUrl
-                      || vehicule.images?.[0]?.url
+                    const imageUrl = vehicule.images?.[0]?.url
                       || '/placeholder-car.jpg';
                     const vehiculeNom = `${vehicule.marque || ''} ${vehicule.nom || vehicule.model || ''}`.trim();
 
@@ -280,7 +279,7 @@ export default function Orders() {
                   <div>
                     <p className="text-content-muted text-xs sm:text-sm mb-1">Mode de paiement</p>
                     <p className="font-medium text-sm sm:text-base">
-                      {getMethodePaiementLabel((order as any).typePaiement || order.methodePaiement)}
+                      {getMethodePaiementLabel(order.typePaiement)}
                     </p>
                   </div>
                   <div>
@@ -288,9 +287,9 @@ export default function Orders() {
                     <p className="font-medium text-sm sm:text-base">
                       {order.paysLivraison ? getPaysLabel(order.paysLivraison) : 'Non spécifié'}
                     </p>
-                    {order.dateLivraison && (
+                    {(order as any).dateLivraison && (
                       <p className="text-xs text-success mt-0.5">
-                        Livré le {formatDate(order.dateLivraison)}
+                        Livré le {formatDate((order as any).dateLivraison)}
                       </p>
                     )}
                   </div>
@@ -303,14 +302,14 @@ export default function Orders() {
                 </div>
 
                 {/* Documents */}
-                {order.documents && order.documents.length > 0 && (
+                {order.liasseDocuments?.documents && order.liasseDocuments.documents.length > 0 && (
                   <div className="pt-4 sm:pt-5 border-t border-gray-100">
                     <p className="text-sm font-medium text-primary mb-3 flex items-center gap-2">
                       <FileText className="w-4 h-4" />
                       Documents
                     </p>
                     <div className="flex flex-wrap gap-2 sm:gap-3">
-                      {order.documents.map(doc => (
+                      {order.liasseDocuments.documents.map(doc => (
                         <Button
                           key={doc.idDocument}
                           variant="outline"
@@ -331,7 +330,7 @@ export default function Orders() {
                 {/* Actions */}
                 <div className="pt-4 sm:pt-5 border-t border-gray-100 flex flex-wrap gap-3">
                   {(() => {
-                    const lignes = order.lignes || (order as any).lignesCommandes || [];
+                    const lignes = order.lignesCommandes || [];
                     const premierVehicule = lignes[0]?.vehicule;
                     return premierVehicule ? (
                       <Button
@@ -410,9 +409,9 @@ function generateRecuPDFContent(commande: Commande) {
   const jsPDF = jspdfWindow.jspdf.jsPDF;
   const doc = new jsPDF();
 
-  const reference = commande.reference || `CMD-${commande.idCommande || (commande as any).id}`;
-  const montant = (commande as any).total || commande.montantTTC || 0;
-  const date = (commande as any).date || commande.dateCommande || new Date().toISOString();
+  const reference = commande.reference || `CMD-${commande.idCommande}`;
+  const montant = commande.total || 0;
+  const date = commande.date || new Date().toISOString();
   const lignes = getLignesCommande(commande);
 
   // Formatter le prix pour le PDF
@@ -483,7 +482,7 @@ function generateRecuPDFContent(commande: Commande) {
   doc.setFont('helvetica', 'bold');
   doc.text('Paiement:', infoStartX, y);
   doc.setFont('helvetica', 'normal');
-  doc.text(getMethodePaiementLabel((commande as any).typePaiement || commande.methodePaiement), infoValueX, y);
+  doc.text(getMethodePaiementLabel(commande.typePaiement), infoValueX, y);
 
   y += 7;
   doc.setFont('helvetica', 'bold');

@@ -157,7 +157,7 @@ export default function VehicleDetail() {
       setSelectedOptions(prev => prev.filter(id => id !== optionId));
     } else {
       // Vérifier les incompatibilités
-      const incompatibles = (option.incompatibilites || []).filter(id => selectedOptions.includes(id));
+      const incompatibles = (option.optionsIncompatible || []).map(o => o.idOption).filter(id => selectedOptions.includes(id));
       if (incompatibles.length > 0) {
         setSelectedOptions(prev => [
           ...prev.filter(id => !incompatibles.includes(id)),
@@ -174,7 +174,7 @@ export default function VehicleDetail() {
     if (selectedOptions.includes(optionId)) return true;
     const option = getOptionById(optionId);
     if (!option) return false;
-    return !(option.incompatibilites || []).some(id => selectedOptions.includes(id));
+    return !(option.optionsIncompatible || []).some(o => selectedOptions.includes(o.idOption));
   };
 
   // Handle add to cart
@@ -389,8 +389,8 @@ export default function VehicleDetail() {
                         {opts.map(option => {
                           const isSelected = selectedOptions.includes(option.idOption);
                           const isCompatible = isOptionCompatible(option.idOption);
-                          const incompatibles = (option.incompatibilites || []).filter(id =>
-                            selectedOptions.includes(id)
+                          const incompatibles = (option.optionsIncompatible || []).filter(o =>
+                            selectedOptions.includes(o.idOption)
                           );
 
                           return (
@@ -430,7 +430,7 @@ export default function VehicleDetail() {
                                       <span>
                                         Incompatible avec:{' '}
                                         {incompatibles
-                                          .map(id => getOptionById(id)?.nom)
+                                          .map(o => o.nom)
                                           .join(', ')}
                                       </span>
                                     </p>

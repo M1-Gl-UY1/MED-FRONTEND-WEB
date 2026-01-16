@@ -62,7 +62,7 @@ export const authService = {
     const { token, user } = response.data;
 
     setToken(token);
-    const typedUser = { ...user, type: 'CLIENT' as const };
+    const typedUser = { ...user, type: 'CLIENT' as const } as UtilisateurComplet;
     setStoredUser(typedUser);
 
     return typedUser;
@@ -76,7 +76,7 @@ export const authService = {
     const { token, user } = response.data;
 
     setToken(token);
-    const typedUser = { ...user, type: 'SOCIETE' as const };
+    const typedUser = { ...user, type: 'SOCIETE' as const } as UtilisateurComplet;
     setStoredUser(typedUser);
 
     return typedUser;
@@ -212,9 +212,7 @@ export const authService = {
    */
   async updateProfile(user: UtilisateurComplet, data: Partial<Client> | Partial<Societe>): Promise<UtilisateurComplet> {
     const getUserId = (u: UtilisateurComplet): number => {
-      if ('idClient' in u && u.idClient) return u.idClient;
-      if ('idSociete' in u && u.idSociete) return u.idSociete;
-      if ('idUtilisateur' in u && (u as any).idUtilisateur) return (u as any).idUtilisateur;
+      if ('idUtilisateur' in u && u.idUtilisateur) return u.idUtilisateur;
       if ('id' in u && (u as any).id) return (u as any).id;
       throw new Error('Impossible de trouver l\'ID utilisateur');
     };

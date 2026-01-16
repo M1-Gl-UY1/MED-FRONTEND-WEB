@@ -59,7 +59,7 @@ export default function Profile() {
     ville: '',
     adresse: '',
     // Pour les sociétés
-    numeroFiscal: '',
+    numeroTaxe: '',
   });
 
   // Initialiser le formulaire avec les données utilisateur
@@ -67,11 +67,11 @@ export default function Profile() {
     if (user) {
       setFormData({
         nom: user.nom || '',
-        prenom: user.type === 'CLIENT' ? (user.prenom || '') : '',
+        prenom: user.type === 'CLIENT' ? ((user as any).prenom || '') : '',
         telephone: user.telephone || '',
         ville: user.ville || '',
         adresse: user.adresse || '',
-        numeroFiscal: user.type === 'SOCIETE' ? (user.numeroFiscal || '') : '',
+        numeroTaxe: user.type === 'SOCIETE' ? ((user as any).numeroTaxe || '') : '',
       });
     }
   }, [user]);
@@ -102,11 +102,11 @@ export default function Profile() {
     if (user) {
       setFormData({
         nom: user.nom || '',
-        prenom: user.type === 'CLIENT' ? (user.prenom || '') : '',
+        prenom: user.type === 'CLIENT' ? ((user as any).prenom || '') : '',
         telephone: user.telephone || '',
         ville: user.ville || '',
         adresse: user.adresse || '',
-        numeroFiscal: user.type === 'SOCIETE' ? (user.numeroFiscal || '') : '',
+        numeroTaxe: user.type === 'SOCIETE' ? ((user as any).numeroTaxe || '') : '',
       });
     }
     setIsEditing(false);
@@ -291,7 +291,7 @@ export default function Profile() {
                         </label>
                         <input
                           type="text"
-                          value={formData.numeroFiscal}
+                          value={formData.numeroTaxe}
                           disabled
                           className="input bg-gray-50 cursor-not-allowed"
                         />
@@ -346,7 +346,7 @@ export default function Profile() {
                     </label>
                     <input
                       type="text"
-                      value={user.pays ? getPaysLabel(user.pays) : 'Non renseigné'}
+                      value={user.pays ? getPaysLabel(user.pays as PaysLivraison) : 'Non renseigné'}
                       disabled
                       className="input bg-gray-50 cursor-not-allowed"
                     />
@@ -371,7 +371,7 @@ export default function Profile() {
                     </label>
                     <input
                       type="text"
-                      value={user.dateInscription ? formatDate(user.dateInscription) : 'Non disponible'}
+                      value={(user as any).dateInscription ? formatDate((user as any).dateInscription) : 'Non disponible'}
                       disabled
                       className="input bg-gray-50 cursor-not-allowed"
                     />

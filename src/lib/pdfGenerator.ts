@@ -23,11 +23,6 @@ const formatPriceShort = (price: number): string => {
   }).format(value);
 };
 
-// Formatter le prix avec devise XAF
-const formatPrice = (price: number): string => {
-  return formatPriceShort(price) + ' XAF';
-};
-
 // Formatter le prix complet pour les totaux (toujours avec devise)
 const formatPriceFull = (price: number): string => {
   const value = price || 0;
@@ -58,7 +53,7 @@ interface ClientInfo {
   ville: string;
   pays: string;
   type: 'CLIENT' | 'SOCIETE';
-  numeroFiscal?: string;
+  numeroTaxe?: string;
 }
 
 interface VehicleItem {
@@ -77,7 +72,7 @@ interface OrderInfo {
   date: string;
   paysLivraison: string;
   adresseLivraison: string;
-  methodePaiement: string;
+  typePaiement: string;
 }
 
 // Couleurs de la marque
@@ -329,8 +324,6 @@ class PDFGenerator {
     const totalsX = this.pageWidth - this.margin - totalsWidth;
     const tva = subtotal * (tauxTVA / 100);
     const total = subtotal + tva;
-    const labelWidth = 35;
-    const valueWidth = totalsWidth - labelWidth - 6;
 
     // Sous-total HT
     this.doc.setFillColor(...COLORS.lightGray);
@@ -446,7 +439,7 @@ class PDFGenerator {
         ]
       : [
           client.nom,
-          `N° Fiscal: ${client.numeroFiscal}`,
+          `N° Fiscal: ${client.numeroTaxe}`,
           client.email,
           client.telephone,
           `${client.ville}, ${client.pays}`,
@@ -457,7 +450,7 @@ class PDFGenerator {
       `Date: ${formatDate(order.date)}`,
       `Livraison: ${getPaysLabel(order.paysLivraison)}`,
       `Adresse: ${order.adresseLivraison}`,
-      `Paiement: ${getMethodePaiementLabel(order.methodePaiement)}`,
+      `Paiement: ${getMethodePaiementLabel(order.typePaiement)}`,
     ];
 
     this.drawInfoSection(
@@ -501,7 +494,7 @@ class PDFGenerator {
         ]
       : [
           client.nom,
-          `N° Fiscal: ${client.numeroFiscal}`,
+          `N° Fiscal: ${client.numeroTaxe}`,
           client.email,
           client.telephone,
           `${client.ville}, ${client.pays}`,
@@ -512,7 +505,7 @@ class PDFGenerator {
       `Date d'émission: ${formatDate(order.date)}`,
       `Validité: 30 jours`,
       `Destination: ${getPaysLabel(order.paysLivraison)}`,
-      `Mode de paiement: ${getMethodePaiementLabel(order.methodePaiement)}`,
+      `Mode de paiement: ${getMethodePaiementLabel(order.typePaiement)}`,
     ];
 
     this.drawInfoSection(
