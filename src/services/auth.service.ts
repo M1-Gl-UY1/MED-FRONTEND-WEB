@@ -1,4 +1,4 @@
-import { api, removeToken, setStoredUser, getStoredUser } from './api';
+import { api, setToken, removeToken, setStoredUser, getStoredUser, getToken } from './api';
 import type {
   LoginDTO,
   RegisterClientDTO,
@@ -9,57 +9,112 @@ import type {
 } from './types';
 
 const AUTH_ENDPOINTS = {
+  LOGIN: '/api/auth/login',
   AUTH_CLIENT: '/api/clients/auth',
   AUTH_SOCIETE: '/api/societes/auth',
+  VALIDATE_TOKEN: '/api/auth/me',
+  REFRESH_TOKEN: '/api/auth/refresh',
   REGISTER_CLIENT: '/api/clients',
   REGISTER_SOCIETE: '/api/societes',
 };
 
-// Type pour la réponse d'authentification du backend
+// Type pour la reponse d'authentification du backend avec JWT
 interface BackendAuthResponse {
+  token: string;
   user: Client | Societe;
   type: 'CLIENT' | 'SOCIETE';
   message: string;
 }
 
+interface ValidateTokenResponse {
+  user: Client | Societe;
+  type: 'CLIENT' | 'SOCIETE';
+}
+
+interface RefreshTokenResponse {
+  token: string;
+  message: string;
+}
+
 export const authService = {
   /**
-   * Connexion d'un client (particulier)
+   * Connexion unifiee (Client ou Societe) via le nouvel endpoint
+   */
+  async login(credentials: LoginDTO): Promise<UtilisateurComplet> {
+    const response = await api.post<BackendAuthResponse>(AUTH_ENDPOINTS.LOGIN, credentials);
+    const { token, user, type } = response.data;
+
+    // Stocker le token JWT
+    setToken(token);
+
+    // Ajouter le type au user et le stocker
+    const typedUser = { ...user, type } as UtilisateurComplet;
+    setStoredUser(typedUser);
+
+    return typedUser;
+  },
+
+  /**
+   * Connexion d'un client (particulier) - fallback
    */
   async loginClient(credentials: LoginDTO): Promise<UtilisateurComplet> {
     const response = await api.post<BackendAuthResponse>(AUTH_ENDPOINTS.AUTH_CLIENT, credentials);
-    const user = response.data.user as Client;
-    user.type = 'CLIENT';
+    const { token, user } = response.data;
 
-    // Stocker l'utilisateur (pas de token JWT pour l'instant dans ce backend)
-    setStoredUser(user);
+    setToken(token);
+    const typedUser = { ...user, type: 'CLIENT' as const };
+    setStoredUser(typedUser);
 
-    return user;
+    return typedUser;
   },
 
   /**
-   * Connexion d'une société
+   * Connexion d'une societe - fallback
    */
   async loginSociete(credentials: LoginDTO): Promise<UtilisateurComplet> {
     const response = await api.post<BackendAuthResponse>(AUTH_ENDPOINTS.AUTH_SOCIETE, credentials);
-    const user = response.data.user as Societe;
-    user.type = 'SOCIETE';
+    const { token, user } = response.data;
 
-    setStoredUser(user);
+    setToken(token);
+    const typedUser = { ...user, type: 'SOCIETE' as const };
+    setStoredUser(typedUser);
 
-    return user;
+    return typedUser;
   },
 
   /**
-   * Connexion générique (détecte automatiquement le type)
+   * Valider le token actuel et recuperer les infos utilisateur
    */
-  async login(credentials: LoginDTO): Promise<UtilisateurComplet> {
+  async validateToken(): Promise<UtilisateurComplet | null> {
+    const token = getToken();
+    if (!token) {
+      return null;
+    }
+
     try {
-      // Essayer d'abord comme client
-      return await this.loginClient(credentials);
+      const response = await api.get<ValidateTokenResponse>(AUTH_ENDPOINTS.VALIDATE_TOKEN);
+      const { user, type } = response.data;
+      const typedUser = { ...user, type } as UtilisateurComplet;
+      setStoredUser(typedUser);
+      return typedUser;
     } catch {
-      // Si ça échoue, essayer comme société
-      return await this.loginSociete(credentials);
+      // Token invalide ou expire
+      removeToken();
+      return null;
+    }
+  },
+
+  /**
+   * Rafraichir le token
+   */
+  async refreshToken(): Promise<string | null> {
+    try {
+      const response = await api.post<RefreshTokenResponse>(AUTH_ENDPOINTS.REFRESH_TOKEN);
+      const { token } = response.data;
+      setToken(token);
+      return token;
+    } catch {
+      return null;
     }
   },
 
@@ -67,7 +122,6 @@ export const authService = {
    * Inscription d'un nouveau client
    */
   async registerClient(data: RegisterClientDTO): Promise<UtilisateurComplet> {
-    // Utiliser l'endpoint Spring Data REST pour créer le client
     const response = await api.post<Client>(AUTH_ENDPOINTS.REGISTER_CLIENT, {
       ...data,
       type: 'CLIENT',
@@ -75,13 +129,13 @@ export const authService = {
 
     const user = response.data;
     user.type = 'CLIENT';
-    setStoredUser(user);
 
-    return user;
+    // Apres inscription, connecter automatiquement
+    return this.login({ email: data.email, motDePasse: data.motDePasse });
   },
 
   /**
-   * Inscription d'une nouvelle société
+   * Inscription d'une nouvelle societe
    */
   async registerSociete(data: RegisterSocieteDTO): Promise<UtilisateurComplet> {
     const response = await api.post<Societe>(AUTH_ENDPOINTS.REGISTER_SOCIETE, {
@@ -91,48 +145,48 @@ export const authService = {
 
     const user = response.data;
     user.type = 'SOCIETE';
-    setStoredUser(user);
 
-    return user;
+    // Apres inscription, connecter automatiquement
+    return this.login({ email: data.email, motDePasse: data.motDePasse });
   },
 
   /**
-   * Déconnexion
+   * Deconnexion
    */
   logout(): void {
     removeToken();
   },
 
   /**
-   * Récupérer l'utilisateur connecté depuis le stockage local
+   * Recuperer l'utilisateur connecte depuis le stockage local
    */
   getCurrentUser(): UtilisateurComplet | null {
     return getStoredUser<UtilisateurComplet>();
   },
 
   /**
-   * Vérifier si l'utilisateur est connecté
+   * Verifier si l'utilisateur est connecte (a un token)
    */
   isAuthenticated(): boolean {
-    return this.getCurrentUser() !== null;
+    return getToken() !== null;
   },
 
   /**
-   * Vérifier si l'utilisateur est un client
+   * Verifier si l'utilisateur est un client
    */
   isClient(user: UtilisateurComplet): user is Client {
     return user.type === 'CLIENT';
   },
 
   /**
-   * Vérifier si l'utilisateur est une société
+   * Verifier si l'utilisateur est une societe
    */
   isSociete(user: UtilisateurComplet): user is Societe {
     return user.type === 'SOCIETE';
   },
 
   /**
-   * Mettre à jour le profil d'un client
+   * Mettre a jour le profil d'un client
    */
   async updateClient(id: number, data: Partial<Client>): Promise<Client> {
     const response = await api.put<Client>(`${AUTH_ENDPOINTS.REGISTER_CLIENT}/${id}`, data);
@@ -143,7 +197,7 @@ export const authService = {
   },
 
   /**
-   * Mettre à jour le profil d'une société
+   * Mettre a jour le profil d'une societe
    */
   async updateSociete(id: number, data: Partial<Societe>): Promise<Societe> {
     const response = await api.put<Societe>(`${AUTH_ENDPOINTS.REGISTER_SOCIETE}/${id}`, data);
@@ -154,12 +208,10 @@ export const authService = {
   },
 
   /**
-   * Mettre à jour le profil (générique)
+   * Mettre a jour le profil (generique)
    */
   async updateProfile(user: UtilisateurComplet, data: Partial<Client> | Partial<Societe>): Promise<UtilisateurComplet> {
-    // Le backend utilise idUtilisateur, mais le frontend peut avoir idClient ou idSociete
     const getUserId = (u: UtilisateurComplet): number => {
-      // Essayer différentes propriétés d'ID
       if ('idClient' in u && u.idClient) return u.idClient;
       if ('idSociete' in u && u.idSociete) return u.idSociete;
       if ('idUtilisateur' in u && (u as any).idUtilisateur) return (u as any).idUtilisateur;

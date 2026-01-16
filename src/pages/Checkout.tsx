@@ -7,17 +7,12 @@ import {
   Check,
   FileText,
   Download,
+  Loader2,
 } from 'lucide-react';
-import type { MethodePaiement, PaysLivraison } from '../data/mockData';
-import {
-  formatPrice,
-  getMethodePaiementLabel,
-  tauxTVA,
-  getPaysLabel,
-  getVehiculeById,
-} from '../data/mockData';
+import type { MethodePaiement, PaysLivraison, CreateCommandeDTO } from '../services/types';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { commandeService, TAUX_TVA } from '../services/commande.service';
 import {
   generateBonCommande,
   generateFactureProforma,
@@ -35,6 +30,32 @@ import {
   FormTextarea,
 } from '../components/ui';
 import FilterSelect from '../components/ui/FilterSelect';
+
+// Formatter le prix
+const formatPrice = (price: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XAF',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+};
+
+// Labels des méthodes de paiement
+const METHODE_PAIEMENT_LABELS: Record<MethodePaiement, string> = {
+  CARTE_BANCAIRE: 'Carte bancaire',
+  PAYPAL: 'PayPal',
+  COMPTANT: 'Comptant',
+  CREDIT: 'Crédit',
+};
+
+// Labels des pays
+const PAYS_LABELS: Record<PaysLivraison, string> = {
+  CM: 'Cameroun',
+  FR: 'France',
+  US: 'États-Unis',
+  NG: 'Nigeria',
+};
 
 type CheckoutStep = 'livraison' | 'paiement' | 'confirmation';
 
@@ -98,60 +119,126 @@ export default function Checkout() {
     e.preventDefault();
     setIsProcessing(true);
 
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Generate order reference
-    const ref = `CMD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
-
-    // Store order data for PDF generation before clearing cart
-    const vehicleItems: VehicleItem[] = items.map(item => {
-      const vehicule = getVehiculeById(item.vehiculeId);
-      return {
-        nom: item.vehiculeNom,
-        marque: vehicule?.marque || 'N/A',
-        modele: vehicule?.modele || 'N/A',
-        annee: vehicule?.annee || new Date().getFullYear(),
-        couleur: item.couleurSelectionnee || 'Standard',
-        prixUnitaireHT: item.prixUnitaire,
-        quantite: item.quantite,
+    try {
+      // Préparer les données de commande pour l'API
+      const commandeData: CreateCommandeDTO = {
+        type: methodePaiement === 'CREDIT' ? 'credit' : 'comptant',
+        paysLivraison: paysLivraison,
+        adresseLivraison: adresseLivraison,
+        methodePaiement: methodePaiement,
+        lignes: items.map(item => ({
+          vehiculeId: item.vehicule.idVehicule,
+          quantite: item.quantite,
+          optionIds: item.optionsSelectionnees.map(opt => opt.idOption),
+          couleur: item.couleurSelectionnee,
+        })),
       };
-    });
 
-    const clientInfo: ClientInfo = {
-      nom: user?.type === 'SOCIETE' ? user.nom : `${user?.prenom || ''} ${user?.nom || ''}`.trim(),
-      prenom: user?.type === 'CLIENT' ? user.prenom : undefined,
-      adresse: adresseLivraison,
-      ville: user?.ville || '',
-      pays: getPaysLabel(user?.pays || paysLivraison),
-      telephone: user?.telephone || '',
-      email: user?.email || '',
-      type: user?.type || 'CLIENT',
-      ...(user?.type === 'SOCIETE' && {
-        numeroFiscal: user.numeroFiscal,
-      }),
-    };
+      // Créer la commande via l'API
+      const commande = await commandeService.creer(commandeData);
+      const ref = commande.reference;
 
-    const orderInfo: OrderInfo = {
-      reference: ref,
-      date: new Date().toISOString(),
-      methodePaiement: getMethodePaiementLabel(methodePaiement),
-      paysLivraison: getPaysLabel(paysLivraison),
-      adresseLivraison: adresseLivraison,
-    };
+      // Store order data for PDF generation before clearing cart
+      const vehicleItems: VehicleItem[] = items.map(item => {
+        const vehicule = item.vehicule;
+        return {
+          nom: `${vehicule.marque} ${vehicule.nom}`,
+          marque: vehicule.marque,
+          modele: vehicule.model,
+          annee: vehicule.annee,
+          couleur: item.couleurSelectionnee || 'Standard',
+          prixUnitaireHT: item.prixUnitaire + item.prixOptions,
+          quantite: item.quantite,
+        };
+      });
 
-    orderDataRef.current = {
-      items: vehicleItems,
-      clientInfo,
-      orderInfo,
-      tauxTVA: tauxTVA[paysLivraison],
-    };
+      const clientInfo: ClientInfo = {
+        nom: user?.type === 'SOCIETE' ? user.nom : `${user?.prenom || ''} ${user?.nom || ''}`.trim(),
+        prenom: user?.type === 'CLIENT' ? user.prenom : undefined,
+        adresse: adresseLivraison,
+        ville: user?.ville || '',
+        pays: PAYS_LABELS[user?.pays || paysLivraison],
+        telephone: user?.telephone || '',
+        email: user?.email || '',
+        type: user?.type || 'CLIENT',
+        ...(user?.type === 'SOCIETE' && {
+          numeroFiscal: user.numeroFiscal,
+        }),
+      };
 
-    setOrderReference(ref);
-    setOrderComplete(true);
-    setCurrentStep('confirmation');
-    clearCart();
-    setIsProcessing(false);
+      const orderInfo: OrderInfo = {
+        reference: ref,
+        date: new Date().toISOString(),
+        methodePaiement: METHODE_PAIEMENT_LABELS[methodePaiement],
+        paysLivraison: PAYS_LABELS[paysLivraison],
+        adresseLivraison: adresseLivraison,
+      };
+
+      orderDataRef.current = {
+        items: vehicleItems,
+        clientInfo,
+        orderInfo,
+        tauxTVA: TAUX_TVA[paysLivraison],
+      };
+
+      setOrderReference(ref);
+      setOrderComplete(true);
+      setCurrentStep('confirmation');
+      clearCart();
+    } catch (error) {
+      console.error('Erreur lors de la création de la commande:', error);
+      // En cas d'erreur API, on génère une référence locale (fallback)
+      const ref = `CMD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+
+      const vehicleItems: VehicleItem[] = items.map(item => {
+        const vehicule = item.vehicule;
+        return {
+          nom: `${vehicule.marque} ${vehicule.nom}`,
+          marque: vehicule.marque,
+          modele: vehicule.model,
+          annee: vehicule.annee,
+          couleur: item.couleurSelectionnee || 'Standard',
+          prixUnitaireHT: item.prixUnitaire + item.prixOptions,
+          quantite: item.quantite,
+        };
+      });
+
+      const clientInfo: ClientInfo = {
+        nom: user?.type === 'SOCIETE' ? user.nom : `${user?.prenom || ''} ${user?.nom || ''}`.trim(),
+        prenom: user?.type === 'CLIENT' ? user.prenom : undefined,
+        adresse: adresseLivraison,
+        ville: user?.ville || '',
+        pays: PAYS_LABELS[user?.pays || paysLivraison],
+        telephone: user?.telephone || '',
+        email: user?.email || '',
+        type: user?.type || 'CLIENT',
+        ...(user?.type === 'SOCIETE' && {
+          numeroFiscal: user.numeroFiscal,
+        }),
+      };
+
+      const orderInfo: OrderInfo = {
+        reference: ref,
+        date: new Date().toISOString(),
+        methodePaiement: METHODE_PAIEMENT_LABELS[methodePaiement],
+        paysLivraison: PAYS_LABELS[paysLivraison],
+        adresseLivraison: adresseLivraison,
+      };
+
+      orderDataRef.current = {
+        items: vehicleItems,
+        clientInfo,
+        orderInfo,
+        tauxTVA: TAUX_TVA[paysLivraison],
+      };
+
+      setOrderReference(ref);
+      setOrderComplete(true);
+      setCurrentStep('confirmation');
+      clearCart();
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (orderComplete) {
@@ -353,23 +440,23 @@ export default function Checkout() {
                 >
                   <SelectionCard
                     value="CARTE_BANCAIRE"
-                    title={getMethodePaiementLabel('CARTE_BANCAIRE')}
+                    title={METHODE_PAIEMENT_LABELS.CARTE_BANCAIRE}
                     description="Paiement sécurisé par carte Visa, Mastercard"
                     rightIcon={<CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />}
                   />
                   <SelectionCard
                     value="PAYPAL"
-                    title={getMethodePaiementLabel('PAYPAL')}
+                    title={METHODE_PAIEMENT_LABELS.PAYPAL}
                     description="Paiement via votre compte PayPal"
                   />
                   <SelectionCard
                     value="COMPTANT"
-                    title={getMethodePaiementLabel('COMPTANT')}
+                    title={METHODE_PAIEMENT_LABELS.COMPTANT}
                     description="Paiement intégral à la livraison"
                   />
                   <SelectionCard
                     value="CREDIT"
-                    title={getMethodePaiementLabel('CREDIT')}
+                    title={METHODE_PAIEMENT_LABELS.CREDIT}
                     description="Financement en plusieurs mensualités"
                     rightIcon={<Building className="w-5 h-5 sm:w-6 sm:h-6" />}
                   />
@@ -411,48 +498,67 @@ export default function Checkout() {
               </h2>
 
               <div className="space-y-3 sm:space-y-4 py-4 border-b border-gray-100">
-                {items.map(item => (
-                  <div key={item.id} className="flex gap-3">
-                    <img
-                      src={item.vehiculeImage}
-                      alt={item.vehiculeNom}
-                      className="w-16 h-12 rounded-lg object-cover flex-shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {item.vehiculeNom}
-                      </p>
-                      <p className="text-xs text-content-muted mt-0.5">
-                        Qté: {item.quantite}
+                {items.map(item => {
+                  const vehicule = item.vehicule;
+                  // Gestion des différentes structures d'image possibles
+                  const imageUrl = vehicule.imageUrl
+                    || vehicule.images?.[0]?.url
+                    || (typeof vehicule.images?.[0] === 'string' ? vehicule.images[0] : null)
+                    || '/placeholder-car.jpg';
+                  const vehiculeNom = `${vehicule.marque} ${vehicule.nom}`;
+
+                  return (
+                    <div key={item.id} className="flex gap-2 sm:gap-3">
+                      <img
+                        src={imageUrl}
+                        alt={vehiculeNom}
+                        className="w-14 h-10 sm:w-16 sm:h-12 rounded-lg object-cover flex-shrink-0"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/placeholder-car.jpg';
+                        }}
+                      />
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <p className="text-xs sm:text-sm font-medium truncate">
+                          {vehiculeNom}
+                        </p>
+                        <p className="text-[10px] sm:text-xs text-content-muted mt-0.5 truncate">
+                          Qté: {item.quantite}
+                          {item.couleurSelectionnee && ` • ${item.couleurSelectionnee}`}
+                        </p>
+                        {item.optionsSelectionnees.length > 0 && (
+                          <p className="text-[10px] sm:text-xs text-content-muted mt-0.5">
+                            +{item.optionsSelectionnees.length} option{item.optionsSelectionnees.length > 1 ? 's' : ''}
+                          </p>
+                        )}
+                      </div>
+                      <p className="text-[11px] sm:text-sm font-semibold flex-shrink-0 text-right whitespace-nowrap">
+                        {formatPrice(item.sousTotal)}
                       </p>
                     </div>
-                    <p className="text-sm font-semibold flex-shrink-0">
-                      {formatPrice(item.sousTotal)}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              <div className="space-y-2 sm:space-y-3 py-4 border-b border-gray-100 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-content-light">Sous-total HT</span>
-                  <span className="font-medium">{formatPrice(subtotal)}</span>
+              <div className="space-y-2 sm:space-y-3 py-4 border-b border-gray-100 text-xs sm:text-sm">
+                <div className="flex justify-between items-start gap-2">
+                  <span className="text-content-light flex-shrink-0">Sous-total HT</span>
+                  <span className="font-medium text-right break-all">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-content-light">
-                    TVA ({tauxTVA[paysLivraison]}%)
+                <div className="flex justify-between items-start gap-2">
+                  <span className="text-content-light flex-shrink-0 text-[10px] sm:text-sm">
+                    TVA ({TAUX_TVA[paysLivraison]}%)
                   </span>
-                  <span className="font-medium">{formatPrice(taxes)}</span>
+                  <span className="font-medium text-right break-all">{formatPrice(taxes)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center gap-2">
                   <span className="text-content-light">Livraison</span>
                   <span className="text-success font-medium">Gratuite</span>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center pt-4">
-                <span className="font-semibold text-primary">Total TTC</span>
-                <span className="text-xl sm:text-2xl font-bold text-secondary">
+              <div className="flex justify-between items-center pt-4 gap-2">
+                <span className="font-semibold text-primary text-sm sm:text-base">Total TTC</span>
+                <span className="text-base sm:text-xl md:text-2xl font-bold text-secondary text-right">
                   {formatPrice(total)}
                 </span>
               </div>

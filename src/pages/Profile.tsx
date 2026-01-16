@@ -18,8 +18,22 @@ import {
   Check,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { formatDate, getPaysLabel } from '../data/mockData';
+import type { PaysLivraison } from '../services/types';
 import { cn } from '../lib/utils';
+
+// Formatter une date
+const formatDate = (date: string): string =>
+  new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+// Labels des pays
+const PAYS_LABELS: Record<PaysLivraison, string> = {
+  CM: 'Cameroun',
+  FR: 'France',
+  US: 'États-Unis',
+  NG: 'Nigeria',
+};
+
+const getPaysLabel = (code: PaysLivraison): string => PAYS_LABELS[code] || code;
 import {
   Button,
   Breadcrumb,

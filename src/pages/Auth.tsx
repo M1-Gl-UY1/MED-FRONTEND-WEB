@@ -403,31 +403,6 @@ export default function Auth() {
               </Button>
             </form>
 
-            {/* Demo credentials */}
-            {mode === 'login' && (
-              <div className="mt-8 p-5 bg-primary-50 rounded-xl border border-primary-100">
-                <p className="text-sm font-semibold text-primary mb-3">
-                  Comptes de démonstration
-                </p>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between p-2 bg-white rounded-lg">
-                    <span className="text-content-light">Particulier</span>
-                    <code className="text-xs text-primary bg-primary-50 px-2 py-1 rounded">
-                      jean.fotso@email.com
-                    </code>
-                  </div>
-                  <div className="flex items-center justify-between p-2 bg-white rounded-lg">
-                    <span className="text-content-light">Société</span>
-                    <code className="text-xs text-primary bg-primary-50 px-2 py-1 rounded">
-                      contact@autofleet-cm.com
-                    </code>
-                  </div>
-                  <p className="text-xs text-content-muted text-center mt-2">
-                    Mot de passe : password123 / societe123
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Footer */}

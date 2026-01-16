@@ -8,13 +8,16 @@ import type { Utilisateur as MockUtilisateur } from '../data/mockData';
 
 type Utilisateur = UtilisateurComplet | MockUtilisateur;
 
-// Helper pour obtenir l'ID utilisateur (différent entre API et mock)
+// Helper pour obtenir l'ID utilisateur (different entre API et mock)
 export function getUserId(user: Utilisateur): number {
   // Mock data uses 'id'
   if ('id' in user) {
     return user.id;
   }
-  // API data uses 'idClient' or 'idSociete'
+  // API data uses 'idClient' or 'idSociete' or 'idUtilisateur'
+  if ('idUtilisateur' in user && (user as any).idUtilisateur) {
+    return (user as any).idUtilisateur;
+  }
   if (user.type === 'CLIENT' && 'idClient' in user) {
     return user.idClient;
   }
@@ -44,13 +47,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Valider le token au montage
   useEffect(() => {
-    // Vérifier si un utilisateur est stocké
-    const storedUser = authService.getCurrentUser();
-    if (storedUser) {
-      setUser(storedUser);
-    }
-    setIsLoading(false);
+    const validateAndLoadUser = async () => {
+      try {
+        // D'abord essayer de valider le token avec l'API
+        const validatedUser = await authService.validateToken();
+        if (validatedUser) {
+          setUser(validatedUser);
+        } else {
+          // Pas de token valide, verifier le stockage local (mock)
+          const storedUser = authService.getCurrentUser();
+          if (storedUser) {
+            setUser(storedUser);
+          }
+        }
+      } catch {
+        // API indisponible, fallback sur le stockage local
+        const storedUser = authService.getCurrentUser();
+        if (storedUser) {
+          setUser(storedUser);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    validateAndLoadUser();
   }, []);
 
   const login = useCallback(async (email: string, motDePasse: string): Promise<boolean> => {
@@ -63,9 +86,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(utilisateur);
       return true;
     } catch (apiError) {
-      console.warn('API indisponible, utilisation des données mock', apiError);
+      console.warn('API indisponible, utilisation des donnees mock', apiError);
 
-      // Fallback sur les données mock
+      // Fallback sur les donnees mock
       try {
         const mockUser = mockAuthentifier(email, motDePasse);
         if (mockUser) {
@@ -110,12 +133,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(utilisateur);
       return true;
     } catch (apiError) {
-      console.warn('API indisponible, création locale', apiError);
+      console.warn('API indisponible, creation locale', apiError);
 
       // Fallback local
       const emailExists = [...clients, ...societes].some(u => u.email === userData.email);
       if (emailExists) {
-        setError('Cet email est déjà utilisé');
+        setError('Cet email est deja utilise');
         return false;
       }
 
@@ -137,7 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateProfile = useCallback(async (data: Partial<UtilisateurComplet>): Promise<boolean> => {
     if (!user) {
-      setError('Utilisateur non connecté');
+      setError('Utilisateur non connecte');
       return false;
     }
 
@@ -149,8 +172,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(updatedUser);
       return true;
     } catch (apiError: any) {
-      console.error('Erreur lors de la mise à jour du profil:', apiError);
-      setError(apiError.message || 'Erreur lors de la mise à jour du profil');
+      console.error('Erreur lors de la mise a jour du profil:', apiError);
+      setError(apiError.message || 'Erreur lors de la mise a jour du profil');
       return false;
     } finally {
       setIsLoading(false);

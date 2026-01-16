@@ -7,6 +7,7 @@ import {
   ChevronRight,
   MapPin,
   AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import QuantitySelector from '../components/ui/QuantitySelector';
 import EmptyState from '../components/ui/EmptyState';
@@ -14,18 +15,36 @@ import FilterSelect from '../components/ui/FilterSelect';
 import Pagination from '../components/ui/Pagination';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import type { PaysLivraison } from '../data/mockData';
-import {
-  formatPrice,
-  getVehiculeById,
-  getOptionById,
-  getPaysLabel,
-  tauxTVA,
-} from '../data/mockData';
-import { useCart } from '../context/CartContext';
+import { useCart, type PaysLivraison } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
 const ITEMS_PER_PAGE = 5;
+
+// Taux de TVA par pays (en pourcentage pour affichage)
+const TAUX_TVA_DISPLAY: Record<PaysLivraison, number> = {
+  CM: 19.25,
+  FR: 20,
+  US: 8,
+  NG: 7.5,
+};
+
+// Labels des pays
+const PAYS_LABELS: Record<PaysLivraison, string> = {
+  CM: 'Cameroun',
+  FR: 'France',
+  US: 'États-Unis',
+  NG: 'Nigeria',
+};
+
+// Formatter le prix
+const formatPrice = (price: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XAF',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+};
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -37,6 +56,7 @@ export default function Cart() {
     taxes,
     total,
     paysLivraison,
+    isLoading,
     removeFromCart,
     updateQuantity,
     setPaysLivraison,
@@ -50,6 +70,18 @@ export default function Cart() {
       navigate('/commande');
     }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-secondary mx-auto mb-4" />
+          <p className="text-content-light">Chargement du panier...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -96,21 +128,30 @@ export default function Cart() {
           <div className="lg:col-span-2">
             <div className="space-y-4">
               {paginatedItems.map(item => {
-                const vehicle = getVehiculeById(item.vehiculeId);
-                if (!vehicle) return null;
+                const vehicule = item.vehicule;
+                // Gestion des différentes structures d'image possibles
+                const imageUrl = vehicule.imageUrl
+                  || vehicule.images?.[0]?.url
+                  || (typeof vehicule.images?.[0] === 'string' ? vehicule.images[0] : null)
+                  || '/placeholder-car.jpg';
+                const vehiculeNom = `${vehicule.marque} ${vehicule.nom}`;
+                const stockQty = vehicule.stock?.quantite || 0;
 
                 return (
                   <article key={item.id} className="card">
-                    <div className="flex gap-4">
+                    <div className="flex gap-3 sm:gap-4">
                       {/* Product Image */}
                       <Link
-                        to={`/vehicule/${vehicle.id}`}
-                        className="w-28 h-20 sm:w-32 sm:h-24 md:w-36 md:h-28 rounded-lg overflow-hidden flex-shrink-0"
+                        to={`/vehicule/${vehicule.idVehicule}`}
+                        className="w-24 h-18 sm:w-32 sm:h-24 md:w-36 md:h-28 rounded-lg overflow-hidden flex-shrink-0"
                       >
                         <img
-                          src={item.vehiculeImage}
-                          alt={item.vehiculeNom}
+                          src={imageUrl}
+                          alt={vehiculeNom}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/placeholder-car.jpg';
+                          }}
                         />
                       </Link>
 
@@ -119,10 +160,10 @@ export default function Cart() {
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div>
                             <Link
-                              to={`/vehicule/${vehicle.id}`}
+                              to={`/vehicule/${vehicule.idVehicule}`}
                               className="font-semibold text-primary hover:text-secondary text-sm sm:text-base line-clamp-1"
                             >
-                              {item.vehiculeNom}
+                              {vehiculeNom}
                             </Link>
                             <p className="text-xs sm:text-sm text-content-light">
                               Couleur: {item.couleurSelectionnee}
@@ -142,14 +183,11 @@ export default function Cart() {
                           <div className="mb-3">
                             <p className="text-xs text-content-muted mb-1.5">Options:</p>
                             <div className="flex flex-wrap gap-1.5">
-                              {item.optionsSelectionnees.map(optId => {
-                                const opt = getOptionById(optId);
-                                return opt ? (
-                                  <Badge key={optId} variant="neutral" size="sm">
-                                    {opt.nom}
-                                  </Badge>
-                                ) : null;
-                              })}
+                              {item.optionsSelectionnees.map(opt => (
+                                <Badge key={opt.idOption} variant="neutral" size="sm">
+                                  {opt.nom}
+                                </Badge>
+                              ))}
                             </div>
                           </div>
                         )}
@@ -159,13 +197,13 @@ export default function Cart() {
                           <QuantitySelector
                             value={item.quantite}
                             onChange={qty => updateQuantity(item.id, qty)}
-                            max={vehicle.stock.quantite}
+                            max={stockQty}
                           />
-                          <div className="text-right">
-                            <p className="text-xs sm:text-sm text-content-muted">
+                          <div className="text-right min-w-0">
+                            <p className="text-[10px] sm:text-xs text-content-muted truncate">
                               {formatPrice(item.prixUnitaire + item.prixOptions)} x {item.quantite}
                             </p>
-                            <p className="text-lg font-bold text-secondary">
+                            <p className="text-sm sm:text-base md:text-lg font-bold text-secondary">
                               {formatPrice(item.sousTotal)}
                             </p>
                           </div>
@@ -216,26 +254,26 @@ export default function Cart() {
 
               {/* Price Breakdown */}
               <div className="space-y-3 py-4 border-t border-b border-gray-100">
-                <div className="flex justify-between text-sm">
-                  <span className="text-content-light">Sous-total HT</span>
-                  <span className="font-medium">{formatPrice(subtotal)}</span>
+                <div className="flex justify-between items-start gap-2 text-xs sm:text-sm">
+                  <span className="text-content-light flex-shrink-0">Sous-total HT</span>
+                  <span className="font-medium text-right">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-content-light">
-                    TVA ({tauxTVA[paysLivraison]}% - {getPaysLabel(paysLivraison)})
+                <div className="flex justify-between items-start gap-2 text-xs sm:text-sm">
+                  <span className="text-content-light flex-shrink-0 text-[10px] sm:text-sm">
+                    TVA ({TAUX_TVA_DISPLAY[paysLivraison]}%)
                   </span>
-                  <span className="font-medium">{formatPrice(taxes)}</span>
+                  <span className="font-medium text-right">{formatPrice(taxes)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between items-center gap-2 text-xs sm:text-sm">
                   <span className="text-content-light">Livraison</span>
                   <span className="text-success font-medium">Gratuite</span>
                 </div>
               </div>
 
               {/* Total */}
-              <div className="flex justify-between items-center py-4 mb-4">
-                <span className="font-semibold text-primary">Total TTC</span>
-                <span className="text-2xl font-bold text-secondary">
+              <div className="flex justify-between items-center py-4 mb-4 gap-2">
+                <span className="font-semibold text-primary text-sm sm:text-base">Total TTC</span>
+                <span className="text-lg sm:text-xl md:text-2xl font-bold text-secondary text-right">
                   {formatPrice(total)}
                 </span>
               </div>
@@ -261,7 +299,7 @@ export default function Cart() {
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span>
                     Les prix affichés incluent toutes les options sélectionnées.
-                    La livraison est gratuite pour le {getPaysLabel(paysLivraison)}.
+                    La livraison est gratuite pour le {PAYS_LABELS[paysLivraison]}.
                   </span>
                 </p>
               </div>

@@ -1,5 +1,52 @@
 import { jsPDF } from 'jspdf';
-import { formatPrice } from '../data/mockData';
+
+// Formatter le prix - version compacte pour PDF (sans devise pour les colonnes)
+const formatPriceShort = (price: number): string => {
+  const value = price || 0;
+  // Pour les très grands montants, utiliser une notation compacte
+  if (value >= 1000000000) {
+    return `${(value / 1000000000).toFixed(1)} Mrd`;
+  }
+  if (value >= 100000000) {
+    return `${(value / 1000000).toFixed(0)} M`;
+  }
+  if (value >= 10000000) {
+    return `${(value / 1000000).toFixed(1)} M`;
+  }
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(2)} M`;
+  }
+  // Format avec séparateur de milliers (sans devise)
+  return new Intl.NumberFormat('fr-FR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
+// Formatter le prix avec devise XAF
+const formatPrice = (price: number): string => {
+  return formatPriceShort(price) + ' XAF';
+};
+
+// Formatter le prix complet pour les totaux (toujours avec devise)
+const formatPriceFull = (price: number): string => {
+  const value = price || 0;
+  // Pour les très grands montants dans les totaux
+  if (value >= 1000000000) {
+    return `${(value / 1000000000).toFixed(2)} Mrd XAF`;
+  }
+  if (value >= 100000000) {
+    return `${(value / 1000000).toFixed(1)} M XAF`;
+  }
+  if (value >= 10000000) {
+    return `${(value / 1000000).toFixed(2)} M XAF`;
+  }
+  // Format standard avec séparateur
+  return new Intl.NumberFormat('fr-FR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value) + ' XAF';
+};
 
 // Types pour la génération de PDF
 interface ClientInfo {
@@ -192,18 +239,19 @@ class PDFGenerator {
   // Dessiner le tableau des articles
   private drawItemsTable(items: VehicleItem[], tauxTVA: number): { subtotal: number; tva: number; total: number } {
     const startY = this.currentY;
-    const colWidths = [75, 20, 35, 40]; // Description, Qté, Prix Unit, Total
     const tableWidth = this.pageWidth - this.margin * 2;
+    // Colonnes: Description (flexible), Qté (petit), Prix Unit (moyen), Total (moyen)
+    const colWidths = [70, 12, 44, 44]; // Total = 170mm sur 210mm - 40mm marges
 
     // En-tête du tableau
     this.doc.setFillColor(...COLORS.primary);
     this.doc.rect(this.margin, startY, tableWidth, 10, 'F');
 
     this.doc.setTextColor(...COLORS.white);
-    this.doc.setFontSize(9);
+    this.doc.setFontSize(8);
     this.doc.setFont('helvetica', 'bold');
 
-    let xPos = this.margin + 3;
+    let xPos = this.margin + 2;
     this.doc.text('Description', xPos, startY + 7);
     xPos += colWidths[0];
     this.doc.text('Qté', xPos, startY + 7);
@@ -235,8 +283,11 @@ class PDFGenerator {
       this.doc.setFontSize(9);
       this.doc.setFont('helvetica', 'bold');
 
-      xPos = this.margin + 3;
-      this.doc.text(`${item.marque} ${item.nom}`, xPos, currentRowY + 6);
+      xPos = this.margin + 2;
+      // Tronquer le nom si trop long
+      const nomComplet = `${item.marque} ${item.nom}`;
+      const nomTronque = nomComplet.length > 30 ? nomComplet.substring(0, 28) + '...' : nomComplet;
+      this.doc.text(nomTronque, xPos, currentRowY + 6);
 
       this.doc.setFont('helvetica', 'normal');
       this.doc.setFontSize(8);
@@ -248,58 +299,68 @@ class PDFGenerator {
       if (item.options && item.options.length > 0) {
         item.options.forEach((opt, optIndex) => {
           this.doc.setFontSize(7);
-          this.doc.text(`+ ${opt.nom} (${formatPrice(opt.prix)})`, xPos + 3, currentRowY + 20 + optIndex * 4);
+          this.doc.text(`+ ${opt.nom} (${formatPriceShort(opt.prix)})`, xPos + 2, currentRowY + 20 + optIndex * 4);
         });
       }
 
-      // Quantité
-      xPos = this.margin + 3 + colWidths[0];
+      // Quantité (centrée dans sa colonne)
+      xPos = this.margin + 2 + colWidths[0];
       this.doc.setTextColor(...COLORS.primary);
       this.doc.setFontSize(9);
-      this.doc.text(item.quantite.toString(), xPos + 5, currentRowY + 10);
+      this.doc.text(item.quantite.toString(), xPos + 4, currentRowY + 10);
 
-      // Prix unitaire
+      // Prix unitaire (aligné à droite dans sa colonne)
       xPos += colWidths[1];
-      this.doc.text(formatPrice(item.prixUnitaireHT), xPos, currentRowY + 10);
+      const prixUnitEnd = xPos + colWidths[2] - 2;
+      this.doc.text(formatPriceShort(item.prixUnitaireHT), prixUnitEnd, currentRowY + 10, { align: 'right' });
 
-      // Total ligne
+      // Total ligne (aligné à droite dans sa colonne)
       xPos += colWidths[2];
+      const totalEnd = xPos + colWidths[3] - 2;
       this.doc.setFont('helvetica', 'bold');
-      this.doc.text(formatPrice(lineTotal), xPos, currentRowY + 10);
+      this.doc.text(formatPriceShort(lineTotal), totalEnd, currentRowY + 10, { align: 'right' });
 
       currentRowY += rowHeight;
     });
 
     // Totaux
     const totalsStartY = currentRowY + 5;
-    const totalsX = this.pageWidth - this.margin - 80;
+    const totalsWidth = 88; // Largeur des colonnes prix
+    const totalsX = this.pageWidth - this.margin - totalsWidth;
     const tva = subtotal * (tauxTVA / 100);
     const total = subtotal + tva;
+    const labelWidth = 35;
+    const valueWidth = totalsWidth - labelWidth - 6;
 
-    // Sous-total
+    // Sous-total HT
     this.doc.setFillColor(...COLORS.lightGray);
-    this.doc.rect(totalsX, totalsStartY, 80, 8, 'F');
+    this.doc.rect(totalsX, totalsStartY, totalsWidth, 9, 'F');
     this.doc.setTextColor(...COLORS.gray);
     this.doc.setFontSize(9);
     this.doc.setFont('helvetica', 'normal');
     this.doc.text('Sous-total HT', totalsX + 3, totalsStartY + 6);
-    this.doc.text(formatPrice(subtotal), totalsX + 77, totalsStartY + 6, { align: 'right' });
+    // Valeur alignée à droite avec padding
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text(formatPriceFull(subtotal), totalsX + totalsWidth - 4, totalsStartY + 6, { align: 'right' });
 
     // TVA
-    this.doc.rect(totalsX, totalsStartY + 8, 80, 8, 'F');
-    this.doc.text(`TVA (${tauxTVA}%)`, totalsX + 3, totalsStartY + 14);
-    this.doc.text(formatPrice(tva), totalsX + 77, totalsStartY + 14, { align: 'right' });
-
-    // Total TTC
-    this.doc.setFillColor(...COLORS.secondary);
-    this.doc.rect(totalsX, totalsStartY + 16, 80, 12, 'F');
-    this.doc.setTextColor(...COLORS.primary);
-    this.doc.setFontSize(11);
+    this.doc.setFont('helvetica', 'normal');
+    this.doc.rect(totalsX, totalsStartY + 9, totalsWidth, 9, 'F');
+    this.doc.text(`TVA (${tauxTVA}%)`, totalsX + 3, totalsStartY + 15);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('TOTAL TTC', totalsX + 3, totalsStartY + 24);
-    this.doc.text(formatPrice(total), totalsX + 77, totalsStartY + 24, { align: 'right' });
+    this.doc.text(formatPriceFull(tva), totalsX + totalsWidth - 4, totalsStartY + 15, { align: 'right' });
 
-    this.currentY = totalsStartY + 35;
+    // Total TTC - boîte plus haute pour le montant principal
+    this.doc.setFillColor(...COLORS.secondary);
+    this.doc.rect(totalsX, totalsStartY + 18, totalsWidth, 14, 'F');
+    this.doc.setTextColor(...COLORS.primary);
+    this.doc.setFontSize(10);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text('TOTAL TTC', totalsX + 3, totalsStartY + 27);
+    this.doc.setFontSize(11);
+    this.doc.text(formatPriceFull(total), totalsX + totalsWidth - 4, totalsStartY + 27, { align: 'right' });
+
+    this.currentY = totalsStartY + 40;
 
     return { subtotal, tva, total };
   }

@@ -182,7 +182,10 @@ export default function VehicleDetail() {
     const stockQty = vehicle.stock?.quantite || 0;
     if (stockQty < quantity) return;
 
-    const success = addToCart(vehicle.idVehicule, quantity, selectedOptions, selectedColor);
+    // Récupérer les objets Option complets pour les options sélectionnées
+    const optionsToAdd = availableOptions.filter(opt => selectedOptions.includes(opt.idOption));
+
+    const success = addToCart(vehicle, quantity, optionsToAdd, selectedColor);
     if (success) {
       setIsAddedToCart(true);
       setTimeout(() => setIsAddedToCart(false), 3000);
@@ -311,27 +314,27 @@ export default function VehicleDetail() {
               <SpecCard
                 icon={<Gauge className="w-5 h-5" />}
                 label="Puissance"
-                value={vehicle.caracteristiques?.puissance || '-'}
+                value={vehicle.puissance || '-'}
               />
               <SpecCard
                 icon={vehicle.engine === 'ELECTRIQUE' ? <Zap className="w-5 h-5" /> : <Fuel className="w-5 h-5" />}
                 label="Conso."
-                value={vehicle.caracteristiques?.consommation || '-'}
+                value={vehicle.consommation || '-'}
               />
               <SpecCard
                 icon={<Settings className="w-5 h-5" />}
                 label="Transmission"
-                value={vehicle.caracteristiques?.transmission || '-'}
+                value={vehicle.transmission || '-'}
               />
               <SpecCard
                 icon={<Gauge className="w-5 h-5" />}
                 label="0-100 km/h"
-                value={vehicle.caracteristiques?.acceleration || '-'}
+                value={vehicle.acceleration || '-'}
               />
               <SpecCard
                 icon={<Gauge className="w-5 h-5" />}
                 label="Vitesse max"
-                value={vehicle.caracteristiques?.vitesseMax || '-'}
+                value={vehicle.vitesseMax || '-'}
               />
             </SpecGrid>
 

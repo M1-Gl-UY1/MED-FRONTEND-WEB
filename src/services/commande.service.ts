@@ -47,10 +47,19 @@ export const commandeService = {
    * Récupérer les commandes d'un utilisateur
    */
   async getByUserId(userId: number): Promise<Commande[]> {
-    const response = await api.get<HalResponse<Commande>>(ENDPOINTS.COMMANDES, {
-      utilisateurId: userId,
-    });
-    return response.data._embedded?.commandes || [];
+    try {
+      // Utiliser l'endpoint dédié
+      const response = await api.get<Commande[]>(`${ENDPOINTS.COMMANDES}/utilisateur/${userId}`);
+      return response.data || [];
+    } catch {
+      // Fallback: récupérer toutes les commandes et filtrer côté client
+      console.warn('Endpoint utilisateur non disponible, récupération de toutes les commandes');
+      const allResponse = await api.get<Commande[]>(ENDPOINTS.COMMANDES);
+      const allCommandes = allResponse.data || [];
+      return allCommandes.filter(c =>
+        c.utilisateur?.idUtilisateur === userId
+      );
+    }
   },
 
   /**

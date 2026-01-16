@@ -42,15 +42,15 @@ export interface Vehicule {
   engine: TypeMoteur;
   type: TypeVehicule;
   prixBase: number;
+  prixOriginal?: number;  // Prix original si décoré
   description?: string;
-  caracteristiques?: {
-    puissance: string;
-    transmission: string;
-    carburant: string;
-    consommation: string;
-    acceleration: string;
-    vitesseMax: string;
-  };
+  // Caractéristiques techniques (champs directs)
+  puissance?: string;
+  transmission?: string;
+  carburant?: string;
+  consommation?: string;
+  acceleration?: string;
+  vitesseMax?: string;
   couleurs?: string[];
   images: ImageVehicule[];
   stock?: Stock;
@@ -58,6 +58,7 @@ export interface Vehicule {
   solde: boolean;
   facteurReduction?: number;
   nouveau?: boolean;
+  decorated?: boolean;  // Indique si le prix a été modifié par le Decorator
 }
 
 export interface Client {

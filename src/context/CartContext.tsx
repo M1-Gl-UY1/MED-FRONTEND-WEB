@@ -1,18 +1,24 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { LignePanier, PaysLivraison } from '../data/mockData';
-import {
-  getVehiculeById,
-  getOptionById,
-  calculerPrixVehicule,
-  calculerTotalOptions,
-  calculerTaxes,
-  verifierCompatibiliteOptions,
-} from '../data/mockData';
+import type { Vehicule, Option } from '../services/types';
+import { vehiculeService } from '../services';
 
-export interface CartItem extends LignePanier {
-  vehiculeNom: string;
-  vehiculeImage: string;
+export type PaysLivraison = 'CM' | 'FR' | 'US' | 'NG';
+
+// Taux de TVA par pays
+const TAUX_TVA: Record<PaysLivraison, number> = {
+  CM: 0.1925, // 19.25% Cameroun
+  FR: 0.20,   // 20% France
+  US: 0.08,   // 8% USA (moyenne)
+  NG: 0.075,  // 7.5% Nigeria
+};
+
+export interface CartItem {
+  id: number;
+  vehicule: Vehicule;
+  quantite: number;
+  optionsSelectionnees: Option[];
+  couleurSelectionnee: string;
   prixUnitaire: number;
   prixOptions: number;
   sousTotal: number;
@@ -25,95 +31,150 @@ interface CartContextType {
   taxes: number;
   total: number;
   paysLivraison: PaysLivraison;
+  isLoading: boolean;
   addToCart: (
-    vehiculeId: number,
+    vehicule: Vehicule,
     quantite: number,
-    optionsSelectionnees: number[],
+    optionsSelectionnees: Option[],
     couleurSelectionnee: string
   ) => boolean;
   removeFromCart: (itemId: number) => void;
   updateQuantity: (itemId: number, quantite: number) => void;
-  updateOptions: (itemId: number, optionsSelectionnees: number[]) => void;
   clearCart: () => void;
   setPaysLivraison: (pays: PaysLivraison) => void;
-  canAddOption: (itemId: number, optionId: number) => boolean;
-  getIncompatibleOptions: (optionId: number, currentOptions: number[]) => number[];
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+// Calculer le prix du véhicule (avec réduction si solde)
+const calculerPrixVehicule = (vehicule: Vehicule): number => {
+  if (vehicule.solde && vehicule.facteurReduction && vehicule.facteurReduction > 0) {
+    return vehicule.prixBase * (1 - vehicule.facteurReduction);
+  }
+  return vehicule.prixBase;
+};
+
+// Calculer le total des options
+const calculerTotalOptions = (options: Option[]): number => {
+  return options.reduce((sum, opt) => sum + opt.prix, 0);
+};
+
+// Calculer les taxes
+const calculerTaxes = (montant: number, pays: PaysLivraison): number => {
+  return Math.round(montant * TAUX_TVA[pays]);
+};
+
+// Structure pour localStorage (sans les objets complets)
+interface StoredCartItem {
+  id: number;
+  vehiculeId: number;
+  quantite: number;
+  optionIds: number[];
+  couleurSelectionnee: string;
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [paysLivraison, setPaysLivraisonState] = useState<PaysLivraison>('CM');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Charger le panier depuis localStorage
+  // Charger le panier depuis localStorage et récupérer les données à jour
   useEffect(() => {
-    const storedCart = localStorage.getItem('med_panier');
-    const storedPays = localStorage.getItem('med_pays_livraison');
+    const loadCart = async () => {
+      const storedCart = localStorage.getItem('med_panier_v2');
+      const storedPays = localStorage.getItem('med_pays_livraison');
 
-    if (storedCart) {
-      try {
-        const parsedItems = JSON.parse(storedCart);
-        setItems(parsedItems);
-      } catch {
-        localStorage.removeItem('med_panier');
+      if (storedPays && ['CM', 'FR', 'US', 'NG'].includes(storedPays)) {
+        setPaysLivraisonState(storedPays as PaysLivraison);
       }
-    }
 
-    if (storedPays && ['CM', 'FR', 'US', 'NG'].includes(storedPays)) {
-      setPaysLivraisonState(storedPays as PaysLivraison);
-    }
+      if (storedCart) {
+        try {
+          const storedItems: StoredCartItem[] = JSON.parse(storedCart);
+          const loadedItems: CartItem[] = [];
+
+          for (const stored of storedItems) {
+            try {
+              // Récupérer le véhicule à jour depuis l'API
+              const vehicule = await vehiculeService.getById(stored.vehiculeId);
+
+              // Récupérer les options sélectionnées
+              const optionsSelectionnees = (vehicule.options || []).filter(
+                opt => stored.optionIds.includes(opt.idOption)
+              );
+
+              const prixUnitaire = calculerPrixVehicule(vehicule);
+              const prixOptions = calculerTotalOptions(optionsSelectionnees);
+              const sousTotal = (prixUnitaire + prixOptions) * stored.quantite;
+
+              loadedItems.push({
+                id: stored.id,
+                vehicule,
+                quantite: stored.quantite,
+                optionsSelectionnees,
+                couleurSelectionnee: stored.couleurSelectionnee,
+                prixUnitaire,
+                prixOptions,
+                sousTotal,
+              });
+            } catch (err) {
+              // Véhicule non trouvé, on l'ignore
+              console.warn(`Véhicule ${stored.vehiculeId} non trouvé, retiré du panier`);
+            }
+          }
+
+          setItems(loadedItems);
+        } catch {
+          localStorage.removeItem('med_panier_v2');
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    loadCart();
   }, []);
 
-  // Sauvegarder le panier dans localStorage
+  // Sauvegarder le panier dans localStorage (seulement les IDs)
   useEffect(() => {
-    localStorage.setItem('med_panier', JSON.stringify(items));
-  }, [items]);
+    if (!isLoading) {
+      const storedItems: StoredCartItem[] = items.map(item => ({
+        id: item.id,
+        vehiculeId: item.vehicule.idVehicule,
+        quantite: item.quantite,
+        optionIds: item.optionsSelectionnees.map(opt => opt.idOption),
+        couleurSelectionnee: item.couleurSelectionnee,
+      }));
+      localStorage.setItem('med_panier_v2', JSON.stringify(storedItems));
+    }
+  }, [items, isLoading]);
 
   useEffect(() => {
     localStorage.setItem('med_pays_livraison', paysLivraison);
   }, [paysLivraison]);
 
-  const calculateItemDetails = (
-    vehiculeId: number,
+  const addToCart = (
+    vehicule: Vehicule,
     quantite: number,
-    optionsSelectionnees: number[]
-  ): Omit<CartItem, 'id' | 'couleurSelectionnee'> | null => {
-    const vehicule = getVehiculeById(vehiculeId);
-    if (!vehicule) return null;
+    optionsSelectionnees: Option[],
+    couleurSelectionnee: string
+  ): boolean => {
+    const stockQty = vehicule.stock?.quantite || 0;
+    if (stockQty < quantite) return false;
 
     const prixUnitaire = calculerPrixVehicule(vehicule);
     const prixOptions = calculerTotalOptions(optionsSelectionnees);
     const sousTotal = (prixUnitaire + prixOptions) * quantite;
 
-    return {
-      vehiculeId,
+    const newItem: CartItem = {
+      id: Date.now(),
+      vehicule,
       quantite,
       optionsSelectionnees,
-      vehiculeNom: `${vehicule.marque} ${vehicule.nom}`,
-      vehiculeImage: vehicule.image,
+      couleurSelectionnee,
       prixUnitaire,
       prixOptions,
       sousTotal,
-    };
-  };
-
-  const addToCart = (
-    vehiculeId: number,
-    quantite: number,
-    optionsSelectionnees: number[],
-    couleurSelectionnee: string
-  ): boolean => {
-    const vehicule = getVehiculeById(vehiculeId);
-    if (!vehicule || vehicule.stock.quantite < quantite) return false;
-
-    const itemDetails = calculateItemDetails(vehiculeId, quantite, optionsSelectionnees);
-    if (!itemDetails) return false;
-
-    const newItem: CartItem = {
-      id: Date.now(),
-      ...itemDetails,
-      couleurSelectionnee,
     };
 
     setItems(prev => [...prev, newItem]);
@@ -134,23 +195,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       prev.map(item => {
         if (item.id !== itemId) return item;
 
-        const vehicule = getVehiculeById(item.vehiculeId);
-        if (!vehicule || vehicule.stock.quantite < quantite) return item;
+        const stockQty = item.vehicule.stock?.quantite || 0;
+        if (stockQty < quantite) return item;
 
         const sousTotal = (item.prixUnitaire + item.prixOptions) * quantite;
         return { ...item, quantite, sousTotal };
-      })
-    );
-  };
-
-  const updateOptions = (itemId: number, optionsSelectionnees: number[]) => {
-    setItems(prev =>
-      prev.map(item => {
-        if (item.id !== itemId) return item;
-
-        const prixOptions = calculerTotalOptions(optionsSelectionnees);
-        const sousTotal = (item.prixUnitaire + prixOptions) * item.quantite;
-        return { ...item, optionsSelectionnees, prixOptions, sousTotal };
       })
     );
   };
@@ -161,18 +210,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const setPaysLivraison = (pays: PaysLivraison) => {
     setPaysLivraisonState(pays);
-  };
-
-  const canAddOption = (itemId: number, optionId: number): boolean => {
-    const item = items.find(i => i.id === itemId);
-    if (!item) return false;
-    return verifierCompatibiliteOptions(optionId, item.optionsSelectionnees);
-  };
-
-  const getIncompatibleOptions = (optionId: number, currentOptions: number[]): number[] => {
-    const option = getOptionById(optionId);
-    if (!option) return [];
-    return option.incompatibilites.filter(id => currentOptions.includes(id));
   };
 
   const itemCount = items.reduce((sum, item) => sum + item.quantite, 0);
@@ -189,14 +226,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         taxes,
         total,
         paysLivraison,
+        isLoading,
         addToCart,
         removeFromCart,
         updateQuantity,
-        updateOptions,
         clearCart,
         setPaysLivraison,
-        canAddOption,
-        getIncompatibleOptions,
       }}
     >
       {children}
