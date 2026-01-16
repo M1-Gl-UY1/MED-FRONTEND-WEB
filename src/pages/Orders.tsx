@@ -30,7 +30,7 @@ const ITEMS_PER_PAGE = 5;
 
 export default function Orders() {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, getUserId } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
 
   if (!isAuthenticated || !user) {
@@ -38,7 +38,7 @@ export default function Orders() {
     return null;
   }
 
-  const allOrders = getCommandesByUserId(user.id);
+  const allOrders = getCommandesByUserId(getUserId());
 
   // Pagination
   const totalPages = Math.ceil(allOrders.length / ITEMS_PER_PAGE);

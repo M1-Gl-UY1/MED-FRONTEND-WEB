@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Car, Shield, Truck, CreditCard, Star, Zap } from 'lucide-react';
 import {
   HeroSection,
@@ -9,43 +9,71 @@ import {
   CTASection,
 } from '../components/sections';
 import { VideoModal } from '../components/ui/VideoModal';
-import {
-  vehicules,
-  getVehiculesEnVedette,
-  getVehiculesPopulaires,
-} from '../data/mockData';
+import { vehiculeService } from '../services';
+import type { Vehicule } from '../services/types';
 import pubVideo from '../assets/video/pub_video.mp4';
 
 export default function Home() {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const vehiculesEnVedette = getVehiculesEnVedette();
-  const vehiculesPopulaires = getVehiculesPopulaires();
+  const [vehicules, setVehicules] = useState<Vehicule[]>([]);
+  const [vehiculesEnVedette, setVehiculesEnVedette] = useState<Vehicule[]>([]);
+  const [vehiculesPopulaires, setVehiculesPopulaires] = useState<Vehicule[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const allVehicules = await vehiculeService.getAllCustom();
+        setVehicules(allVehicules);
+
+        // Véhicules en vedette: nouveaux ou en promotion
+        const enVedette = allVehicules.filter(v => v.nouveau || v.solde).slice(0, 4);
+        setVehiculesEnVedette(enVedette.length > 0 ? enVedette : allVehicules.slice(0, 4));
+
+        // Véhicules populaires: les plus récents ou aléatoires
+        const populaires = allVehicules
+          .filter(v => !enVedette.includes(v))
+          .slice(0, 4);
+        setVehiculesPopulaires(populaires.length > 0 ? populaires : allVehicules.slice(0, 4));
+      } catch (error) {
+        console.error('Erreur lors du chargement des véhicules:', error);
+        setVehicules([]);
+        setVehiculesEnVedette([]);
+        setVehiculesPopulaires([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const categories = [
     {
       name: 'Automobiles',
-      count: vehicules.filter(v => v.typeVehicule === 'AUTOMOBILE').length,
+      count: vehicules.filter(v => v.type === 'AUTOMOBILE').length,
       href: '/catalogue?type=AUTOMOBILE',
       icon: Car,
       color: 'bg-blue-50 text-blue-600',
     },
     {
       name: 'Électriques',
-      count: vehicules.filter(v => v.typeMoteur === 'ELECTRIQUE').length,
+      count: vehicules.filter(v => v.engine === 'ELECTRIQUE').length,
       href: '/catalogue?moteur=ELECTRIQUE',
       icon: Zap,
       color: 'bg-green-50 text-green-600',
     },
     {
       name: 'Scooters',
-      count: vehicules.filter(v => v.typeVehicule === 'SCOOTER').length,
+      count: vehicules.filter(v => v.type === 'SCOOTER').length,
       href: '/catalogue?type=SCOOTER',
       icon: Car,
       color: 'bg-purple-50 text-purple-600',
     },
     {
       name: 'Promotions',
-      count: vehicules.filter(v => v.enPromotion).length,
+      count: vehicules.filter(v => v.solde).length,
       href: '/catalogue?promo=true',
       icon: Star,
       color: 'bg-amber-50 text-amber-600',
@@ -76,17 +104,27 @@ export default function Home() {
   ];
 
   const stats = [
-    { value: '500+', label: 'Véhicules vendus' },
+    { value: vehicules.length > 0 ? `${vehicules.length}+` : '0', label: 'Véhicules disponibles' },
     { value: '98%', label: 'Clients satisfaits' },
     { value: '15+', label: 'Marques partenaires' },
     { value: '24/7', label: 'Support client' },
   ];
 
+  // Calculer le prix minimum des véhicules disponibles
+  const prixMinimum = vehicules.length > 0
+    ? Math.min(...vehicules.map(v => v.prixBase))
+    : 0;
+
+  // Trouver un véhicule vedette pour l'image du hero
+  const vehiculeVedette = vehiculesEnVedette[0];
+  const heroImage = vehiculeVedette?.images?.[0]?.url
+    || 'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800';
+
   return (
     <div>
       {/* Hero Section */}
       <HeroSection
-        badge="Nouveau : Tesla Model 3 disponible"
+        badge={vehiculeVedette ? `Nouveau : ${vehiculeVedette.marque} ${vehiculeVedette.nom}` : "Bienvenue chez MED Auto"}
         title={{
           line1: 'Découvrez',
           highlight: "l'Excellence",
@@ -103,14 +141,14 @@ export default function Home() {
         }}
         stats={stats}
         image={{
-          src: 'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=800',
-          alt: 'Véhicule premium',
+          src: heroImage,
+          alt: vehiculeVedette ? `${vehiculeVedette.marque} ${vehiculeVedette.nom}` : 'Véhicule premium',
         }}
-        priceTag={{
+        priceTag={prixMinimum > 0 ? {
           label: 'À partir de',
-          price: 2750000,
+          price: prixMinimum,
           suffix: 'TTC',
-        }}
+        } : undefined}
         featureBadge="Livraison Gratuite"
       />
 
@@ -132,6 +170,7 @@ export default function Home() {
           href: '/catalogue',
         }}
         background="gray"
+        loading={loading}
       />
 
       {/* Promo Banner Section */}
@@ -171,6 +210,7 @@ export default function Home() {
           href: '/catalogue',
         }}
         background="gray"
+        loading={loading}
       />
 
       {/* Features Section */}

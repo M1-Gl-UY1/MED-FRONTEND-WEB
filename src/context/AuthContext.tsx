@@ -1,15 +1,40 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import type { Utilisateur } from '../data/mockData';
-import { authentifier, clients, societes } from '../data/mockData';
+import { authService } from '../services';
+import type { UtilisateurComplet, RegisterClientDTO, RegisterSocieteDTO } from '../services/types';
+// Fallback sur mock data si API indisponible
+import { authentifier as mockAuthentifier, clients, societes } from '../data/mockData';
+import type { Utilisateur as MockUtilisateur } from '../data/mockData';
+
+type Utilisateur = UtilisateurComplet | MockUtilisateur;
+
+// Helper pour obtenir l'ID utilisateur (différent entre API et mock)
+export function getUserId(user: Utilisateur): number {
+  // Mock data uses 'id'
+  if ('id' in user) {
+    return user.id;
+  }
+  // API data uses 'idClient' or 'idSociete'
+  if (user.type === 'CLIENT' && 'idClient' in user) {
+    return user.idClient;
+  }
+  if (user.type === 'SOCIETE' && 'idSociete' in user) {
+    return user.idSociete;
+  }
+  return 0;
+}
 
 interface AuthContextType {
   user: Utilisateur | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  error: string | null;
   login: (email: string, motDePasse: string) => Promise<boolean>;
   logout: () => void;
-  register: (userData: Partial<Utilisateur>) => Promise<boolean>;
+  register: (userData: RegisterClientDTO | RegisterSocieteDTO, type: 'CLIENT' | 'SOCIETE') => Promise<boolean>;
+  updateProfile: (data: Partial<UtilisateurComplet>) => Promise<boolean>;
+  clearError: () => void;
+  getUserId: () => number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,63 +42,90 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Utilisateur | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Vérifier si un utilisateur est stocké en localStorage
-    const storedUser = localStorage.getItem('med_user');
+    // Vérifier si un utilisateur est stocké
+    const storedUser = authService.getCurrentUser();
     if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        localStorage.removeItem('med_user');
-      }
+      setUser(storedUser);
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, motDePasse: string): Promise<boolean> => {
+  const login = useCallback(async (email: string, motDePasse: string): Promise<boolean> => {
     setIsLoading(true);
-    try {
-      // Simuler un délai réseau
-      await new Promise(resolve => setTimeout(resolve, 500));
+    setError(null);
 
-      const utilisateur = authentifier(email, motDePasse);
-      if (utilisateur) {
-        setUser(utilisateur);
-        localStorage.setItem('med_user', JSON.stringify(utilisateur));
-        return true;
+    try {
+      // Essayer l'API d'abord
+      const utilisateur = await authService.login({ email, motDePasse });
+      setUser(utilisateur);
+      return true;
+    } catch (apiError) {
+      console.warn('API indisponible, utilisation des données mock', apiError);
+
+      // Fallback sur les données mock
+      try {
+        const mockUser = mockAuthentifier(email, motDePasse);
+        if (mockUser) {
+          setUser(mockUser);
+          localStorage.setItem('med_user', JSON.stringify(mockUser));
+          return true;
+        }
+        setError('Email ou mot de passe incorrect');
+        return false;
+      } catch {
+        setError('Erreur lors de la connexion');
+        return false;
       }
-      return false;
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
+    authService.logout();
     setUser(null);
-    localStorage.removeItem('med_user');
     localStorage.removeItem('med_panier');
-  };
+    localStorage.removeItem('med_pays_livraison');
+  }, []);
 
-  const register = async (userData: Partial<Utilisateur>): Promise<boolean> => {
+  const register = useCallback(async (
+    userData: RegisterClientDTO | RegisterSocieteDTO,
+    type: 'CLIENT' | 'SOCIETE'
+  ): Promise<boolean> => {
     setIsLoading(true);
-    try {
-      // Simuler un délai réseau
-      await new Promise(resolve => setTimeout(resolve, 500));
+    setError(null);
 
-      // Vérifier si l'email existe déjà
+    try {
+      let utilisateur: UtilisateurComplet;
+
+      if (type === 'CLIENT') {
+        utilisateur = await authService.registerClient(userData as RegisterClientDTO);
+      } else {
+        utilisateur = await authService.registerSociete(userData as RegisterSocieteDTO);
+      }
+
+      setUser(utilisateur);
+      return true;
+    } catch (apiError) {
+      console.warn('API indisponible, création locale', apiError);
+
+      // Fallback local
       const emailExists = [...clients, ...societes].some(u => u.email === userData.email);
       if (emailExists) {
+        setError('Cet email est déjà utilisé');
         return false;
       }
 
-      // Dans une vraie app, on enverrait les données au backend
-      // Ici on simule juste la création
+      // Simulation locale
       const newUser = {
         ...userData,
         id: Date.now(),
+        type,
         dateInscription: new Date().toISOString().split('T')[0],
-      } as Utilisateur;
+      } as MockUtilisateur;
 
       setUser(newUser);
       localStorage.setItem('med_user', JSON.stringify(newUser));
@@ -81,7 +133,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  const updateProfile = useCallback(async (data: Partial<UtilisateurComplet>): Promise<boolean> => {
+    if (!user) {
+      setError('Utilisateur non connecté');
+      return false;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const updatedUser = await authService.updateProfile(user as UtilisateurComplet, data);
+      setUser(updatedUser);
+      return true;
+    } catch (apiError: any) {
+      console.error('Erreur lors de la mise à jour du profil:', apiError);
+      setError(apiError.message || 'Erreur lors de la mise à jour du profil');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const getUserIdValue = useCallback((): number => {
+    if (!user) return 0;
+    return getUserId(user);
+  }, [user]);
 
   return (
     <AuthContext.Provider
@@ -89,9 +172,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isAuthenticated: !!user,
         isLoading,
+        error,
         login,
         logout,
         register,
+        updateProfile,
+        clearError,
+        getUserId: getUserIdValue,
       }}
     >
       {children}

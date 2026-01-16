@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Heart,
@@ -11,6 +11,7 @@ import {
   Gauge,
   Calendar,
   Settings,
+  Loader2,
 } from 'lucide-react';
 import QuantitySelector from '../components/ui/QuantitySelector';
 import {
@@ -22,31 +23,82 @@ import {
   SpecGrid,
   Alert,
 } from '../components/ui';
-import {
-  getVehiculeById,
-  getOptionById,
-  options,
-  formatPrice,
-  calculerPrixVehicule,
-  verifierCompatibiliteOptions,
-  getOptionsIncompatibles,
-} from '../data/mockData';
+import { vehiculeService } from '../services';
+import type { Vehicule, Option } from '../services/types';
 import { useCart } from '../context/CartContext';
 import { cn } from '../lib/utils';
+
+// Fonctions utilitaires
+const formatPrice = (price: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XAF',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+};
+
+const calculerPrixVehicule = (vehicle: Vehicule): number => {
+  if (vehicle.solde && vehicle.facteurReduction && vehicle.facteurReduction > 0) {
+    return vehicle.prixBase * (1 - vehicle.facteurReduction);
+  }
+  return vehicle.prixBase;
+};
 
 export default function VehicleDetail() {
   const { id } = useParams<{ id: string }>();
   const { addToCart } = useCart();
 
-  const vehicle = useMemo(() => getVehiculeById(Number(id)), [id]);
+  const [vehicle, setVehicle] = useState<Vehicule | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(vehicle?.couleurs[0] || '');
+  const [selectedColor, setSelectedColor] = useState('');
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [isAddedToCart, setIsAddedToCart] = useState(false);
 
-  if (!vehicle) {
+  // Charger le véhicule depuis l'API
+  useEffect(() => {
+    const fetchVehicle = async () => {
+      if (!id) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await vehiculeService.getById(Number(id));
+        setVehicle(data);
+        // Initialiser la couleur sélectionnée
+        if (data.couleurs && data.couleurs.length > 0) {
+          setSelectedColor(data.couleurs[0]);
+        }
+      } catch (err: any) {
+        console.error('Erreur lors du chargement du véhicule:', err);
+        setError(err.message || 'Véhicule non trouvé');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVehicle();
+  }, [id]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-secondary mx-auto mb-4" />
+          <p className="text-content-light">Chargement du véhicule...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error or not found state
+  if (error || !vehicle) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="container text-center py-12">
@@ -65,17 +117,17 @@ export default function VehicleDetail() {
   }
 
   const prixBase = calculerPrixVehicule(vehicle);
-  const hasDiscount = vehicle.enPromotion && vehicle.facteurReduction > 0;
+  const hasDiscount = vehicle.solde && vehicle.facteurReduction && vehicle.facteurReduction > 0;
 
-  // Available options for this vehicle
-  const availableOptions = options.filter(opt => vehicle.options.includes(opt.id));
+  // Available options for this vehicle (depuis le backend)
+  const availableOptions: Option[] = vehicle.options || [];
 
   // Group options by category
   const optionsByCategory = availableOptions.reduce((acc, opt) => {
     if (!acc[opt.categorie]) acc[opt.categorie] = [];
     acc[opt.categorie].push(opt);
     return acc;
-  }, {} as Record<string, typeof options>);
+  }, {} as Record<string, Option[]>);
 
   const categoryLabels: Record<string, string> = {
     INTERIEUR: 'Intérieur',
@@ -84,20 +136,28 @@ export default function VehicleDetail() {
     TECHNOLOGIE: 'Technologie',
   };
 
+  // Helper to get option by ID
+  const getOptionById = (optId: number): Option | undefined => {
+    return availableOptions.find(o => o.idOption === optId);
+  };
+
   // Calculate total price
-  const totalOptions = selectedOptions.reduce((sum, id) => {
-    const opt = getOptionById(id);
+  const totalOptions = selectedOptions.reduce((sum, optId) => {
+    const opt = getOptionById(optId);
     return sum + (opt?.prix || 0);
   }, 0);
   const totalPrice = (prixBase + totalOptions) * quantity;
 
   // Toggle option selection
   const toggleOption = (optionId: number) => {
+    const option = getOptionById(optionId);
+    if (!option) return;
+
     if (selectedOptions.includes(optionId)) {
       setSelectedOptions(prev => prev.filter(id => id !== optionId));
     } else {
-      const allIncompatibles = getOptionsIncompatibles(optionId);
-      const incompatibles = allIncompatibles.filter(id => selectedOptions.includes(id));
+      // Vérifier les incompatibilités
+      const incompatibles = (option.incompatibilites || []).filter(id => selectedOptions.includes(id));
       if (incompatibles.length > 0) {
         setSelectedOptions(prev => [
           ...prev.filter(id => !incompatibles.includes(id)),
@@ -112,19 +172,28 @@ export default function VehicleDetail() {
   // Check if option is compatible
   const isOptionCompatible = (optionId: number): boolean => {
     if (selectedOptions.includes(optionId)) return true;
-    return verifierCompatibiliteOptions(optionId, selectedOptions);
+    const option = getOptionById(optionId);
+    if (!option) return false;
+    return !(option.incompatibilites || []).some(id => selectedOptions.includes(id));
   };
 
   // Handle add to cart
   const handleAddToCart = () => {
-    if (vehicle.stock.quantite < quantity) return;
+    const stockQty = vehicle.stock?.quantite || 0;
+    if (stockQty < quantity) return;
 
-    const success = addToCart(vehicle.id, quantity, selectedOptions, selectedColor);
+    const success = addToCart(vehicle.idVehicule, quantity, selectedOptions, selectedColor);
     if (success) {
       setIsAddedToCart(true);
       setTimeout(() => setIsAddedToCart(false), 3000);
     }
   };
+
+  // Get images URLs
+  const imageUrls = vehicle.images?.map(img => img.url) || [];
+  if (imageUrls.length === 0) {
+    imageUrls.push('/placeholder-car.jpg');
+  }
 
   return (
     <div className="bg-background min-h-screen">
@@ -144,9 +213,12 @@ export default function VehicleDetail() {
             {/* Main Image */}
             <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-white">
               <img
-                src={vehicle.images[selectedImage]}
+                src={imageUrls[selectedImage] || '/placeholder-car.jpg'}
                 alt={`${vehicle.marque} ${vehicle.nom}`}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/placeholder-car.jpg';
+                }}
               />
 
               {/* Badges */}
@@ -156,7 +228,7 @@ export default function VehicleDetail() {
                 )}
                 {hasDiscount && (
                   <Badge variant="error">
-                    -{Math.round(vehicle.facteurReduction * 100)}%
+                    -{Math.round((vehicle.facteurReduction || 0) * 100)}%
                   </Badge>
                 )}
               </div>
@@ -179,9 +251,9 @@ export default function VehicleDetail() {
             </div>
 
             {/* Thumbnails */}
-            {vehicle.images.length > 1 && (
+            {imageUrls.length > 1 && (
               <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
-                {vehicle.images.map((img, index) => (
+                {imageUrls.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
@@ -196,6 +268,9 @@ export default function VehicleDetail() {
                       src={img}
                       alt={`Vue ${index + 1}`}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder-car.jpg';
+                      }}
                     />
                   </button>
                 ))}
@@ -214,7 +289,7 @@ export default function VehicleDetail() {
                 {vehicle.nom}
               </h1>
               <p className="text-base sm:text-lg text-content-light mb-4">
-                {vehicle.modele}
+                {vehicle.model}
               </p>
 
               {/* Price */}
@@ -236,27 +311,27 @@ export default function VehicleDetail() {
               <SpecCard
                 icon={<Gauge className="w-5 h-5" />}
                 label="Puissance"
-                value={vehicle.caracteristiques.puissance}
+                value={vehicle.caracteristiques?.puissance || '-'}
               />
               <SpecCard
-                icon={vehicle.typeMoteur === 'ELECTRIQUE' ? <Zap className="w-5 h-5" /> : <Fuel className="w-5 h-5" />}
+                icon={vehicle.engine === 'ELECTRIQUE' ? <Zap className="w-5 h-5" /> : <Fuel className="w-5 h-5" />}
                 label="Conso."
-                value={vehicle.caracteristiques.consommation}
+                value={vehicle.caracteristiques?.consommation || '-'}
               />
               <SpecCard
                 icon={<Settings className="w-5 h-5" />}
                 label="Transmission"
-                value={vehicle.caracteristiques.transmission}
+                value={vehicle.caracteristiques?.transmission || '-'}
               />
               <SpecCard
                 icon={<Gauge className="w-5 h-5" />}
                 label="0-100 km/h"
-                value={vehicle.caracteristiques.acceleration}
+                value={vehicle.caracteristiques?.acceleration || '-'}
               />
               <SpecCard
                 icon={<Gauge className="w-5 h-5" />}
                 label="Vitesse max"
-                value={vehicle.caracteristiques.vitesseMax}
+                value={vehicle.caracteristiques?.vitesseMax || '-'}
               />
             </SpecGrid>
 
@@ -271,27 +346,29 @@ export default function VehicleDetail() {
             </div>
 
             {/* Color Selection */}
-            <div>
-              <h2 className="text-base sm:text-lg font-semibold text-primary mb-3">
-                Couleur: <span className="font-normal text-content-light">{selectedColor}</span>
-              </h2>
-              <div className="flex flex-wrap gap-2 sm:gap-3">
-                {vehicle.couleurs.map(color => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={cn(
-                      'h-11 px-4 rounded-lg border-2 text-sm font-medium transition-colors',
-                      selectedColor === color
-                        ? 'border-secondary bg-secondary-50 text-secondary'
-                        : 'border-gray-200 hover:border-primary-200'
-                    )}
-                  >
-                    {color}
-                  </button>
-                ))}
+            {vehicle.couleurs && vehicle.couleurs.length > 0 && (
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-primary mb-3">
+                  Couleur: <span className="font-normal text-content-light">{selectedColor}</span>
+                </h2>
+                <div className="flex flex-wrap gap-2 sm:gap-3">
+                  {vehicle.couleurs.map(color => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={cn(
+                        'h-11 px-4 rounded-lg border-2 text-sm font-medium transition-colors',
+                        selectedColor === color
+                          ? 'border-secondary bg-secondary-50 text-secondary'
+                          : 'border-gray-200 hover:border-primary-200'
+                      )}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Options */}
             {availableOptions.length > 0 && (
@@ -307,16 +384,16 @@ export default function VehicleDetail() {
                       </h3>
                       <div className="space-y-2 sm:space-y-3">
                         {opts.map(option => {
-                          const isSelected = selectedOptions.includes(option.id);
-                          const isCompatible = isOptionCompatible(option.id);
-                          const incompatibles = option.incompatibilites.filter(id =>
+                          const isSelected = selectedOptions.includes(option.idOption);
+                          const isCompatible = isOptionCompatible(option.idOption);
+                          const incompatibles = (option.incompatibilites || []).filter(id =>
                             selectedOptions.includes(id)
                           );
 
                           return (
                             <button
-                              key={option.id}
-                              onClick={() => toggleOption(option.id)}
+                              key={option.idOption}
+                              onClick={() => toggleOption(option.idOption)}
                               className={cn(
                                 'w-full flex items-start sm:items-center justify-between p-3 sm:p-4 rounded-lg border-2 transition-all text-left gap-3',
                                 isSelected
@@ -373,9 +450,16 @@ export default function VehicleDetail() {
             {/* Add to Cart Section */}
             <div className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-4 z-40 lg:relative lg:shadow-none lg:p-0 lg:pt-6 lg:mt-2 lg:border-t lg:border-gray-100">
               {/* Stock Warning */}
-              {vehicle.stock.quantite <= 3 && (
+              {vehicle.stock && vehicle.stock.quantite <= 3 && vehicle.stock.quantite > 0 && (
                 <Alert variant="warning" className="mb-4">
                   Plus que {vehicle.stock.quantite} en stock
+                </Alert>
+              )}
+
+              {/* Out of Stock Warning */}
+              {(!vehicle.stock || vehicle.stock.quantite === 0) && (
+                <Alert variant="error" className="mb-4">
+                  Rupture de stock
                 </Alert>
               )}
 
@@ -387,7 +471,7 @@ export default function VehicleDetail() {
                     <QuantitySelector
                       value={quantity}
                       onChange={setQuantity}
-                      max={vehicle.stock.quantite}
+                      max={vehicle.stock?.quantite || 0}
                     />
                   </div>
 
@@ -403,7 +487,7 @@ export default function VehicleDetail() {
                 {/* Add to Cart Button */}
                 <Button
                   onClick={handleAddToCart}
-                  disabled={vehicle.stock.quantite === 0 || isAddedToCart}
+                  disabled={!vehicle.stock || vehicle.stock.quantite === 0 || isAddedToCart}
                   leftIcon={isAddedToCart ? <Check className="w-5 h-5" /> : <ShoppingCart className="w-5 h-5" />}
                   className={cn(
                     'sm:ml-auto',

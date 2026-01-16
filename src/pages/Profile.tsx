@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   User,
@@ -13,6 +13,9 @@ import {
   ChevronRight,
   Shield,
   Bell,
+  Loader2,
+  X,
+  Check,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, getPaysLabel } from '../data/mockData';
@@ -29,9 +32,35 @@ type Tab = 'profile' | 'security' | 'notifications';
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, updateProfile, isLoading, error } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [isEditing, setIsEditing] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // État du formulaire pour les clients
+  const [formData, setFormData] = useState({
+    nom: '',
+    prenom: '',
+    telephone: '',
+    ville: '',
+    adresse: '',
+    // Pour les sociétés
+    numeroFiscal: '',
+  });
+
+  // Initialiser le formulaire avec les données utilisateur
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        nom: user.nom || '',
+        prenom: user.type === 'CLIENT' ? (user.prenom || '') : '',
+        telephone: user.telephone || '',
+        ville: user.ville || '',
+        adresse: user.adresse || '',
+        numeroFiscal: user.type === 'SOCIETE' ? (user.numeroFiscal || '') : '',
+      });
+    }
+  }, [user]);
 
   if (!isAuthenticated || !user) {
     navigate('/connexion');
@@ -41,6 +70,32 @@ export default function Profile() {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleSave = async () => {
+    setSaveSuccess(false);
+    const success = await updateProfile(formData);
+    if (success) {
+      setIsEditing(false);
+      setSaveSuccess(true);
+      // Masquer le message après 3 secondes
+      setTimeout(() => setSaveSuccess(false), 3000);
+    }
+  };
+
+  const handleCancel = () => {
+    // Réinitialiser le formulaire avec les données utilisateur actuelles
+    if (user) {
+      setFormData({
+        nom: user.nom || '',
+        prenom: user.type === 'CLIENT' ? (user.prenom || '') : '',
+        telephone: user.telephone || '',
+        ville: user.ville || '',
+        adresse: user.adresse || '',
+        numeroFiscal: user.type === 'SOCIETE' ? (user.numeroFiscal || '') : '',
+      });
+    }
+    setIsEditing(false);
   };
 
   const tabs = [
@@ -124,15 +179,53 @@ export default function Profile() {
                   <h2 className="text-base sm:text-lg font-semibold text-primary">
                     Informations personnelles
                   </h2>
-                  <Button
-                    onClick={() => setIsEditing(!isEditing)}
-                    variant="ghost"
-                    size="sm"
-                    leftIcon={isEditing ? <Save className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
-                  >
-                    {isEditing ? 'Enregistrer' : 'Modifier'}
-                  </Button>
+                  <div className="flex gap-2">
+                    {isEditing ? (
+                      <>
+                        <Button
+                          onClick={handleCancel}
+                          variant="ghost"
+                          size="sm"
+                          leftIcon={<X className="w-4 h-4" />}
+                          disabled={isLoading}
+                        >
+                          Annuler
+                        </Button>
+                        <Button
+                          onClick={handleSave}
+                          variant="primary"
+                          size="sm"
+                          leftIcon={isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                          disabled={isLoading}
+                        >
+                          Enregistrer
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={() => setIsEditing(true)}
+                        variant="ghost"
+                        size="sm"
+                        leftIcon={<Edit className="w-4 h-4" />}
+                      >
+                        Modifier
+                      </Button>
+                    )}
+                  </div>
                 </div>
+
+                {/* Messages de succès/erreur */}
+                {saveSuccess && (
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700">
+                    <Check className="w-5 h-5" />
+                    <span>Profil mis à jour avec succès</span>
+                  </div>
+                )}
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    {error}
+                  </div>
+                )}
 
                 <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
                   {user.type === 'CLIENT' && (
@@ -143,7 +236,8 @@ export default function Profile() {
                         </label>
                         <input
                           type="text"
-                          value={user.prenom}
+                          value={formData.prenom}
+                          onChange={(e) => setFormData(prev => ({ ...prev, prenom: e.target.value }))}
                           disabled={!isEditing}
                           className="input disabled:bg-gray-50 disabled:cursor-not-allowed"
                         />
@@ -154,7 +248,8 @@ export default function Profile() {
                         </label>
                         <input
                           type="text"
-                          value={user.nom}
+                          value={formData.nom}
+                          onChange={(e) => setFormData(prev => ({ ...prev, nom: e.target.value }))}
                           disabled={!isEditing}
                           className="input disabled:bg-gray-50 disabled:cursor-not-allowed"
                         />
@@ -170,7 +265,8 @@ export default function Profile() {
                         </label>
                         <input
                           type="text"
-                          value={user.nom}
+                          value={formData.nom}
+                          onChange={(e) => setFormData(prev => ({ ...prev, nom: e.target.value }))}
                           disabled={!isEditing}
                           className="input disabled:bg-gray-50 disabled:cursor-not-allowed"
                         />
@@ -181,7 +277,7 @@ export default function Profile() {
                         </label>
                         <input
                           type="text"
-                          value={user.numeroFiscal}
+                          value={formData.numeroFiscal}
                           disabled
                           className="input bg-gray-50 cursor-not-allowed"
                         />
@@ -209,7 +305,8 @@ export default function Profile() {
                     </label>
                     <input
                       type="tel"
-                      value={user.telephone}
+                      value={formData.telephone}
+                      onChange={(e) => setFormData(prev => ({ ...prev, telephone: e.target.value }))}
                       disabled={!isEditing}
                       className="input disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
@@ -222,7 +319,8 @@ export default function Profile() {
                     </label>
                     <input
                       type="text"
-                      value={user.ville}
+                      value={formData.ville}
+                      onChange={(e) => setFormData(prev => ({ ...prev, ville: e.target.value }))}
                       disabled={!isEditing}
                       className="input disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
@@ -234,7 +332,7 @@ export default function Profile() {
                     </label>
                     <input
                       type="text"
-                      value={getPaysLabel(user.pays)}
+                      value={user.pays ? getPaysLabel(user.pays) : 'Non renseigné'}
                       disabled
                       className="input bg-gray-50 cursor-not-allowed"
                     />
@@ -245,7 +343,8 @@ export default function Profile() {
                       Adresse
                     </label>
                     <textarea
-                      value={user.adresse}
+                      value={formData.adresse}
+                      onChange={(e) => setFormData(prev => ({ ...prev, adresse: e.target.value }))}
                       disabled={!isEditing}
                       className="input min-h-[80px] disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
@@ -258,7 +357,7 @@ export default function Profile() {
                     </label>
                     <input
                       type="text"
-                      value={formatDate(user.dateInscription)}
+                      value={user.dateInscription ? formatDate(user.dateInscription) : 'Non disponible'}
                       disabled
                       className="input bg-gray-50 cursor-not-allowed"
                     />

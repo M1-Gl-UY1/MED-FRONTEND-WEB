@@ -1,13 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Filter, Grid3X3, LayoutList, SlidersHorizontal } from 'lucide-react';
+import { Filter, Grid3X3, LayoutList, SlidersHorizontal, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import VehicleCard from '../components/ui/VehicleCard';
 import SearchBar from '../components/ui/SearchBar';
 import FilterSelect from '../components/ui/FilterSelect';
 import Pagination from '../components/ui/Pagination';
 import EmptyState from '../components/ui/EmptyState';
-import { Button, Badge, Drawer, CheckboxCard } from '../components/ui';
-import { vehicules } from '../data/mockData';
+import { Button, Badge, Drawer, CheckboxCard, Alert } from '../components/ui';
+import { vehiculeService } from '../services';
+import type { Vehicule } from '../services/types';
 import { cn } from '../lib/utils';
 
 const ITEMS_PER_PAGE = 9;
@@ -18,6 +19,11 @@ export default function Catalogue() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentPage, setCurrentPage] = useState(1);
 
+  // États pour les données API
+  const [vehicules, setVehicules] = useState<Vehicule[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   // Get filters from URL
   const search = searchParams.get('search') || '';
   const type = searchParams.get('type') || '';
@@ -25,6 +31,26 @@ export default function Catalogue() {
   const marque = searchParams.get('marque') || '';
   const promo = searchParams.get('promo') === 'true';
   const sort = searchParams.get('sort') || '';
+
+  // Charger les véhicules depuis l'API
+  const fetchVehicules = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await vehiculeService.getAllCustom();
+      setVehicules(data);
+    } catch (err: any) {
+      console.error('Erreur API:', err);
+      setError(err.message || 'Impossible de charger les véhicules depuis le serveur');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVehicules();
+  }, []);
 
   // Update URL params
   const updateFilter = (key: string, value: string) => {
@@ -48,7 +74,7 @@ export default function Catalogue() {
   const marques = useMemo(() => {
     const uniqueMarques = [...new Set(vehicules.map(v => v.marque))];
     return uniqueMarques.map(m => ({ value: m, label: m }));
-  }, []);
+  }, [vehicules]);
 
   // Filter and sort vehicles
   const filteredVehicles = useMemo(() => {
@@ -61,18 +87,18 @@ export default function Catalogue() {
         v =>
           v.nom.toLowerCase().includes(searchLower) ||
           v.marque.toLowerCase().includes(searchLower) ||
-          v.modele.toLowerCase().includes(searchLower)
+          v.model.toLowerCase().includes(searchLower)
       );
     }
 
     // Type filter
     if (type) {
-      result = result.filter(v => v.typeVehicule === type);
+      result = result.filter(v => v.type === type);
     }
 
     // Moteur filter
     if (moteur) {
-      result = result.filter(v => v.typeMoteur === moteur);
+      result = result.filter(v => v.engine === moteur);
     }
 
     // Marque filter
@@ -82,7 +108,7 @@ export default function Catalogue() {
 
     // Promo filter
     if (promo) {
-      result = result.filter(v => v.enPromotion);
+      result = result.filter(v => v.solde);
     }
 
     // Sort
@@ -105,7 +131,7 @@ export default function Catalogue() {
     }
 
     return result;
-  }, [search, type, moteur, marque, promo, sort]);
+  }, [vehicules, search, type, moteur, marque, promo, sort]);
 
   // Pagination
   const totalPages = Math.ceil(filteredVehicles.length / ITEMS_PER_PAGE);
@@ -116,6 +142,36 @@ export default function Catalogue() {
 
   // Check if any filter is active
   const hasActiveFilters = search || type || moteur || marque || promo;
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="bg-background min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-secondary mx-auto mb-4" />
+          <p className="text-content-light">Chargement des véhicules depuis le serveur...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-background min-h-screen">
+        <div className="container py-6 sm:py-7 md:py-8 lg:py-10">
+          <Alert variant="error" className="mb-4">
+            <AlertCircle className="w-4 h-4" />
+            <span>{error}</span>
+          </Alert>
+          <Button onClick={fetchVehicules} variant="primary">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Réessayer
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background min-h-screen">
@@ -283,7 +339,7 @@ export default function Catalogue() {
             >
               {paginatedVehicles.map(vehicle => (
                 <VehicleCard
-                  key={vehicle.id}
+                  key={vehicle.idVehicule}
                   vehicle={vehicle}
                   compact={viewMode === 'list'}
                 />

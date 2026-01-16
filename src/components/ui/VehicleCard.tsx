@@ -1,9 +1,35 @@
 import { Link } from 'react-router-dom';
 import { Fuel, Gauge, Calendar, Zap } from 'lucide-react';
-import type { Vehicule } from '../../data/mockData';
-import { formatPrice, calculerPrixVehicule } from '../../data/mockData';
+import type { Vehicule } from '../../services/types';
 import { cn } from '../../lib/utils';
 import { Badge } from './Badge';
+
+// Fonction utilitaire pour formater le prix
+const formatPrice = (price: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XAF',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+};
+
+// Fonction pour calculer le prix avec réduction
+const calculerPrixVehicule = (vehicle: Vehicule): number => {
+  if (vehicle.solde && vehicle.facteurReduction && vehicle.facteurReduction > 0) {
+    return vehicle.prixBase * (1 - vehicle.facteurReduction);
+  }
+  return vehicle.prixBase;
+};
+
+// Fonction pour obtenir l'URL de l'image principale
+const getImageUrl = (vehicle: Vehicule): string => {
+  if (vehicle.images && vehicle.images.length > 0) {
+    const principale = vehicle.images.find(img => img.estPrincipale);
+    return principale?.url || vehicle.images[0]?.url || '/placeholder-car.jpg';
+  }
+  return '/placeholder-car.jpg';
+};
 
 interface VehicleCardProps {
   vehicle: Vehicule;
@@ -12,19 +38,22 @@ interface VehicleCardProps {
 
 export default function VehicleCard({ vehicle, compact = false }: VehicleCardProps) {
   const prixActuel = calculerPrixVehicule(vehicle);
-  const hasDiscount = vehicle.enPromotion && vehicle.facteurReduction > 0;
+  const hasDiscount = vehicle.solde && vehicle.facteurReduction && vehicle.facteurReduction > 0;
 
   return (
     <Link
-      to={`/vehicule/${vehicle.id}`}
+      to={`/vehicule/${vehicle.idVehicule}`}
       className="card-hover group block overflow-hidden"
     >
       {/* Image Container */}
-      <div className="relative aspect-[16/10] overflow-hidden">
+      <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
         <img
-          src={vehicle.image}
+          src={getImageUrl(vehicle)}
           alt={`${vehicle.marque} ${vehicle.nom}`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/placeholder-car.jpg';
+          }}
         />
 
         {/* Top Left Badges */}
@@ -34,7 +63,7 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
           )}
           {hasDiscount && (
             <Badge variant="error">
-              -{Math.round(vehicle.facteurReduction * 100)}%
+              -{Math.round((vehicle.facteurReduction || 0) * 100)}%
             </Badge>
           )}
         </div>
@@ -42,15 +71,15 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
         {/* Top Right Badge - Motor Type */}
         <div className="absolute top-3 right-3">
           <Badge
-            variant={vehicle.typeMoteur === 'ELECTRIQUE' ? 'success' : 'neutral'}
-            icon={vehicle.typeMoteur === 'ELECTRIQUE' ? <Zap className="w-3 h-3" /> : <Fuel className="w-3 h-3" />}
+            variant={vehicle.engine === 'ELECTRIQUE' ? 'success' : 'neutral'}
+            icon={vehicle.engine === 'ELECTRIQUE' ? <Zap className="w-3 h-3" /> : <Fuel className="w-3 h-3" />}
           >
-            {vehicle.typeMoteur === 'ELECTRIQUE' ? 'Électrique' : 'Essence'}
+            {vehicle.engine === 'ELECTRIQUE' ? 'Électrique' : 'Essence'}
           </Badge>
         </div>
 
         {/* Stock Warning */}
-        {vehicle.stock.quantite <= 3 && (
+        {vehicle.stock && vehicle.stock.quantite <= 3 && (
           <div className="absolute bottom-3 left-3">
             <Badge variant="warning">
               Plus que {vehicle.stock.quantite} en stock
@@ -74,7 +103,7 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
           >
             {vehicle.nom}
           </h3>
-          <p className="text-sm text-content-light mt-1">{vehicle.modele}</p>
+          <p className="text-sm text-content-light mt-1">{vehicle.model}</p>
         </div>
 
         {/* Specs - Hidden in compact mode */}
@@ -84,18 +113,22 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
               <Calendar className="w-3.5 h-3.5 text-content-muted" />
               {vehicle.annee}
             </span>
-            <span className="flex items-center gap-1.5">
-              <Gauge className="w-3.5 h-3.5 text-content-muted" />
-              {vehicle.caracteristiques.puissance}
-            </span>
-            <span className="flex items-center gap-1.5">
-              {vehicle.typeMoteur === 'ELECTRIQUE' ? (
-                <Zap className="w-3.5 h-3.5 text-content-muted" />
-              ) : (
-                <Fuel className="w-3.5 h-3.5 text-content-muted" />
-              )}
-              {vehicle.caracteristiques.consommation}
-            </span>
+            {vehicle.caracteristiques?.puissance && (
+              <span className="flex items-center gap-1.5">
+                <Gauge className="w-3.5 h-3.5 text-content-muted" />
+                {vehicle.caracteristiques.puissance}
+              </span>
+            )}
+            {vehicle.caracteristiques?.consommation && (
+              <span className="flex items-center gap-1.5">
+                {vehicle.engine === 'ELECTRIQUE' ? (
+                  <Zap className="w-3.5 h-3.5 text-content-muted" />
+                ) : (
+                  <Fuel className="w-3.5 h-3.5 text-content-muted" />
+                )}
+                {vehicle.caracteristiques.consommation}
+              </span>
+            )}
           </div>
         )}
 
@@ -117,7 +150,7 @@ export default function VehicleCard({ vehicle, compact = false }: VehicleCardPro
             </p>
           </div>
           <span className="text-xs text-content-muted pb-1">
-            {vehicle.typeVehicule === 'AUTOMOBILE' ? 'Auto' : 'Scooter'}
+            {vehicle.type === 'AUTOMOBILE' ? 'Auto' : 'Scooter'}
           </span>
         </div>
       </div>

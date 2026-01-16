@@ -71,7 +71,7 @@ export default function Auth() {
               societeMereId: null,
             };
 
-        const success = await register(userData);
+        const success = await register(userData, userType);
         if (success) {
           navigate(redirect);
         } else {
