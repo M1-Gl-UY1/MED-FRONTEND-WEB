@@ -181,11 +181,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
-  const removeFromCart = (itemId: number) => {
+  const removeFromCart = (itemId: string) => {
     setItems(prev => prev.filter(item => item.id !== itemId));
   };
 
-  const updateQuantity = (itemId: number, quantite: number) => {
+  const updateQuantity = (itemId: string, quantite: number) => {
     if (quantite < 1) {
       removeFromCart(itemId);
       return;
