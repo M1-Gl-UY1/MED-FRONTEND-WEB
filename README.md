@@ -54,11 +54,14 @@ L'application utilise l'authentification JWT avec le backend Spring Boot.
 
 Variables d'environnement (`.env`) :
 ```env
-# Production (Backend deploye sur Render)
-VITE_API_BASE_URL=https://med-backend-zk8z.onrender.com
+# Production (VPS Contabo)
+VITE_API_BASE_URL=http://84.247.183.206:9085
 VITE_API_TIMEOUT=30000
 
-# Developpement local (decommenter si necessaire)
+# Render (backup)
+# VITE_API_BASE_URL=https://med-backend-zk8z.onrender.com
+
+# Developpement local
 # VITE_API_BASE_URL=http://localhost:8085
 ```
 
@@ -166,11 +169,11 @@ L'application demarre sur `http://localhost:5173`
 
 > **Note** : Le frontend admin (MED-ADMIN) utilise le port 5174 pour eviter les conflits.
 
-### Mode Production (Backend en ligne)
-Le backend est deploye sur Render : `https://med-backend-zk8z.onrender.com`
+### Mode Production (Backend sur VPS)
+Le backend est deploye sur VPS Contabo : `http://84.247.183.206:9085`
 
 1. Lancer le frontend : `npm run dev`
-2. L'application se connecte automatiquement au backend en ligne
+2. L'application se connecte automatiquement au backend en production
 3. L'authentification JWT est active
 
 ### Mode Developpement Local
