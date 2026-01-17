@@ -1,5 +1,4 @@
-import { cn } from '../../lib/utils';
-import { formatPrice } from '../../data/mockData';
+import { cn, formatPrice } from '../../lib/utils';
 
 interface PriceDisplayProps {
   price: number;

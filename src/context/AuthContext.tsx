@@ -2,21 +2,16 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import type { ReactNode } from 'react';
 import { authService } from '../services';
 import type { UtilisateurComplet, RegisterClientDTO, RegisterSocieteDTO } from '../services/types';
-// Fallback sur mock data si API indisponible
-import { authentifier as mockAuthentifier, clients, societes } from '../data/mockData';
-import type { Utilisateur as MockUtilisateur } from '../data/mockData';
 
-type Utilisateur = UtilisateurComplet | MockUtilisateur;
+type Utilisateur = UtilisateurComplet;
 
-// Helper pour obtenir l'ID utilisateur (different entre API et mock)
+// Helper pour obtenir l'ID utilisateur
 export function getUserId(user: Utilisateur): number {
-  // Mock data uses 'id'
-  if ('id' in user) {
-    return user.id;
-  }
-  // API data uses 'idUtilisateur'
   if ('idUtilisateur' in user && user.idUtilisateur) {
     return user.idUtilisateur;
+  }
+  if ('id' in user) {
+    return (user as any).id;
   }
   return 0;
 }
@@ -45,23 +40,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const validateAndLoadUser = async () => {
       try {
-        // D'abord essayer de valider le token avec l'API
         const validatedUser = await authService.validateToken();
         if (validatedUser) {
           setUser(validatedUser);
-        } else {
-          // Pas de token valide, verifier le stockage local (mock)
-          const storedUser = authService.getCurrentUser();
-          if (storedUser) {
-            setUser(storedUser);
-          }
         }
-      } catch {
-        // API indisponible, fallback sur le stockage local
-        const storedUser = authService.getCurrentUser();
-        if (storedUser) {
-          setUser(storedUser);
-        }
+      } catch (err) {
+        // Token invalide ou serveur indisponible - l'utilisateur devra se reconnecter
+        console.warn('Validation du token echouee:', err);
+        authService.logout();
       } finally {
         setIsLoading(false);
       }
@@ -75,27 +61,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      // Essayer l'API d'abord
       const utilisateur = await authService.login({ email, motDePasse });
       setUser(utilisateur);
       return true;
-    } catch (apiError) {
-      console.warn('API indisponible, utilisation des donnees mock', apiError);
-
-      // Fallback sur les donnees mock
-      try {
-        const mockUser = mockAuthentifier(email, motDePasse);
-        if (mockUser) {
-          setUser(mockUser);
-          localStorage.setItem('med_user', JSON.stringify(mockUser));
-          return true;
-        }
+    } catch (apiError: any) {
+      console.error('Erreur de connexion:', apiError);
+      if (apiError.message?.includes('Network') || apiError.message?.includes('fetch')) {
+        setError('Impossible de se connecter au serveur. Veuillez verifier votre connexion internet.');
+      } else if (apiError.response?.status === 401 || apiError.response?.status === 403) {
         setError('Email ou mot de passe incorrect');
-        return false;
-      } catch {
-        setError('Erreur lors de la connexion');
-        return false;
+      } else {
+        setError(apiError.message || 'Erreur lors de la connexion. Veuillez reessayer.');
       }
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -126,27 +104,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUser(utilisateur);
       return true;
-    } catch (apiError) {
-      console.warn('API indisponible, creation locale', apiError);
-
-      // Fallback local
-      const emailExists = [...clients, ...societes].some(u => u.email === userData.email);
-      if (emailExists) {
+    } catch (apiError: any) {
+      console.error('Erreur d\'inscription:', apiError);
+      if (apiError.message?.includes('Network') || apiError.message?.includes('fetch')) {
+        setError('Impossible de se connecter au serveur. Veuillez verifier votre connexion internet.');
+      } else if (apiError.response?.status === 409 || apiError.message?.includes('existe')) {
         setError('Cet email est deja utilise');
-        return false;
+      } else {
+        setError(apiError.message || 'Erreur lors de l\'inscription. Veuillez reessayer.');
       }
-
-      // Simulation locale
-      const newUser = {
-        ...userData,
-        id: Date.now(),
-        type,
-        dateInscription: new Date().toISOString().split('T')[0],
-      } as MockUtilisateur;
-
-      setUser(newUser);
-      localStorage.setItem('med_user', JSON.stringify(newUser));
-      return true;
+      return false;
     } finally {
       setIsLoading(false);
     }

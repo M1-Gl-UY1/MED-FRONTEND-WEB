@@ -1,6 +1,6 @@
 import { ArrowRight, Play } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { formatPrice } from '../../data/mockData';
+import { formatPrice } from '../../lib/utils';
 
 interface Stat {
   value: string;

@@ -54,8 +54,12 @@ L'application utilise l'authentification JWT avec le backend Spring Boot.
 
 Variables d'environnement (`.env`) :
 ```env
-VITE_API_BASE_URL=http://localhost:8085
+# Production (Backend deploye sur Render)
+VITE_API_BASE_URL=https://med-backend-zk8z.onrender.com
 VITE_API_TIMEOUT=30000
+
+# Developpement local (decommenter si necessaire)
+# VITE_API_BASE_URL=http://localhost:8085
 ```
 
 ### Service d'authentification
@@ -127,8 +131,8 @@ src/
 ├── context/
 │   ├── AuthContext.tsx  # Authentification (JWT)
 │   └── CartContext.tsx  # Panier
-├── data/                # Donnees mock (fallback)
-├── lib/                 # Utilitaires
+├── lib/
+│   └── utils.ts         # Utilitaires (formatPrice, formatDate, etc.)
 ├── pages/               # Pages de l'application
 ├── services/
 │   ├── api.ts           # Configuration Axios + token
@@ -162,28 +166,25 @@ L'application demarre sur `http://localhost:5173`
 
 > **Note** : Le frontend admin (MED-ADMIN) utilise le port 5174 pour eviter les conflits.
 
-### Mode avec backend
-1. Demarrer le backend Spring Boot sur le port 8085
-2. Lancer le frontend : `npm run dev`
-3. L'authentification JWT sera active
+### Mode Production (Backend en ligne)
+Le backend est deploye sur Render : `https://med-backend-zk8z.onrender.com`
 
-### Mode mock (sans backend)
-Si le backend n'est pas disponible, l'application utilise automatiquement les donnees mock.
+1. Lancer le frontend : `npm run dev`
+2. L'application se connecte automatiquement au backend en ligne
+3. L'authentification JWT est active
+
+### Mode Developpement Local
+Pour utiliser un backend local :
+1. Modifier `.env` : `VITE_API_BASE_URL=http://localhost:8085`
+2. Demarrer le backend Spring Boot sur le port 8085
+3. Lancer le frontend : `npm run dev`
+
+### Gestion des erreurs
+Si le backend n'est pas disponible, l'application affiche des messages d'erreur clairs a l'utilisateur lui demandant de verifier sa connexion internet ou de reessayer plus tard.
 
 ## Comptes de demonstration
 
-### Avec Backend (JWT)
-Creer un compte via l'interface d'inscription ou utiliser un compte existant en base.
-
-### Mode Mock (sans backend)
-
-#### Particulier
-- Email : `jean.fotso@email.com`
-- Mot de passe : `password123`
-
-#### Societe
-- Email : `contact@autofleet-cm.com`
-- Mot de passe : `societe123`
+Creer un compte via l'interface d'inscription ou utiliser un compte existant en base de donnees.
 
 ## Calcul des taxes
 
