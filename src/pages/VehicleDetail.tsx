@@ -451,7 +451,7 @@ export default function VehicleDetail() {
             )}
 
             {/* Add to Cart Section */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-4 z-40 lg:relative lg:shadow-none lg:p-0 lg:pt-6 lg:mt-2 lg:border-t lg:border-gray-100">
+            <div className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] p-4 z-40 lg:relative lg:shadow-none lg:p-6 lg:mt-4 lg:rounded-2xl lg:border lg:border-gray-200 lg:bg-gradient-to-br lg:from-white lg:to-gray-50">
               {/* Stock Warning */}
               {vehicle.stock && vehicle.stock.quantite <= 3 && vehicle.stock.quantite > 0 && (
                 <Alert variant="warning" className="mb-4">
@@ -466,11 +466,12 @@ export default function VehicleDetail() {
                 </Alert>
               )}
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                {/* Quantity */}
-                <div className="flex items-center gap-4 sm:gap-6">
+              <div className="flex flex-col gap-4 lg:gap-5">
+                {/* Quantity and Total Row */}
+                <div className="flex items-center justify-between gap-4">
+                  {/* Quantity */}
                   <div>
-                    <p className="text-xs sm:text-sm text-content-muted mb-1.5">Quantité</p>
+                    <p className="text-xs sm:text-sm text-content-muted mb-2">Quantité</p>
                     <QuantitySelector
                       value={quantity}
                       onChange={setQuantity}
@@ -479,11 +480,16 @@ export default function VehicleDetail() {
                   </div>
 
                   {/* Total */}
-                  <div className="flex-1 sm:flex-initial">
-                    <p className="text-xs sm:text-sm text-content-muted mb-1">Total</p>
-                    <p className="text-xl sm:text-2xl font-bold text-secondary">
+                  <div className="text-right">
+                    <p className="text-xs sm:text-sm text-content-muted mb-1">Montant total</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-secondary">
                       {formatPrice(totalPrice)}
                     </p>
+                    {selectedOptions.length > 0 && (
+                      <p className="text-xs text-content-light mt-1">
+                        Base + {selectedOptions.length} option{selectedOptions.length > 1 ? 's' : ''}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -492,8 +498,9 @@ export default function VehicleDetail() {
                   onClick={handleAddToCart}
                   disabled={!vehicle.stock || vehicle.stock.quantite === 0 || isAddedToCart}
                   leftIcon={isAddedToCart ? <Check className="w-5 h-5" /> : <ShoppingCart className="w-5 h-5" />}
+                  size="lg"
                   className={cn(
-                    'sm:ml-auto',
+                    'w-full justify-center',
                     isAddedToCart && 'bg-success hover:bg-success'
                   )}
                 >

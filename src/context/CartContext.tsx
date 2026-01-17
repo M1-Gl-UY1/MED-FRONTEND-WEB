@@ -14,7 +14,7 @@ const TAUX_TVA: Record<PaysLivraison, number> = {
 };
 
 export interface CartItem {
-  id: number;
+  id: string;
   vehicule: Vehicule;
   quantite: number;
   optionsSelectionnees: Option[];
@@ -38,8 +38,8 @@ interface CartContextType {
     optionsSelectionnees: Option[],
     couleurSelectionnee: string
   ) => boolean;
-  removeFromCart: (itemId: number) => void;
-  updateQuantity: (itemId: number, quantite: number) => void;
+  removeFromCart: (itemId: string) => void;
+  updateQuantity: (itemId: string, quantite: number) => void;
   clearCart: () => void;
   setPaysLivraison: (pays: PaysLivraison) => void;
 }
@@ -66,7 +66,7 @@ const calculerTaxes = (montant: number, pays: PaysLivraison): number => {
 
 // Structure pour localStorage (sans les objets complets)
 interface StoredCartItem {
-  id: number;
+  id: string;
   vehiculeId: number;
   quantite: number;
   optionIds: number[];
@@ -167,7 +167,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const sousTotal = (prixUnitaire + prixOptions) * quantite;
 
     const newItem: CartItem = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       vehicule,
       quantite,
       optionsSelectionnees,
