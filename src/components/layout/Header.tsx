@@ -8,9 +8,11 @@ import {
   Search,
   LogOut,
   ChevronDown,
+  Bell,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { useNotifications } from '../../context/NotificationContext';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
 import logoMed from '../../assets/logo_med_sans_fond.png';
@@ -19,11 +21,13 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
   const { itemCount } = useCart();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const navigation = [
     { name: 'Accueil', href: '/' },
@@ -117,6 +121,72 @@ export default function Header() {
               )}
             </div>
 
+            {/* Notifications - uniquement pour utilisateurs connectes */}
+            {isAuthenticated && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsNotifOpen(!isNotifOpen)}
+                  className="relative w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {isNotifOpen && (
+                  <>
+                    {/* Backdrop */}
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setIsNotifOpen(false)}
+                    />
+                    {/* Dropdown */}
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 z-20 max-h-96 overflow-hidden">
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                        <h3 className="font-semibold text-primary">Notifications</h3>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={() => markAllAsRead()}
+                            className="text-xs text-secondary hover:underline"
+                          >
+                            Tout marquer lu
+                          </button>
+                        )}
+                      </div>
+                      <div className="overflow-y-auto max-h-72">
+                        {notifications.length === 0 ? (
+                          <div className="px-4 py-8 text-center text-content-muted text-sm">
+                            Aucune notification
+                          </div>
+                        ) : (
+                          notifications.slice(0, 5).map((notif, index) => (
+                            <div
+                              key={notif.id || index}
+                              onClick={() => {
+                                if (notif.id && !notif.lu) markAsRead(notif.id);
+                                setIsNotifOpen(false);
+                              }}
+                              className={cn(
+                                "px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors",
+                                !notif.lu && "bg-blue-50/50"
+                              )}
+                            >
+                              <p className="font-medium text-sm text-primary">{notif.titre}</p>
+                              <p className="text-xs text-content-muted mt-1 line-clamp-2">{notif.message}</p>
+                              <p className="text-xs text-content-light mt-1">{notif.tempsEcoule || 'A l\'instant'}</p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
             {/* Cart */}
             <Link
               to="/panier"
@@ -202,6 +272,21 @@ export default function Header() {
             >
               <Search className="w-5 h-5" />
             </button>
+
+            {/* Notifications mobile - uniquement pour utilisateurs connectes */}
+            {isAuthenticated && (
+              <button
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                className="relative w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0.5 right-0.5 min-w-5 h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
 
             {/* Cart */}
             <Link

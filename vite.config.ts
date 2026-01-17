@@ -17,4 +17,7 @@ export default defineConfig({
       '@/lib': path.resolve(__dirname, './src/lib'),
     },
   },
+  define: {
+    global: 'globalThis',
+  },
 })
