@@ -14,11 +14,11 @@ const buttonVariants = {
     danger: 'bg-error text-white hover:bg-error/90 active:bg-error/80',
   },
   size: {
-    sm: 'min-h-[40px] px-4 py-2 text-sm gap-1.5',
+    sm: 'min-h-[44px] px-4 py-2 text-sm gap-1.5',
     md: 'min-h-[48px] px-6 py-3 text-base gap-2',
     lg: 'min-h-[56px] px-8 py-4 text-lg gap-2.5',
     icon: 'min-h-[48px] w-12 p-0',
-    'icon-sm': 'min-h-[40px] w-10 p-0',
+    'icon-sm': 'min-h-[44px] w-11 p-0',
   },
 } as const;
 

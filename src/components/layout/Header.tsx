@@ -144,7 +144,7 @@ export default function Header() {
                       onClick={() => setIsNotifOpen(false)}
                     />
                     {/* Dropdown */}
-                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 z-20 max-h-96 overflow-hidden">
+                    <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-xl shadow-lg border border-gray-100 z-20 max-h-[80vh] sm:max-h-96 overflow-hidden">
                       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                         <h3 className="font-semibold text-primary">Notifications</h3>
                         {unreadCount > 0 && (
@@ -275,17 +275,70 @@ export default function Header() {
 
             {/* Notifications mobile - uniquement pour utilisateurs connectes */}
             {isAuthenticated && (
-              <button
-                onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className="relative w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
-              >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-0.5 right-0.5 min-w-5 h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setIsNotifOpen(!isNotifOpen);
+                    setIsMenuOpen(false); // Fermer le menu quand on ouvre les notifs
+                  }}
+                  className="relative w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0.5 right-0.5 min-w-5 h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Mobile Notification Dropdown */}
+                {isNotifOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setIsNotifOpen(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 z-50 max-h-80 overflow-hidden">
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                        <h3 className="font-semibold text-primary">Notifications</h3>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={() => markAllAsRead()}
+                            className="text-xs text-secondary hover:underline"
+                          >
+                            Tout marquer lu
+                          </button>
+                        )}
+                      </div>
+                      <div className="overflow-y-auto max-h-64">
+                        {notifications.length === 0 ? (
+                          <div className="px-4 py-8 text-center text-content-muted text-sm">
+                            Aucune notification
+                          </div>
+                        ) : (
+                          notifications.slice(0, 5).map((notif, index) => (
+                            <div
+                              key={notif.id || index}
+                              onClick={() => {
+                                if (notif.id && !notif.lu) markAsRead(notif.id);
+                                setIsNotifOpen(false);
+                              }}
+                              className={cn(
+                                "px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors",
+                                !notif.lu && "bg-blue-50/50"
+                              )}
+                            >
+                              <p className="font-medium text-sm text-primary">{notif.titre}</p>
+                              <p className="text-xs text-content-muted mt-1 line-clamp-2">{notif.message}</p>
+                              <p className="text-xs text-content-light mt-1">{notif.tempsEcoule || 'A l\'instant'}</p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </>
                 )}
-              </button>
+              </div>
             )}
 
             {/* Cart */}
@@ -303,7 +356,10 @@ export default function Header() {
 
             {/* Menu Toggle */}
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+                setIsNotifOpen(false); // Fermer les notifs quand on ouvre le menu
+              }}
               className="w-11 h-11 flex items-center justify-center text-content-light hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
             >
               {isMenuOpen ? (

@@ -213,7 +213,7 @@ export default function Auth() {
                 <p className="text-sm font-medium text-content mb-3">
                   Type de compte
                 </p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button
                     type="button"
                     onClick={() => setUserType('CLIENT')}
@@ -265,7 +265,7 @@ export default function Auth() {
               {mode === 'register' && (
                 <>
                   {userType === 'CLIENT' && (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-content mb-2">
                           Prénom
