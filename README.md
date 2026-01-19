@@ -54,8 +54,8 @@ L'application utilise l'authentification JWT avec le backend Spring Boot.
 
 Variables d'environnement (`.env`) :
 ```env
-# Production (VPS Contabo)
-VITE_API_BASE_URL=http://84.247.183.206:9085
+# Production (VPS Contabo - HTTPS)
+VITE_API_BASE_URL=https://med-backend.duckdns.org
 VITE_API_TIMEOUT=30000
 
 # Render (backup)
@@ -170,7 +170,7 @@ L'application demarre sur `http://localhost:5173`
 > **Note** : Le frontend admin (MED-ADMIN) utilise le port 5174 pour eviter les conflits.
 
 ### Mode Production (Backend sur VPS)
-Le backend est deploye sur VPS Contabo : `http://84.247.183.206:9085`
+Le backend est deploye sur VPS Contabo : `https://med-backend.duckdns.org`
 
 1. Lancer le frontend : `npm run dev`
 2. L'application se connecte automatiquement au backend en production
