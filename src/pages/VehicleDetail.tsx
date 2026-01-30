@@ -58,6 +58,42 @@ export default function VehicleDetail() {
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [isAddedToCart, setIsAddedToCart] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+
+  // Charger l'état "liked" depuis localStorage
+  useEffect(() => {
+    if (!id) return;
+    const likes = JSON.parse(localStorage.getItem('med-likes') || '[]');
+    setIsLiked(likes.includes(Number(id)));
+  }, [id]);
+
+  const toggleLike = () => {
+    if (!id) return;
+    const vehicleId = Number(id);
+    const likes: number[] = JSON.parse(localStorage.getItem('med-likes') || '[]');
+    const updated = isLiked
+      ? likes.filter((lid: number) => lid !== vehicleId)
+      : [...likes, vehicleId];
+    localStorage.setItem('med-likes', JSON.stringify(updated));
+    setIsLiked(!isLiked);
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const title = vehicle ? `${vehicle.marque} ${vehicle.nom}` : 'Véhicule MED Motors';
+    const text = vehicle ? `Découvrez ${vehicle.marque} ${vehicle.nom} sur MED Motors` : '';
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+      } catch {
+        // user cancelled or error, ignore
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert('Lien copié dans le presse-papier !');
+    }
+  };
 
   // Charger le véhicule depuis l'API
   useEffect(() => {
@@ -239,12 +275,14 @@ export default function VehicleDetail() {
               {/* Action Buttons */}
               <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex gap-2">
                 <button
+                  onClick={toggleLike}
                   className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-primary-50 transition-colors"
                   aria-label="Ajouter aux favoris"
                 >
-                  <Heart className="w-5 h-5" />
+                  <Heart className={cn('w-5 h-5', isLiked && 'fill-red-500 text-red-500')} />
                 </button>
                 <button
+                  onClick={handleShare}
                   className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-primary-50 transition-colors"
                   aria-label="Partager"
                 >
