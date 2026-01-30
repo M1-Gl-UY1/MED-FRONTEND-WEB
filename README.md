@@ -163,6 +163,15 @@ npm run build
 npm run preview
 ```
 
+## Deploiement Production
+
+- **URL** : https://med-motor.duckdns.org
+- **Hebergement** : VPS Contabo (Nginx, fichiers statiques)
+- **CI/CD** : GitHub Actions — push sur `main` declenche automatiquement :
+  1. `npm ci` + `npm run build`
+  2. `rsync dist/` vers `/var/www/med-frontend/` sur le VPS
+- **SSL** : Let's Encrypt (Certbot, renouvellement automatique)
+
 ## Demarrage
 
 L'application demarre sur `http://localhost:5173`
