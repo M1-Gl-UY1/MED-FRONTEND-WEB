@@ -211,7 +211,7 @@ export default function Header() {
                   <span className="text-sm font-medium max-w-24 truncate">
                     {user?.type === 'CLIENT'
                       ? user.prenom
-                      : user?.nom.split(' ')[0]}
+                      : user?.nom?.split(' ')[0]}
                   </span>
                   <ChevronDown className={cn(
                     "w-4 h-4 transition-transform",
