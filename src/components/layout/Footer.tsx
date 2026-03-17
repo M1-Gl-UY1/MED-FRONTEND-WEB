@@ -149,27 +149,25 @@ export default function Footer() {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
                 <span className="text-primary-200 text-sm leading-relaxed">
-                  123 Avenue de l'Indépendance
-                  <br />
-                  Douala, Cameroun
+                  Yaounde, Byem-assi
                 </span>
               </li>
               <li>
                 <a
-                  href="tel:+237699000000"
+                  href="tel:+237656146518"
                   className="flex items-center gap-3 text-primary-200 hover:text-secondary transition-colors"
                 >
                   <Phone className="w-5 h-5 text-secondary flex-shrink-0" />
-                  <span className="text-sm">+237 699 000 000</span>
+                  <span className="text-sm">+237 656 146 518</span>
                 </a>
               </li>
               <li>
                 <a
-                  href="mailto:contact@med-auto.cm"
+                  href="mailto:tiomelajorel@gmail.com"
                   className="flex items-center gap-3 text-primary-200 hover:text-secondary transition-colors"
                 >
                   <Mail className="w-5 h-5 text-secondary flex-shrink-0" />
-                  <span className="text-sm">contact@med-auto.cm</span>
+                  <span className="text-sm">tiomelajorel@gmail.com</span>
                 </a>
               </li>
             </ul>

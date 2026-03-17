@@ -585,9 +585,9 @@ function generateRecuPDFContent(commande: Commande) {
   // Pied de page
   doc.setFontSize(8);
   doc.setTextColor(108, 117, 125);
-  doc.text('MED Auto - 123 Avenue de l\'Indépendance, Douala, Cameroun', 105, 275, { align: 'center' });
-  doc.text('+237 699 000 000 | contact@med-auto.cm', 105, 280, { align: 'center' });
-  doc.text('www.med-auto.cm', 105, 285, { align: 'center' });
+  doc.text('MED Auto - Byem-assi, Yaounde, Cameroun', 105, 275, { align: 'center' });
+  doc.text('+237 656 146 518 | tiomelajorel@gmail.com', 105, 280, { align: 'center' });
+  doc.text('med-motor.duckdns.org', 105, 285, { align: 'center' });
 
   doc.save(`Recu_${reference}.pdf`);
 }
